@@ -7,7 +7,6 @@ import { UniversityCard } from "@/components/university-card";
 import { ResultsSummary } from "@/components/results-summary";
 import { FormData, University, ScoringResult } from "@/lib/types";
 import { scoreAllUniversities, sortResults } from "@/lib/scoring";
-import { scoreAllUniversitiesPro } from "@/lib/scoring-pro";
 import universitiesData from "@/lib/universities.json";
 import { ArrowLeft } from "lucide-react";
 
@@ -17,7 +16,6 @@ export default function ResultsPage() {
   const router = useRouter();
   const [formData, setFormData] = useState<FormData | null>(null);
   const [results, setResults] = useState<ScoringResult[]>([]);
-  const [proResults, setProResults] = useState<ScoringResult[]>([]);
   const [sortBy, setSortBy] = useState<SortOption>("chance");
 
   useEffect(() => {
@@ -32,21 +30,16 @@ export default function ResultsPage() {
     const data: FormData = JSON.parse(savedData);
     setFormData(data);
 
-    // Calculate results with BOTH algorithms
+    // Calculate results
     const universities = universitiesData as University[];
     const scoredResults = scoreAllUniversities(data, universities);
-    const scoredPro = scoreAllUniversitiesPro(data, universities);
-    
     setResults(scoredResults);
-    setProResults(scoredPro);
   }, [router]);
 
   const handleSort = (option: SortOption) => {
     setSortBy(option);
     const sorted = sortResults(results, option);
-    const sortedPro = sortResults(proResults, option);
     setResults(sorted);
-    setProResults(sortedPro);
   };
 
   if (!formData || results.length === 0) {
@@ -129,19 +122,9 @@ export default function ResultsPage() {
         {/* Results Grid */}
         {results.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {results.map((result) => {
-              // Find matching pro result
-              const proResult = proResults.find(
-                (pr) => pr.university.id === result.university.id
-              );
-              return (
-                <UniversityCard 
-                  key={result.university.id} 
-                  result={result} 
-                  proResult={proResult}
-                />
-              );
-            })}
+            {results.map((result) => (
+              <UniversityCard key={result.university.id} result={result} />
+            ))}
           </div>
         ) : (
           <div className="text-center py-16">

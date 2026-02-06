@@ -10,13 +10,9 @@ import {
 } from "@/lib/wizard-scoring";
 import { WizardResultCard } from "@/components/wizard-result-card";
 import { WizardSummary } from "@/components/wizard-summary";
-import { UnlockProCTA } from "@/components/unlock-pro-cta";
 import { AuthModal } from "@/components/auth-modal";
-import { ProBreakdown } from "@/components/pro-breakdown";
-import { ImprovementSuggestions } from "@/components/improvement-suggestions";
-import { ConsultationCTA } from "@/components/consultation-cta";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, SortAsc, Calculator, Zap } from "lucide-react";
+import { ArrowLeft, SortAsc } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import { calculateSimpleChance } from "@/lib/wizard-scoring-simple";
 
@@ -32,6 +28,7 @@ export default function WizardResultsPage() {
   const [algorithm, setAlgorithm] = useState<ScoringAlgorithm>("simple");
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [universities, setUniversities] = useState<ExtendedUniversity[]>([]);
+  const [proUnlocked, setProUnlocked] = useState(false);
 
   useEffect(() => {
     const loadResults = async () => {
@@ -48,14 +45,58 @@ export default function WizardResultsPage() {
         const parsedData: WizardFormData = JSON.parse(savedData);
         setFormData(parsedData);
 
-        // Load universities from local JSON file
-        const wizardUniversitiesModule = await import("@/lib/wizard-universities.json");
-        const universitiesData = wizardUniversitiesModule.default as ExtendedUniversity[];
-        
+        // Fetch universities from Supabase
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+        const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+        const response = await fetch(
+          `${supabaseUrl}/rest/v1/universities?select=*`,
+          {
+            headers: {
+              apikey: supabaseKey!,
+              Authorization: `Bearer ${supabaseKey}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch universities");
+        }
+
+        const data = await response.json();
+
+        // Transform Supabase data to ExtendedUniversity format
+        const universitiesData: ExtendedUniversity[] = data.map((uni: any) => ({
+          id: uni.id,
+          name: uni.name,
+          country: uni.country,
+          city: uni.city,
+          level: uni.level,
+          disciplines: uni.disciplines,
+          qsRanking: uni.qs_ranking,
+          requirements: {
+            minGPA: uni.min_gpa !== null ? parseFloat(uni.min_gpa) : null,
+            acceptsGradingSchemes: uni.accepts_grading_schemes,
+            englishRequired: uni.english_required,
+            acceptedEnglishTests: uni.accepted_english_tests || [],
+            minIELTS: uni.min_ielts ? parseFloat(uni.min_ielts) : undefined,
+            minTOEFL: uni.min_toefl || undefined,
+            minDuolingo: uni.min_duolingo || undefined,
+            greRequired: uni.gre_required || false,
+            minGREVerbal: uni.min_gre_verbal || undefined,
+            minGREQuant: uni.min_gre_quant || undefined,
+            minGREWriting: uni.min_gre_writing ? parseFloat(uni.min_gre_writing) : undefined,
+            gmatRequired: uni.gmat_required || false,
+            minGMAT: uni.min_gmat || undefined,
+            tuitionUSD: uni.tuition_usd,
+            scholarshipAvailable: uni.scholarship_available || false,
+          },
+        }));
+
         setUniversities(universitiesData);
 
-        // Start with simple algorithm by default
-        const selectedAlgorithm: ScoringAlgorithm = "simple";
+        // Determine algorithm based on auth status
+        const selectedAlgorithm: ScoringAlgorithm = user ? "pro" : "simple";
         setAlgorithm(selectedAlgorithm);
 
         // Calculate scores for all universities
@@ -67,7 +108,6 @@ export default function WizardResultsPage() {
         setIsLoading(false);
       } catch (error) {
         console.error("Error loading results:", error);
-        setIsLoading(false);
         router.push("/");
       }
     };
@@ -75,17 +115,24 @@ export default function WizardResultsPage() {
     loadResults();
   }, [router, user]);
 
-  // Handle algorithm change
-  const handleAlgorithmChange = (newAlgorithm: ScoringAlgorithm) => {
-    if (formData && universities.length > 0) {
-      setAlgorithm(newAlgorithm);
-      const scoredResults = scoreAllUniversities(formData, universities, newAlgorithm);
+  // Recalculate when user auth state changes
+  useEffect(() => {
+    if (formData && universities.length > 0 && !authLoading) {
+      const selectedAlgorithm: ScoringAlgorithm = user ? "pro" : "simple";
+      setAlgorithm(selectedAlgorithm);
+
+      // If user just logged in, unlock Pro permanently
+      if (user && !proUnlocked) {
+        setProUnlocked(true);
+      }
+
+      const scoredResults = scoreAllUniversities(formData, universities, selectedAlgorithm);
       const sortedResults = sortBy === "chance" 
         ? sortResultsByChance(scoredResults)
         : sortResultsByBudget(scoredResults);
       setResults(sortedResults);
     }
-  };
+  }, [user, authLoading, formData, universities, sortBy, proUnlocked]);
 
   const handleSortChange = (option: SortOption) => {
     setSortBy(option);
@@ -178,90 +225,34 @@ export default function WizardResultsPage() {
           </div>
         ) : (
           <>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2">
-              {results.map((result) => (
-                <WizardResultCard key={result.university.id} result={result} />
-              ))}
+            <div className="grid gap-6 grid-cols-1">
+              {results.map((result) => {
+                // Calculate simple percentage for comparison if user is logged in
+                const simplePercentage = user && formData 
+                  ? calculateSimpleChance(formData, result.university).percentage 
+                  : undefined;
+
+                return (
+                  <WizardResultCard 
+                    key={result.university.id} 
+                    result={result}
+                    onUpgradeClick={() => setAuthModalOpen(true)}
+                    showCTA={!user}
+                    isPro={!!user}
+                    formData={formData || undefined}
+                    simplePercentage={simplePercentage}
+                  />
+                );
+              })}
             </div>
-
-            {/* Algorithm Toggle - Simple/Pro Switcher - Moved after universities */}
-            <div className="mt-8 mb-6 p-6 bg-white rounded-3xl shadow-lg border-2 border-gray-200">
-              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                <div>
-                  <h3 className="text-lg font-bold text-gray-900 mb-1">
-                    Получить реальную оценку шансов
-                  </h3>
-                  <p className="text-sm text-gray-600">
-                    {algorithm === "simple" 
-                      ? "Сейчас: Базовый расчёт — переключитесь на Pro для реалистичной оценки"
-                      : "Сейчас: Pro расчёт — реалистичная оценка с учётом конкуренции"}
-                  </p>
-                </div>
-                <div className="flex gap-3">
-                  <Button
-                    variant={algorithm === "simple" ? "default" : "outline"}
-                    onClick={() => handleAlgorithmChange("simple")}
-                    className={`flex items-center gap-2 px-6 py-3 ${
-                      algorithm === "simple" 
-                        ? "bg-blue-600 hover:bg-blue-700" 
-                        : "hover:bg-blue-50"
-                    }`}
-                  >
-                    <Calculator className="w-4 h-4" />
-                    Simple
-                  </Button>
-                  <Button
-                    variant={algorithm === "pro" ? "default" : "outline"}
-                    onClick={() => handleAlgorithmChange("pro")}
-                    className={`flex items-center gap-2 px-6 py-3 ${
-                      algorithm === "pro" 
-                        ? "bg-purple-600 hover:bg-purple-700" 
-                        : "hover:bg-purple-50"
-                    }`}
-                  >
-                    <Zap className="w-4 h-4" />
-                    Pro
-                  </Button>
-                </div>
-              </div>
-            </div>
-
-            {/* Pro Features for authenticated users */}
-            {user && formData && results.length > 0 && (
-              <div className="mt-8 space-y-6">
-                {/* Show breakdown for first (best) university */}
-                {(() => {
-                  const bestProResult = results[0];
-                  const simpleResult = calculateSimpleChance(formData, bestProResult.university);
-                  return (
-                    <>
-                      <ProBreakdown
-                        proResult={bestProResult}
-                        simplePercentage={simpleResult.percentage}
-                      />
-                      <ImprovementSuggestions
-                        formData={formData}
-                        result={bestProResult}
-                      />
-                    </>
-                  );
-                })()}
-
-                {/* Consultation CTA */}
-                <ConsultationCTA />
-              </div>
-            )}
           </>
         )}
 
         {/* Footer Note */}
         {results.length > 0 && (
-          <div className="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg text-sm text-gray-700">
-            <p className="font-medium mb-1">📌 Важная информация:</p>
+          <div className="mt-8 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-gray-700">
             <p>
-              Процент шанса поступления рассчитан на основе ваших академических показателей 
-              и требований университетов. {user ? "Используется экспертный алгоритм Pro." : "Это базовая оценка."} Для точной информации 
-              свяжитесь с приёмной комиссией выбранного университета.
+              Процент шанса рассчитан на основе ваших данных и требований университетов. Для точной информации свяжитесь с приёмной комиссией.
             </p>
           </div>
         )}

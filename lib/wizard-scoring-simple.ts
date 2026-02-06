@@ -164,7 +164,7 @@ export function calculateSimpleChance(
       university,
       percentage: 5,
       chanceLevel: "Low",
-      explanation: "Университет не соответствует выбранному уровню или направлению обучения.",
+      explanation: "По текущим параметрам шанс поступления низкий.",
       matchDetails: {
         gpaMatch: false,
         englishMatch: false,
