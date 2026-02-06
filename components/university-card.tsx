@@ -5,9 +5,10 @@ import { MapPin, CheckCircle2, TrendingDown, Calculator } from "lucide-react";
 
 interface UniversityCardProps {
   result: ScoringResult;
+  proResult?: ScoringResult;
 }
 
-export function UniversityCard({ result }: UniversityCardProps) {
+export function UniversityCard({ result, proResult }: UniversityCardProps) {
   const { university, percentage, chanceLevel, explanation } = result;
 
   const getBadgeConfig = (level: string) => {
