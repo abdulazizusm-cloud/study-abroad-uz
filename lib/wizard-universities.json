@@ -1,0 +1,489 @@
+[
+  {
+    "id": "harvard-business",
+    "name": "Harvard Business School",
+    "country": "USA",
+    "city": "Boston",
+    "level": "Master",
+    "disciplines": ["Business"],
+    "requirements": {
+      "minGPA": 3.7,
+      "acceptsGradingSchemes": ["4-point", "5-point", "Percentage"],
+      "englishRequired": true,
+      "acceptedEnglishTests": ["TOEFL", "IELTS"],
+      "minTOEFL": 109,
+      "minIELTS": 7.5,
+      "gmatRequired": true,
+      "minGMAT": 730,
+      "tuitionUSD": 73440,
+      "scholarshipAvailable": true
+    }
+  },
+  {
+    "id": "mit-engineering",
+    "name": "Massachusetts Institute of Technology",
+    "country": "USA",
+    "city": "Cambridge",
+    "level": "Master",
+    "disciplines": ["Engineering", "Science"],
+    "requirements": {
+      "minGPA": 3.8,
+      "acceptsGradingSchemes": ["4-point", "5-point", "Percentage"],
+      "englishRequired": true,
+      "acceptedEnglishTests": ["TOEFL", "IELTS"],
+      "minTOEFL": 100,
+      "minIELTS": 7.0,
+      "greRequired": true,
+      "minGREVerbal": 160,
+      "minGREQuant": 165,
+      "minGREWriting": 4.5,
+      "tuitionUSD": 59750,
+      "scholarshipAvailable": true
+    }
+  },
+  {
+    "id": "stanford-cs",
+    "name": "Stanford University",
+    "country": "USA",
+    "city": "Stanford",
+    "level": "Bachelor",
+    "disciplines": ["Engineering", "Science"],
+    "requirements": {
+      "minGPA": 3.9,
+      "acceptsGradingSchemes": ["4-point", "5-point", "Percentage"],
+      "englishRequired": true,
+      "acceptedEnglishTests": ["TOEFL", "IELTS", "Duolingo"],
+      "minTOEFL": 100,
+      "minIELTS": 7.0,
+      "minDuolingo": 125,
+      "tuitionUSD": 57693,
+      "scholarshipAvailable": true
+    }
+  },
+  {
+    "id": "uc-berkeley",
+    "name": "University of California Berkeley",
+    "country": "USA",
+    "city": "Berkeley",
+    "level": "Bachelor",
+    "disciplines": ["Engineering", "Science", "Business", "Social Science"],
+    "requirements": {
+      "minGPA": 3.4,
+      "acceptsGradingSchemes": ["4-point", "5-point", "Percentage"],
+      "englishRequired": true,
+      "acceptedEnglishTests": ["TOEFL", "IELTS", "Duolingo"],
+      "minTOEFL": 80,
+      "minIELTS": 6.5,
+      "minDuolingo": 115,
+      "tuitionUSD": 44007,
+      "scholarshipAvailable": true
+    }
+  },
+  {
+    "id": "oxford-business",
+    "name": "University of Oxford",
+    "country": "UK",
+    "city": "Oxford",
+    "level": "Master",
+    "disciplines": ["Business", "Social Science"],
+    "requirements": {
+      "minGPA": 3.7,
+      "acceptsGradingSchemes": ["4-point", "5-point", "Percentage"],
+      "englishRequired": true,
+      "acceptedEnglishTests": ["IELTS", "TOEFL"],
+      "minIELTS": 7.5,
+      "minTOEFL": 110,
+      "gmatRequired": true,
+      "minGMAT": 690,
+      "tuitionUSD": 52000,
+      "scholarshipAvailable": true
+    }
+  },
+  {
+    "id": "cambridge-engineering",
+    "name": "University of Cambridge",
+    "country": "UK",
+    "city": "Cambridge",
+    "level": "Bachelor",
+    "disciplines": ["Engineering", "Science"],
+    "requirements": {
+      "minGPA": 3.8,
+      "acceptsGradingSchemes": ["4-point", "5-point", "Percentage"],
+      "englishRequired": true,
+      "acceptedEnglishTests": ["IELTS", "TOEFL"],
+      "minIELTS": 7.0,
+      "minTOEFL": 100,
+      "tuitionUSD": 38000,
+      "scholarshipAvailable": true
+    }
+  },
+  {
+    "id": "imperial-college",
+    "name": "Imperial College London",
+    "country": "UK",
+    "city": "London",
+    "level": "Master",
+    "disciplines": ["Engineering", "Science", "Business"],
+    "requirements": {
+      "minGPA": 3.5,
+      "acceptsGradingSchemes": ["4-point", "5-point", "Percentage"],
+      "englishRequired": true,
+      "acceptedEnglishTests": ["IELTS", "TOEFL"],
+      "minIELTS": 6.5,
+      "minTOEFL": 92,
+      "tuitionUSD": 39000,
+      "scholarshipAvailable": true
+    }
+  },
+  {
+    "id": "ucl-social",
+    "name": "University College London",
+    "country": "UK",
+    "city": "London",
+    "level": "Bachelor",
+    "disciplines": ["Social Science", "Education", "Business"],
+    "requirements": {
+      "minGPA": 3.3,
+      "acceptsGradingSchemes": ["4-point", "5-point", "Percentage"],
+      "englishRequired": true,
+      "acceptedEnglishTests": ["IELTS", "TOEFL", "Duolingo"],
+      "minIELTS": 6.5,
+      "minTOEFL": 92,
+      "minDuolingo": 120,
+      "tuitionUSD": 31000,
+      "scholarshipAvailable": false
+    }
+  },
+  {
+    "id": "toronto-engineering",
+    "name": "University of Toronto",
+    "country": "Canada",
+    "city": "Toronto",
+    "level": "Bachelor",
+    "disciplines": ["Engineering", "Science"],
+    "requirements": {
+      "minGPA": 3.5,
+      "acceptsGradingSchemes": ["4-point", "5-point", "Percentage"],
+      "englishRequired": true,
+      "acceptedEnglishTests": ["TOEFL", "IELTS", "Duolingo"],
+      "minTOEFL": 100,
+      "minIELTS": 6.5,
+      "minDuolingo": 120,
+      "tuitionUSD": 35000,
+      "scholarshipAvailable": true
+    }
+  },
+  {
+    "id": "mcgill-business",
+    "name": "McGill University",
+    "country": "Canada",
+    "city": "Montreal",
+    "level": "Master",
+    "disciplines": ["Business", "Social Science"],
+    "requirements": {
+      "minGPA": 3.3,
+      "acceptsGradingSchemes": ["4-point", "5-point", "Percentage"],
+      "englishRequired": true,
+      "acceptedEnglishTests": ["IELTS", "TOEFL"],
+      "minIELTS": 6.5,
+      "minTOEFL": 86,
+      "gmatRequired": true,
+      "minGMAT": 650,
+      "tuitionUSD": 28000,
+      "scholarshipAvailable": true
+    }
+  },
+  {
+    "id": "ubc-science",
+    "name": "University of British Columbia",
+    "country": "Canada",
+    "city": "Vancouver",
+    "level": "Bachelor",
+    "disciplines": ["Science", "Engineering"],
+    "requirements": {
+      "minGPA": 3.2,
+      "acceptsGradingSchemes": ["4-point", "5-point", "Percentage"],
+      "englishRequired": true,
+      "acceptedEnglishTests": ["TOEFL", "IELTS", "Duolingo"],
+      "minTOEFL": 90,
+      "minIELTS": 6.5,
+      "minDuolingo": 115,
+      "tuitionUSD": 32000,
+      "scholarshipAvailable": true
+    }
+  },
+  {
+    "id": "tu-munich",
+    "name": "Technical University of Munich",
+    "country": "Germany",
+    "city": "Munich",
+    "level": "Master",
+    "disciplines": ["Engineering", "Science"],
+    "requirements": {
+      "minGPA": 3.0,
+      "acceptsGradingSchemes": ["4-point", "5-point", "Percentage"],
+      "englishRequired": true,
+      "acceptedEnglishTests": ["TOEFL", "IELTS"],
+      "minTOEFL": 88,
+      "minIELTS": 6.5,
+      "tuitionUSD": 3000,
+      "scholarshipAvailable": true
+    }
+  },
+  {
+    "id": "heidelberg-science",
+    "name": "Heidelberg University",
+    "country": "Germany",
+    "city": "Heidelberg",
+    "level": "Bachelor",
+    "disciplines": ["Science", "Social Science"],
+    "requirements": {
+      "minGPA": 2.8,
+      "acceptsGradingSchemes": ["4-point", "5-point", "Percentage"],
+      "englishRequired": true,
+      "acceptedEnglishTests": ["IELTS", "TOEFL"],
+      "minIELTS": 6.0,
+      "minTOEFL": 80,
+      "tuitionUSD": 2500,
+      "scholarshipAvailable": false
+    }
+  },
+  {
+    "id": "melbourne-business",
+    "name": "University of Melbourne",
+    "country": "Australia",
+    "city": "Melbourne",
+    "level": "Master",
+    "disciplines": ["Business", "Social Science"],
+    "requirements": {
+      "minGPA": 3.4,
+      "acceptsGradingSchemes": ["4-point", "5-point", "Percentage"],
+      "englishRequired": true,
+      "acceptedEnglishTests": ["IELTS", "TOEFL"],
+      "minIELTS": 7.0,
+      "minTOEFL": 94,
+      "gmatRequired": false,
+      "tuitionUSD": 45000,
+      "scholarshipAvailable": true
+    }
+  },
+  {
+    "id": "sydney-engineering",
+    "name": "University of Sydney",
+    "country": "Australia",
+    "city": "Sydney",
+    "level": "Bachelor",
+    "disciplines": ["Engineering", "Science"],
+    "requirements": {
+      "minGPA": 3.3,
+      "acceptsGradingSchemes": ["4-point", "5-point", "Percentage"],
+      "englishRequired": true,
+      "acceptedEnglishTests": ["IELTS", "TOEFL", "Duolingo"],
+      "minIELTS": 6.5,
+      "minTOEFL": 85,
+      "minDuolingo": 115,
+      "tuitionUSD": 42000,
+      "scholarshipAvailable": true
+    }
+  },
+  {
+    "id": "anu-social",
+    "name": "Australian National University",
+    "country": "Australia",
+    "city": "Canberra",
+    "level": "Bachelor",
+    "disciplines": ["Social Science", "Business"],
+    "requirements": {
+      "minGPA": 3.0,
+      "acceptsGradingSchemes": ["4-point", "5-point", "Percentage"],
+      "englishRequired": true,
+      "acceptedEnglishTests": ["IELTS", "TOEFL"],
+      "minIELTS": 6.5,
+      "minTOEFL": 80,
+      "tuitionUSD": 38000,
+      "scholarshipAvailable": true
+    }
+  },
+  {
+    "id": "istanbul-tech-eng",
+    "name": "Istanbul Technical University",
+    "country": "Turkey",
+    "city": "Istanbul",
+    "level": "Bachelor",
+    "disciplines": ["Engineering", "Science"],
+    "requirements": {
+      "minGPA": 3.0,
+      "acceptsGradingSchemes": ["4-point", "5-point", "Percentage"],
+      "englishRequired": true,
+      "acceptedEnglishTests": ["IELTS", "TOEFL"],
+      "minIELTS": 6.0,
+      "minTOEFL": 80,
+      "tuitionUSD": 8000,
+      "scholarshipAvailable": false
+    }
+  },
+  {
+    "id": "bogazici-business",
+    "name": "Boğaziçi University",
+    "country": "Turkey",
+    "city": "Istanbul",
+    "level": "Master",
+    "disciplines": ["Business", "Engineering"],
+    "requirements": {
+      "minGPA": 3.3,
+      "acceptsGradingSchemes": ["4-point", "5-point", "Percentage"],
+      "englishRequired": true,
+      "acceptedEnglishTests": ["IELTS", "TOEFL"],
+      "minIELTS": 6.5,
+      "minTOEFL": 88,
+      "tuitionUSD": 12000,
+      "scholarshipAvailable": true
+    }
+  },
+  {
+    "id": "kaist-engineering",
+    "name": "KAIST",
+    "country": "Korea",
+    "city": "Daejeon",
+    "level": "Master",
+    "disciplines": ["Engineering", "Science"],
+    "requirements": {
+      "minGPA": 3.5,
+      "acceptsGradingSchemes": ["4-point", "5-point", "Percentage"],
+      "englishRequired": true,
+      "acceptedEnglishTests": ["TOEFL", "IELTS"],
+      "minTOEFL": 83,
+      "minIELTS": 6.5,
+      "tuitionUSD": 10000,
+      "scholarshipAvailable": true
+    }
+  },
+  {
+    "id": "yonsei-business",
+    "name": "Yonsei University",
+    "country": "Korea",
+    "city": "Seoul",
+    "level": "Bachelor",
+    "disciplines": ["Business", "Social Science"],
+    "requirements": {
+      "minGPA": 3.4,
+      "acceptsGradingSchemes": ["4-point", "5-point", "Percentage"],
+      "englishRequired": true,
+      "acceptedEnglishTests": ["TOEFL", "IELTS"],
+      "minTOEFL": 88,
+      "minIELTS": 6.5,
+      "tuitionUSD": 15000,
+      "scholarshipAvailable": true
+    }
+  },
+  {
+    "id": "warsaw-tech-eng",
+    "name": "Warsaw University of Technology",
+    "country": "Poland",
+    "city": "Warsaw",
+    "level": "Bachelor",
+    "disciplines": ["Engineering", "Science"],
+    "requirements": {
+      "minGPA": 3.0,
+      "acceptsGradingSchemes": ["4-point", "5-point", "Percentage"],
+      "englishRequired": true,
+      "acceptedEnglishTests": ["IELTS", "TOEFL"],
+      "minIELTS": 5.5,
+      "minTOEFL": 72,
+      "tuitionUSD": 4000,
+      "scholarshipAvailable": true
+    }
+  },
+  {
+    "id": "jagiellonian-social",
+    "name": "Jagiellonian University",
+    "country": "Poland",
+    "city": "Krakow",
+    "level": "Master",
+    "disciplines": ["Social Science", "Education"],
+    "requirements": {
+      "minGPA": 3.2,
+      "acceptsGradingSchemes": ["4-point", "5-point", "Percentage"],
+      "englishRequired": true,
+      "acceptedEnglishTests": ["TOEFL", "IELTS"],
+      "minTOEFL": 79,
+      "minIELTS": 6.0,
+      "tuitionUSD": 4500,
+      "scholarshipAvailable": false
+    }
+  },
+  {
+    "id": "charles-uni-science",
+    "name": "Charles University",
+    "country": "Czech",
+    "city": "Prague",
+    "level": "Bachelor",
+    "disciplines": ["Science", "Social Science"],
+    "requirements": {
+      "minGPA": 3.0,
+      "acceptsGradingSchemes": ["4-point", "5-point", "Percentage"],
+      "englishRequired": true,
+      "acceptedEnglishTests": ["IELTS", "TOEFL", "Duolingo"],
+      "minIELTS": 6.0,
+      "minTOEFL": 80,
+      "minDuolingo": 105,
+      "tuitionUSD": 5000,
+      "scholarshipAvailable": true
+    }
+  },
+  {
+    "id": "czech-tech-eng",
+    "name": "Czech Technical University",
+    "country": "Czech",
+    "city": "Prague",
+    "level": "Bachelor",
+    "disciplines": ["Engineering"],
+    "requirements": {
+      "minGPA": 2.8,
+      "acceptsGradingSchemes": ["4-point", "5-point", "Percentage"],
+      "englishRequired": true,
+      "acceptedEnglishTests": ["TOEFL", "IELTS"],
+      "minTOEFL": 75,
+      "minIELTS": 5.5,
+      "tuitionUSD": 3500,
+      "scholarshipAvailable": false
+    }
+  },
+  {
+    "id": "london-foundation",
+    "name": "University of London International Foundation",
+    "country": "UK",
+    "city": "London",
+    "level": "Foundation",
+    "disciplines": ["Business", "Engineering", "Science", "Social Science"],
+    "requirements": {
+      "minGPA": 2.5,
+      "acceptsGradingSchemes": ["4-point", "5-point", "Percentage"],
+      "englishRequired": true,
+      "acceptedEnglishTests": ["IELTS", "TOEFL", "Duolingo"],
+      "minIELTS": 5.0,
+      "minTOEFL": 60,
+      "minDuolingo": 85,
+      "tuitionUSD": 18000,
+      "scholarshipAvailable": false
+    }
+  },
+  {
+    "id": "rmit-nursing",
+    "name": "RMIT University",
+    "country": "Australia",
+    "city": "Melbourne",
+    "level": "Bachelor",
+    "disciplines": ["Nursing", "Science"],
+    "requirements": {
+      "minGPA": 3.0,
+      "acceptsGradingSchemes": ["4-point", "5-point", "Percentage"],
+      "englishRequired": true,
+      "acceptedEnglishTests": ["IELTS", "TOEFL"],
+      "minIELTS": 7.0,
+      "minTOEFL": 94,
+      "tuitionUSD": 34000,
+      "scholarshipAvailable": true
+    }
+  }
+]

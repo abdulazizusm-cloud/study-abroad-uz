@@ -1,0 +1,132 @@
+[
+  {
+    "id": "istanbul-tech",
+    "name": "Istanbul Technical University",
+    "country": "Турция",
+    "city": "Стамбул",
+    "level": "Бакалавриат",
+    "requirements": {
+      "minGPA": 3.0,
+      "english": "IELTS",
+      "minEnglishScore": 6.0,
+      "tuitionUSD": 8000
+    }
+  },
+  {
+    "id": "bogazici",
+    "name": "Boğaziçi University",
+    "country": "Турция",
+    "city": "Стамбул",
+    "level": "Бакалавриат",
+    "requirements": {
+      "minGPA": 3.5,
+      "english": "IELTS",
+      "minEnglishScore": 6.5,
+      "tuitionUSD": 12000
+    }
+  },
+  {
+    "id": "ankara-uni",
+    "name": "Ankara University",
+    "country": "Турция",
+    "city": "Анкара",
+    "level": "Магистратура",
+    "requirements": {
+      "minGPA": 3.2,
+      "english": "TOEFL",
+      "minEnglishScore": 80,
+      "tuitionUSD": 6000
+    }
+  },
+  {
+    "id": "yonsei",
+    "name": "Yonsei University",
+    "country": "Южная Корея",
+    "city": "Сеул",
+    "level": "Бакалавриат",
+    "requirements": {
+      "minGPA": 3.7,
+      "english": "TOEFL",
+      "minEnglishScore": 88,
+      "tuitionUSD": 15000
+    }
+  },
+  {
+    "id": "korea-uni",
+    "name": "Korea University",
+    "country": "Южная Корея",
+    "city": "Сеул",
+    "level": "Магистратура",
+    "requirements": {
+      "minGPA": 3.5,
+      "english": "IELTS",
+      "minEnglishScore": 6.5,
+      "tuitionUSD": 13000
+    }
+  },
+  {
+    "id": "warsaw-tech",
+    "name": "Warsaw University of Technology",
+    "country": "Польша",
+    "city": "Варшава",
+    "level": "Бакалавриат",
+    "requirements": {
+      "minGPA": 3.0,
+      "english": "IELTS",
+      "minEnglishScore": 5.5,
+      "tuitionUSD": 4000
+    }
+  },
+  {
+    "id": "jagiellonian",
+    "name": "Jagiellonian University",
+    "country": "Польша",
+    "city": "Краков",
+    "level": "Магистратура",
+    "requirements": {
+      "minGPA": 3.3,
+      "english": "TOEFL",
+      "minEnglishScore": 79,
+      "tuitionUSD": 4500
+    }
+  },
+  {
+    "id": "charles-uni",
+    "name": "Charles University",
+    "country": "Чехия",
+    "city": "Прага",
+    "level": "Бакалавриат",
+    "requirements": {
+      "minGPA": 3.2,
+      "english": "IELTS",
+      "minEnglishScore": 6.0,
+      "tuitionUSD": 5000
+    }
+  },
+  {
+    "id": "czech-tech",
+    "name": "Czech Technical University",
+    "country": "Чехия",
+    "city": "Прага",
+    "level": "Бакалавриат",
+    "requirements": {
+      "minGPA": 2.8,
+      "english": "TOEFL",
+      "minEnglishScore": 75,
+      "tuitionUSD": 3500
+    }
+  },
+  {
+    "id": "masaryk",
+    "name": "Masaryk University",
+    "country": "Чехия",
+    "city": "Брно",
+    "level": "Магистратура",
+    "requirements": {
+      "minGPA": 3.0,
+      "english": "IELTS",
+      "minEnglishScore": 6.0,
+      "tuitionUSD": 4000
+    }
+  }
+]
