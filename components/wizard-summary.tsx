@@ -22,17 +22,17 @@ export function WizardSummary({ formData }: WizardSummaryProps) {
   };
 
   return (
-    <Card className="p-6 bg-blue-50 border-blue-200 mb-6">
-      <h2 className="text-xl font-bold mb-4 text-gray-900">Ваш профиль</h2>
+    <Card className="p-4 sm:p-6 bg-blue-50 border-blue-200 mb-6">
+      <h2 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4 text-gray-900">Ваш профиль</h2>
 
-      <div className="grid md:grid-cols-2 gap-6">
+      <div className="grid sm:grid-cols-2 gap-4 sm:gap-6">
         {/* Academic Profile */}
         <div>
           <div className="flex items-center gap-2 mb-3">
             <GraduationCap className="w-5 h-5 text-blue-600" />
             <h3 className="font-semibold text-gray-900">Академический профиль</h3>
           </div>
-          <div className="space-y-2 text-sm">
+          <div className="space-y-2 text-xs sm:text-sm">
             <div>
               <span className="text-gray-600">Гражданство:</span>{" "}
               <span className="font-medium">{displayNationality}</span>
@@ -54,7 +54,7 @@ export function WizardSummary({ formData }: WizardSummaryProps) {
             <FileText className="w-5 h-5 text-blue-600" />
             <h3 className="font-semibold text-gray-900">Результаты тестов</h3>
           </div>
-          <div className="space-y-2 text-sm">
+          <div className="space-y-2 text-xs sm:text-sm">
             {formData.englishExamType && formData.englishExamType !== "None" ? (
               <div>
                 <span className="text-gray-600">{formData.englishExamType}:</span>{" "}
@@ -86,7 +86,7 @@ export function WizardSummary({ formData }: WizardSummaryProps) {
             <DollarSign className="w-5 h-5 text-blue-600" />
             <h3 className="font-semibold text-gray-900">Финансовый профиль</h3>
           </div>
-          <div className="space-y-2 text-sm">
+          <div className="space-y-2 text-xs sm:text-sm">
             <div>
               <span className="text-gray-600">Источник финансирования:</span>{" "}
               <span className="font-medium">{formData.financeSource}</span>
@@ -104,7 +104,7 @@ export function WizardSummary({ formData }: WizardSummaryProps) {
             <Globe className="w-5 h-5 text-blue-600" />
             <h3 className="font-semibold text-gray-900">Предпочтения</h3>
           </div>
-          <div className="space-y-2 text-sm">
+          <div className="space-y-2 text-xs sm:text-sm">
             <div>
               <span className="text-gray-600">Страна:</span>{" "}
               <span className="font-medium">

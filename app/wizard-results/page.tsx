@@ -171,10 +171,10 @@ export default function WizardResultsPage() {
             <ArrowLeft className="w-4 h-4 mr-2" />
             Вернуться на главную
           </Button>
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2">
             Ваши шансы поступления
           </h1>
-          <p className="text-gray-600">
+          <p className="text-sm sm:text-base text-gray-600">
             Найдено {results.length} подходящих университетов
           </p>
         </div>
@@ -183,25 +183,27 @@ export default function WizardResultsPage() {
         <WizardSummary formData={formData} />
 
         {/* Sorting Controls */}
-        <div className="mb-6 flex flex-wrap gap-3 items-center">
-          <div className="flex items-center gap-2 text-sm text-gray-700">
+        <div className="mb-6 flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:gap-3 sm:items-center">
+          <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-700">
             <SortAsc className="w-4 h-4" />
             <span className="font-medium">Сортировать:</span>
           </div>
-          <Button
-            variant={sortBy === "chance" ? "default" : "outline"}
-            onClick={() => handleSortChange("chance")}
-            className="text-sm"
-          >
-            По шансам
-          </Button>
-          <Button
-            variant={sortBy === "budget" ? "default" : "outline"}
-            onClick={() => handleSortChange("budget")}
-            className="text-sm"
-          >
-            По стоимости
-          </Button>
+          <div className="flex gap-2 sm:gap-3">
+            <Button
+              variant={sortBy === "chance" ? "default" : "outline"}
+              onClick={() => handleSortChange("chance")}
+              className="text-xs sm:text-sm flex-1 sm:flex-none"
+            >
+              По шансам
+            </Button>
+            <Button
+              variant={sortBy === "budget" ? "default" : "outline"}
+              onClick={() => handleSortChange("budget")}
+              className="text-xs sm:text-sm flex-1 sm:flex-none"
+            >
+              По стоимости
+            </Button>
+          </div>
         </div>
 
         {/* Results Grid */}
@@ -250,7 +252,7 @@ export default function WizardResultsPage() {
 
         {/* Footer Note */}
         {results.length > 0 && (
-          <div className="mt-8 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-gray-700">
+          <div className="mt-6 sm:mt-8 p-2 sm:p-3 bg-blue-50 border border-blue-200 rounded-lg text-xs sm:text-sm text-gray-700">
             <p>
               Процент шанса рассчитан на основе ваших данных и требований университетов. Для точной информации свяжитесь с приёмной комиссией.
             </p>

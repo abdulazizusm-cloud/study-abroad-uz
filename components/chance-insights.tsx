@@ -124,9 +124,9 @@ export function ChanceInsights({ result, formData, simplePercentage }: ChanceIns
       {/* Toggle Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between text-left p-3 hover:bg-gray-50 rounded-lg transition-colors"
+        className="w-full flex items-center justify-between text-left p-2 sm:p-3 hover:bg-gray-50 rounded-lg transition-colors"
       >
-        <span className="text-sm font-medium text-[#4F46E5]">
+        <span className="text-xs sm:text-sm font-medium text-[#4F46E5]">
           {isOpen ? "Скрыть детали" : "Как повысить шанс?"}
         </span>
         {isOpen ? (
@@ -138,19 +138,19 @@ export function ChanceInsights({ result, formData, simplePercentage }: ChanceIns
 
       {/* Expanded Content */}
       {isOpen && (
-        <div className="mt-3 space-y-4 p-4 bg-gray-50 rounded-lg">
+        <div className="mt-3 space-y-3 sm:space-y-4 p-3 sm:p-4 bg-gray-50 rounded-lg">
           {/* Reasons Section (if applicable) */}
           {reasons.length > 0 && (
-            <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded">
+            <div className="bg-yellow-50 border-l-4 border-yellow-400 p-3 sm:p-4 rounded">
               <div className="flex items-start gap-2">
-                <AlertTriangle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
                 <div className="flex-1">
-                  <h5 className="text-sm font-semibold text-[#374151] mb-2">
+                  <h5 className="text-xs sm:text-sm font-semibold text-[#374151] mb-2">
                     Факторы, снижающие шанс
                   </h5>
                   <ul className="space-y-1.5">
                     {reasons.map((reason, idx) => (
-                      <li key={idx} className="flex items-start gap-2 text-sm text-[#374151]">
+                      <li key={idx} className="flex items-start gap-2 text-xs sm:text-sm text-[#374151]">
                         <span className="text-yellow-600 font-bold flex-shrink-0">•</span>
                         <span>{reason}</span>
                       </li>
@@ -163,14 +163,14 @@ export function ChanceInsights({ result, formData, simplePercentage }: ChanceIns
 
           {/* Improvement Tips */}
           <div>
-            <h5 className="text-sm font-semibold text-[#374151] mb-3">
+            <h5 className="text-xs sm:text-sm font-semibold text-[#374151] mb-2 sm:mb-3">
               Что можно улучшить
             </h5>
-            <div className="grid gap-3">
+            <div className="grid gap-2 sm:gap-3">
               {allTips.map((tip, idx) => (
                 <div
                   key={idx}
-                  className={`p-3 rounded-lg ${
+                  className={`p-2 sm:p-3 rounded-lg ${
                     tip.priority === "high"
                       ? "bg-red-50 border border-red-200"
                       : tip.priority === "medium"
@@ -191,7 +191,7 @@ export function ChanceInsights({ result, formData, simplePercentage }: ChanceIns
                       {tip.icon}
                     </div>
                     <div className="flex-1">
-                      <h6 className="text-sm font-semibold text-[#374151] mb-0.5">{tip.title}</h6>
+                      <h6 className="text-xs sm:text-sm font-semibold text-[#374151] mb-0.5">{tip.title}</h6>
                       <p className="text-xs text-[#6B7280]">{tip.description}</p>
                     </div>
                   </div>
@@ -201,22 +201,24 @@ export function ChanceInsights({ result, formData, simplePercentage }: ChanceIns
           </div>
 
           {/* Consultation CTA - Compact Version */}
-          <div className="bg-gradient-to-br from-indigo-50 to-blue-50 border-2 border-indigo-200 rounded-lg p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center flex-shrink-0">
-                <GraduationCap className="w-6 h-6 text-white" />
-              </div>
-              <div className="flex-1">
-                <h6 className="text-sm font-bold text-[#374151] mb-1">
-                  Разобрать профиль с экспертом
-                </h6>
-                <p className="text-xs text-[#6B7280]">
-                  Получите персональную стратегию поступления
-                </p>
+          <div className="bg-gradient-to-br from-indigo-50 to-blue-50 border-2 border-indigo-200 rounded-lg p-3 sm:p-4">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+              <div className="flex items-start gap-3 flex-1">
+                <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <GraduationCap className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <h6 className="text-sm font-bold text-[#374151] mb-1">
+                    Разобрать профиль с экспертом
+                  </h6>
+                  <p className="text-xs text-[#6B7280]">
+                    Получите персональную стратегию поступления
+                  </p>
+                </div>
               </div>
               <Button
                 onClick={handleBookConsultation}
-                className="bg-purple-600 hover:bg-purple-700 text-white font-medium flex-shrink-0"
+                className="bg-purple-600 hover:bg-purple-700 text-white font-medium w-full sm:w-auto flex-shrink-0"
               >
                 Записаться на консультацию
               </Button>

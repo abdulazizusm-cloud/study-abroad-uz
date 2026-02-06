@@ -38,12 +38,12 @@ export function WizardResultCard({ result, onUpgradeClick, showCTA = true, isPro
   };
 
   return (
-    <Card className="p-4 hover:shadow-lg transition-shadow" style={{ fontFamily: 'var(--font-inter)' }}>
+    <Card className="p-3 md:p-4 hover:shadow-lg transition-shadow" style={{ fontFamily: 'var(--font-inter)' }}>
       {/* Header */}
       <div className="mb-2">
-        <div className="flex justify-between items-start mb-1">
-          <h3 className="text-2xl font-bold text-[#374151]">{university.name}</h3>
-          <Badge className={`${chanceBadgeColors[chanceLevel]} ${chanceLevel === 'High' || chanceLevel === 'Low' ? 'px-4 py-2 text-base font-bold' : 'px-3 py-1'} flex-shrink-0 ml-4`}>
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-1">
+          <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-[#374151]">{university.name}</h3>
+          <Badge className={`${chanceBadgeColors[chanceLevel]} ${chanceLevel === 'High' || chanceLevel === 'Low' ? 'px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base font-bold' : 'px-2.5 py-1 sm:px-3 text-xs sm:text-sm'} flex-shrink-0 self-start`}>
             {chanceLabels[chanceLevel]}
           </Badge>
         </div>
@@ -62,13 +62,13 @@ export function WizardResultCard({ result, onUpgradeClick, showCTA = true, isPro
 
       {/* Percentage */}
       <div className="mb-2">
-        <div className="flex items-start gap-3 mb-2">
-          <div className="text-4xl font-bold text-blue-600">{percentage}%</div>
+        <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-3 mb-2">
+          <div className="text-3xl sm:text-4xl font-bold text-blue-600">{percentage}%</div>
           <div className="flex flex-col justify-center">
-            <div className="text-base font-semibold text-[#374151]">
+            <div className="text-sm sm:text-base font-semibold text-[#374151]">
               {isPro ? "Реальная оценка шансов (Pro)" : "Примерный шанс поступления (Simple)"}
             </div>
-            <div className="text-sm text-[#6B7280]">
+            <div className="text-xs sm:text-sm text-[#6B7280]">
               {isPro ? "По полной экспертной модели" : "По базовым требованиям"}
             </div>
           </div>
@@ -85,8 +85,8 @@ export function WizardResultCard({ result, onUpgradeClick, showCTA = true, isPro
       {/* Positive factors for High/Medium chance */}
       {chanceLevel !== "Low" && (
         <div className="mb-0 pb-0">
-          <h4 className="text-base font-semibold text-[#059669] mb-2.5">Ваши преимущества</h4>
-          <ul className="grid grid-cols-2 gap-x-4 gap-y-3 text-base text-[#374151]">
+          <h4 className="text-sm sm:text-base font-semibold text-[#059669] mb-2.5">Ваши преимущества</h4>
+          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3 text-sm sm:text-base text-[#374151]">
             {matchDetails.gpaMatch && (
               <li className="flex items-center gap-3">
                 <CheckCircle className="w-4 h-4 text-[#10B981] flex-shrink-0" />
@@ -118,8 +118,8 @@ export function WizardResultCard({ result, onUpgradeClick, showCTA = true, isPro
       {/* Reasons for low chance */}
       {chanceLevel === "Low" && (
         <div className="mb-0 pb-0">
-          <h4 className="text-base font-semibold text-[#DC2626] mb-2.5">Причины низкого шанса</h4>
-          <ul className="grid grid-cols-2 gap-x-4 gap-y-3 text-base text-[#374151]">
+          <h4 className="text-sm sm:text-base font-semibold text-[#DC2626] mb-2.5">Причины низкого шанса</h4>
+          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3 text-sm sm:text-base text-[#374151]">
             {!matchDetails.gpaMatch && (
               <li className="flex items-center gap-3">
                 <XCircle className="w-4 h-4 text-[#F87171] flex-shrink-0" />
@@ -149,7 +149,7 @@ export function WizardResultCard({ result, onUpgradeClick, showCTA = true, isPro
       )}
 
       {/* Footer with details */}
-      <div className="mb-0 text-base text-[#374151] flex items-center gap-2">
+      <div className="mb-0 text-sm sm:text-base text-[#374151] flex items-center gap-2">
         <GraduationCap className="w-4 h-4" />
         <span className="font-medium">{university.level}</span>
         <span className="text-gray-400">·</span>
@@ -168,13 +168,13 @@ export function WizardResultCard({ result, onUpgradeClick, showCTA = true, isPro
       {/* CTA Block */}
       {showCTA && onUpgradeClick && (
         <div className="pt-0">
-          <div className="flex items-center justify-between gap-4">
-            <p className="text-base text-[#6B7280]">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+            <p className="text-sm sm:text-base text-[#6B7280]">
               Рассчитать реальный шанс по полной модели (Pro).
             </p>
             <Button
               onClick={onUpgradeClick}
-              className="bg-purple-600 hover:bg-purple-700 text-white font-medium flex-shrink-0"
+              className="bg-purple-600 hover:bg-purple-700 text-white font-medium w-full sm:w-auto flex-shrink-0"
             >
               Узнать реальные шансы
             </Button>
