@@ -220,7 +220,7 @@ export function ChanceForm() {
                   {/* Level */}
                   <div className="space-y-3">
                     <Label htmlFor="level" className="text-base font-semibold text-gray-700">
-                      Уровень обучения <span className="text-red-500">*</span>
+                      Образование (что вы уже окончили) <span className="text-red-500">*</span>
                     </Label>
                     <Select
                       value={formData.level}
@@ -235,6 +235,7 @@ export function ChanceForm() {
                         <SelectValue placeholder="Выберите уровень" />
                       </SelectTrigger>
                       <SelectContent>
+                        <SelectItem value="Secondary">Среднее образование (школа / лицей / колледж)</SelectItem>
                         <SelectItem value="Foundation">Foundation</SelectItem>
                         <SelectItem value="Бакалавриат">Бакалавриат</SelectItem>
                         <SelectItem value="Магистратура">Магистратура</SelectItem>

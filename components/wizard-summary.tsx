@@ -4,6 +4,27 @@ import { WizardFormData } from "@/lib/wizard-types";
 import { Card } from "./ui/card";
 import { User, GraduationCap, FileText, DollarSign, Globe } from "lucide-react";
 
+const PROGRAM_GOAL_LABELS: Record<string, string> = {
+  Bachelor: "Бакалавриат",
+  Master: "Магистратура",
+  MBA: "MBA / Бизнес-школа",
+  PhD: "Аспирантура (PhD)",
+  Language: "Языковые курсы",
+  Foundation: "Foundation / Pathway",
+};
+
+const FACULTY_LABELS: Record<string, string> = {
+  "Finance": "Финансы",
+  "Accounting": "Бухгалтерский учёт",
+  "Economics": "Экономика",
+  "Banking": "Банковское дело",
+  "Investment / Asset Management": "Инвестиции / Управление активами",
+  "FinTech": "Финтех",
+  "Risk Management": "Управление рисками",
+  "Quantitative Finance": "Квантитативные финансы",
+  "Master in Finance / MSc Finance": "Master in Finance / MSc Finance",
+};
+
 interface WizardSummaryProps {
   formData: WizardFormData;
 }
@@ -112,13 +133,13 @@ export function WizardSummary({ formData }: WizardSummaryProps) {
               </span>
             </div>
             <div>
-              <span className="text-gray-600">Направление:</span>{" "}
-              <span className="font-medium">{formData.discipline}</span>
+              <span className="text-gray-600">Куда поступить:</span>{" "}
+              <span className="font-medium">{formData.programGoal ? (PROGRAM_GOAL_LABELS[formData.programGoal] ?? formData.programGoal) : "—"}</span>
             </div>
-            {formData.course && (
+            {(formData.faculty?.length ?? 0) > 0 && (
               <div>
-                <span className="text-gray-600">Курс:</span>{" "}
-                <span className="font-medium">{formData.course}</span>
+                <span className="text-gray-600">Факультет / направление:</span>{" "}
+                <span className="font-medium">{formData.faculty!.map((v) => FACULTY_LABELS[v] ?? v).join(", ")}</span>
               </div>
             )}
           </div>

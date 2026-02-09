@@ -28,11 +28,8 @@ export function HowItWorks() {
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
         <div className="text-center mb-20">
-          <div className="inline-block px-4 py-2 bg-blue-100 rounded-full mb-4">
-            <span className="text-sm font-semibold text-blue-700">3 простых шага</span>
-          </div>
           <h2 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-gray-900 mb-6">
-            Как это работает
+            Как узнать шансы
           </h2>
           <p className="text-xl sm:text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
             Простой процесс для проверки твоих шансов на поступление

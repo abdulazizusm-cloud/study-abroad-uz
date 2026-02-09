@@ -23,6 +23,9 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
   const { signIn, signUp, signInWithGoogle, error } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const [localError, setLocalError] = useState("");
 
@@ -49,18 +52,31 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
     setLoading(true);
     setLocalError("");
 
-    if (password.length < 6) {
-      setLocalError("Пароль должен быть минимум 6 символов");
+    if (!firstName.trim() || !lastName.trim() || !phone.trim()) {
+      setLocalError("Пожалуйста, заполните имя, фамилию и телефон");
+      setLoading(false);
+      return;
+    }
+
+    if (password.length < 8) {
+      setLocalError("Пароль должен быть минимум 8 символов");
       setLoading(false);
       return;
     }
 
     try {
-      await signUp(email, password);
+      await signUp(email, password, {
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        phone: phone.trim(),
+      });
       onOpenChange(false);
       // Reset form
       setEmail("");
       setPassword("");
+      setFirstName("");
+      setLastName("");
+      setPhone("");
       alert("Регистрация успешна! Проверьте email для подтверждения.");
     } catch (err) {
       setLocalError("Ошибка регистрации. Возможно, email уже используется.");
@@ -184,6 +200,45 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
           <TabsContent value="signup">
             <form onSubmit={handleSignUp} className="space-y-4">
               <div className="space-y-2">
+                <Label htmlFor="signup-first-name">Имя</Label>
+                <Input
+                  id="signup-first-name"
+                  type="text"
+                  placeholder="Введите имя"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  required
+                  disabled={loading}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="signup-last-name">Фамилия</Label>
+                <Input
+                  id="signup-last-name"
+                  type="text"
+                  placeholder="Введите фамилию"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  required
+                  disabled={loading}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="signup-phone">Номер телефона</Label>
+                <Input
+                  id="signup-phone"
+                  type="tel"
+                  placeholder="+998 90 123 45 67"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  required
+                  disabled={loading}
+                />
+              </div>
+
+              <div className="space-y-2">
                 <Label htmlFor="signup-email">Email</Label>
                 <Input
                   id="signup-email"
@@ -201,12 +256,12 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                 <Input
                   id="signup-password"
                   type="password"
-                  placeholder="Минимум 6 символов"
+                  placeholder="Минимум 8 символов"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   disabled={loading}
-                  minLength={6}
+                  minLength={8}
                 />
               </div>
 

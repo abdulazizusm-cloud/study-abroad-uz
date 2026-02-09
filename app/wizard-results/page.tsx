@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { WizardFormData, ExtendedUniversity, WizardScoringResult, ScoringAlgorithm } from "@/lib/wizard-types";
 import {
@@ -11,6 +11,7 @@ import {
 import { WizardResultCard } from "@/components/wizard-result-card";
 import { WizardSummary } from "@/components/wizard-summary";
 import { AuthModal } from "@/components/auth-modal";
+import { ProfileCompletionModal } from "@/components/profile-completion-modal";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, SortAsc } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
@@ -20,7 +21,7 @@ type SortOption = "chance" | "budget";
 
 export default function WizardResultsPage() {
   const router = useRouter();
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, loadWizardProfile, saveWizardProfile, getProfile, upsertProfile } = useAuth();
   const [formData, setFormData] = useState<WizardFormData | null>(null);
   const [results, setResults] = useState<WizardScoringResult[]>([]);
   const [sortBy, setSortBy] = useState<SortOption>("chance");
@@ -29,20 +30,53 @@ export default function WizardResultsPage() {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [universities, setUniversities] = useState<ExtendedUniversity[]>([]);
   const [proUnlocked, setProUnlocked] = useState(false);
+  const lastSavedRef = useRef<string>("");
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
+  const [profileInitial, setProfileInitial] = useState({
+    firstName: "",
+    lastName: "",
+    phone: "",
+  });
+
+  const deriveNamesFromMetadata = (metadata: Record<string, any>) => {
+    const fullName = metadata?.full_name || metadata?.name;
+    if (fullName && typeof fullName === "string") {
+      const parts = fullName.trim().split(" ");
+      return {
+        firstName: parts[0] ?? "",
+        lastName: parts.slice(1).join(" "),
+      };
+    }
+    return {
+      firstName: metadata?.first_name || "",
+      lastName: metadata?.last_name || "",
+    };
+  };
 
   useEffect(() => {
     const loadResults = async () => {
-      // Load form data from localStorage
+      if (authLoading) return;
+
+      // Load form data from localStorage or Supabase
       const savedData = localStorage.getItem("wizardFormData");
-      
-      if (!savedData) {
-        // No data, redirect to home
-        router.push("/");
-        return;
-      }
+      let parsedData: WizardFormData | null = null;
 
       try {
-        const parsedData: WizardFormData = JSON.parse(savedData);
+        if (savedData) {
+          parsedData = JSON.parse(savedData);
+        } else if (user) {
+          parsedData = await loadWizardProfile();
+          if (parsedData) {
+            localStorage.setItem("wizardFormData", JSON.stringify(parsedData));
+          }
+        }
+
+        if (!parsedData) {
+          // No data available, redirect to home
+          router.push("/");
+          return;
+        }
+
         setFormData(parsedData);
 
         // Fetch universities from Supabase
@@ -101,7 +135,7 @@ export default function WizardResultsPage() {
 
         // Calculate scores for all universities
         const scoredResults = scoreAllUniversities(parsedData, universitiesData, selectedAlgorithm);
-        
+
         // Sort by chance initially
         const sortedResults = sortResultsByChance(scoredResults);
         setResults(sortedResults);
@@ -113,7 +147,43 @@ export default function WizardResultsPage() {
     };
 
     loadResults();
-  }, [router, user]);
+  }, [router, user, authLoading, loadWizardProfile]);
+
+  useEffect(() => {
+    if (!authLoading && user && formData) {
+      const payload = JSON.stringify(formData);
+      if (payload !== lastSavedRef.current) {
+        lastSavedRef.current = payload;
+        saveWizardProfile(formData).catch((error) => {
+          console.error("Error saving wizard profile:", error);
+        });
+      }
+    }
+  }, [user, formData, authLoading, saveWizardProfile]);
+
+  useEffect(() => {
+    const ensureProfile = async () => {
+      if (authLoading || !user) return;
+      try {
+        const profile = await getProfile();
+        const missing = !profile || !profile.first_name || !profile.last_name || !profile.phone;
+        if (missing) {
+          const metadata = (user.user_metadata ?? {}) as Record<string, any>;
+          const derived = deriveNamesFromMetadata(metadata);
+          setProfileInitial({
+            firstName: profile?.first_name ?? derived.firstName,
+            lastName: profile?.last_name ?? derived.lastName,
+            phone: profile?.phone ?? (metadata.phone || ""),
+          });
+          setProfileModalOpen(true);
+        }
+      } catch (error) {
+        console.error("Error loading profile:", error);
+      }
+    };
+
+    ensureProfile();
+  }, [user, authLoading, getProfile]);
 
   // Recalculate when user auth state changes
   useEffect(() => {
@@ -260,6 +330,16 @@ export default function WizardResultsPage() {
         )}
 
         {/* Auth Modal */}
+        <ProfileCompletionModal
+          open={profileModalOpen}
+          initialFirstName={profileInitial.firstName}
+          initialLastName={profileInitial.lastName}
+          initialPhone={profileInitial.phone}
+          onSubmit={async (profile) => {
+            await upsertProfile(profile);
+            setProfileModalOpen(false);
+          }}
+        />
         <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} />
       </div>
     </div>

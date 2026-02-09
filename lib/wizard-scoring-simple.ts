@@ -154,9 +154,13 @@ export function calculateSimpleChance(
 ): WizardScoringResult {
   let score = 50; // Base score
 
-  // Check basic filters first
-  const levelMatch = university.level === formData.level;
-  const disciplineMatch = university.disciplines.includes(formData.discipline);
+  // Check basic filters first (programGoal from Step 3, level from Step 1; faculty = directions)
+  const userLevel = formData.programGoal || formData.level;
+  const levelMatch = university.level === userLevel;
+  const disciplineMatch =
+    (formData.faculty?.length ?? 0) > 0
+      ? university.disciplines.some((d) => formData.faculty!.includes(d))
+      : !!formData.discipline && university.disciplines.includes(formData.discipline);
 
   if (!levelMatch || !disciplineMatch) {
     // If basic filters don't match, return very low score

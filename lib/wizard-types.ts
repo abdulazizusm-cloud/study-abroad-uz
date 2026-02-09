@@ -20,8 +20,10 @@ export interface WizardFormData {
   gmatTotal?: string;
   
   // Step 3 - Field of Study
-  discipline: string;
-  course?: string;
+  programGoal: string;
+  faculty: string[];
+  /** @deprecated Legacy: used when reading old saved form data */
+  discipline?: string;
 }
 
 // Extended university requirements

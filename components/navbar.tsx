@@ -1,22 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { GraduationCap } from "lucide-react";
+import { GraduationCap, User } from "lucide-react";
+import { AuthModal } from "@/components/auth-modal";
+import { useAuth } from "@/contexts/auth-context";
 
 export function Navbar() {
-  const scrollToForm = () => {
-    const formSection = document.getElementById("form-section");
-    if (formSection) {
-      formSection.scrollIntoView({ behavior: "smooth" });
-    }
-  };
-
-  const scrollToSection = (id: string) => {
-    const section = document.getElementById(id);
-    if (section) {
-      section.scrollIntoView({ behavior: "smooth" });
-    }
-  };
+  const { user } = useAuth();
+  const [authModalOpen, setAuthModalOpen] = useState(false);
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-lg border-b-2 border-gray-100 shadow-sm">
@@ -32,37 +24,26 @@ export function Navbar() {
             </h1>
           </div>
 
-          {/* Navigation Links */}
-          <div className="hidden md:flex items-center space-x-8">
-            <button
-              onClick={() => scrollToSection("how-it-works")}
-              className="text-gray-700 hover:text-blue-600 transition-colors font-semibold text-base"
+          {/* Auth / Profile */}
+          {user ? (
+            <Button
+              variant="outline"
+              className="rounded-full w-11 h-11 p-0 border-2 border-blue-200 text-blue-700 hover:bg-blue-50"
+              aria-label="Профиль"
             >
-              Как работает
-            </button>
-            <button
-              onClick={() => scrollToSection("form-section")}
-              className="text-gray-700 hover:text-blue-600 transition-colors font-semibold text-base"
+              <User className="w-5 h-5" />
+            </Button>
+          ) : (
+            <Button
+              onClick={() => setAuthModalOpen(true)}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all px-6"
             >
-              Страны
-            </button>
-            <button
-              onClick={() => scrollToSection("how-it-works")}
-              className="text-gray-700 hover:text-blue-600 transition-colors font-semibold text-base"
-            >
-              FAQ
-            </button>
-          </div>
-
-          {/* CTA Button */}
-          <Button 
-            onClick={scrollToForm} 
-            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all px-6"
-          >
-            Проверить шансы
-          </Button>
+              Регистрация / Вход
+            </Button>
+          )}
         </div>
       </div>
+      <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} />
     </nav>
   );
 }
