@@ -12,11 +12,30 @@ interface WizardResultCardProps {
   onUpgradeClick?: () => void;
   showCTA?: boolean;
   isPro?: boolean;
+  proLabel?: string;
+  showInsights?: boolean;
   formData?: WizardFormData;
   simplePercentage?: number;
+  saved?: boolean;
+  planned?: boolean;
+  onToggleSaved?: () => void;
+  onAddToPlan?: () => void;
 }
 
-export function WizardResultCard({ result, onUpgradeClick, showCTA = true, isPro = false, formData, simplePercentage }: WizardResultCardProps) {
+export function WizardResultCard({
+  result,
+  onUpgradeClick,
+  showCTA = true,
+  isPro = false,
+  proLabel = "Pro",
+  showInsights,
+  formData,
+  simplePercentage,
+  saved = false,
+  planned = false,
+  onToggleSaved,
+  onAddToPlan,
+}: WizardResultCardProps) {
   const { university, percentage, chanceLevel, explanation, matchDetails } = result;
 
   const chanceColors = {
@@ -66,7 +85,7 @@ export function WizardResultCard({ result, onUpgradeClick, showCTA = true, isPro
           <div className="text-3xl sm:text-4xl font-bold text-blue-600">{percentage}%</div>
           <div className="flex flex-col justify-center">
             <div className="text-sm sm:text-base font-semibold text-[#374151]">
-              {isPro ? "Реальная оценка шансов (Pro)" : "Примерный шанс поступления (Simple)"}
+              {isPro ? `Реальная оценка шансов (${proLabel})` : "Примерный шанс поступления (Simple)"}
             </div>
             <div className="text-xs sm:text-sm text-[#6B7280]">
               {isPro ? "По полной экспертной модели" : "По базовым требованиям"}
@@ -156,6 +175,32 @@ export function WizardResultCard({ result, onUpgradeClick, showCTA = true, isPro
         <span className="font-semibold">$ {university.requirements.tuitionUSD.toLocaleString()}/год</span>
       </div>
 
+      {/* Actions (Save / Add to plan) */}
+      {(onToggleSaved || onAddToPlan) && (
+        <div className="mt-3 flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-end">
+          {onToggleSaved && (
+            <Button
+              type="button"
+              variant={saved ? "default" : "outline"}
+              onClick={onToggleSaved}
+              className={saved ? "bg-blue-600 hover:bg-blue-700" : ""}
+            >
+              {saved ? "Сохранено" : "Сохранить"}
+            </Button>
+          )}
+          {onAddToPlan && (
+            <Button
+              type="button"
+              variant={planned ? "secondary" : "outline"}
+              onClick={onAddToPlan}
+              disabled={planned}
+            >
+              {planned ? "В плане" : "Добавить в план"}
+            </Button>
+          )}
+        </div>
+      )}
+
       {/* Disciplines */}
       <div className="mb-0 flex flex-wrap gap-2">
         {university.disciplines.map((disc) => (
@@ -183,7 +228,7 @@ export function WizardResultCard({ result, onUpgradeClick, showCTA = true, isPro
       )}
 
       {/* Chance Insights - Only show for Pro users */}
-      {isPro && formData && (
+      {(showInsights ?? isPro) && formData && (
         <ChanceInsights 
           result={result} 
           formData={formData}

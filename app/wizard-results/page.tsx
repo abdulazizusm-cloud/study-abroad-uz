@@ -12,25 +12,35 @@ import { WizardResultCard } from "@/components/wizard-result-card";
 import { WizardSummary } from "@/components/wizard-summary";
 import { AuthModal } from "@/components/auth-modal";
 import { ProfileCompletionModal } from "@/components/profile-completion-modal";
+import { UpgradePlanModal } from "@/components/upgrade-plan-modal";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, SortAsc } from "lucide-react";
+import { ArrowLeft, SortAsc, User } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import { calculateSimpleChance } from "@/lib/wizard-scoring-simple";
+import { supabase } from "@/lib/supabase-client";
 
 type SortOption = "chance" | "budget";
 
 export default function WizardResultsPage() {
   const router = useRouter();
-  const { user, loading: authLoading, loadWizardProfile, saveWizardProfile, getProfile, upsertProfile } = useAuth();
+  const { user, loading: authLoading, loadWizardProfile, saveWizardProfile, getProfile, upsertProfile, getTierInfo, trackEvent } = useAuth();
   const [formData, setFormData] = useState<WizardFormData | null>(null);
   const [results, setResults] = useState<WizardScoringResult[]>([]);
   const [sortBy, setSortBy] = useState<SortOption>("chance");
   const [isLoading, setIsLoading] = useState(true);
   const [algorithm, setAlgorithm] = useState<ScoringAlgorithm>("simple");
+  const [effectiveTier, setEffectiveTier] = useState<"free" | "pro_lite" | "pro" | "pro_plus">("free");
+  const [bonusUniversities, setBonusUniversities] = useState(0);
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
   const [universities, setUniversities] = useState<ExtendedUniversity[]>([]);
   const [proUnlocked, setProUnlocked] = useState(false);
   const lastSavedRef = useRef<string>("");
+  const hasTrackedViewRef = useRef(false);
+  const [totalAvailable, setTotalAvailable] = useState(0);
+  const [currentLimit, setCurrentLimit] = useState<number | null>(null);
+  const [savedUniversityIds, setSavedUniversityIds] = useState<Set<string>>(new Set());
+  const [plannedUniversityIds, setPlannedUniversityIds] = useState<Set<string>>(new Set());
   const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [profileInitial, setProfileInitial] = useState({
     firstName: "",
@@ -53,6 +63,10 @@ export default function WizardResultsPage() {
     };
   };
 
+  const openProfileEditor = async () => {
+    router.push("/profile");
+  };
+
   useEffect(() => {
     const loadResults = async () => {
       if (authLoading) return;
@@ -72,8 +86,8 @@ export default function WizardResultsPage() {
         }
 
         if (!parsedData) {
-          // No data available, redirect to home
-          router.push("/");
+          // No data available, redirect to wizard
+          router.push("/wizard");
           return;
         }
 
@@ -129,8 +143,15 @@ export default function WizardResultsPage() {
 
         setUniversities(universitiesData);
 
-        // Determine algorithm based on auth status
-        const selectedAlgorithm: ScoringAlgorithm = user ? "pro" : "simple";
+        const tierInfo = await getTierInfo();
+        setEffectiveTier(tierInfo.effectiveTier);
+        setBonusUniversities(tierInfo.bonusUniversities);
+
+        // Determine algorithm based on tier
+        const selectedAlgorithm: ScoringAlgorithm =
+          tierInfo.effectiveTier === "pro" || tierInfo.effectiveTier === "pro_plus" || tierInfo.effectiveTier === "pro_lite"
+            ? "pro"
+            : "simple";
         setAlgorithm(selectedAlgorithm);
 
         // Calculate scores for all universities
@@ -138,8 +159,26 @@ export default function WizardResultsPage() {
 
         // Sort by chance initially
         const sortedResults = sortResultsByChance(scoredResults);
-        setResults(sortedResults);
+
+        // Apply gating limits
+        const baseLimit =
+          tierInfo.effectiveTier === "free" ? 3 :
+          tierInfo.effectiveTier === "pro_lite" ? 6 :
+          null; // pro/pro_plus unlimited
+        const limit = baseLimit === null ? null : baseLimit + (tierInfo.bonusUniversities || 0);
+        setTotalAvailable(sortedResults.length);
+        setCurrentLimit(limit);
+        setResults(limit ? sortedResults.slice(0, limit) : sortedResults);
         setIsLoading(false);
+
+        if (user && !hasTrackedViewRef.current) {
+          hasTrackedViewRef.current = true;
+          trackEvent("results_viewed", {
+            effectiveTier: tierInfo.effectiveTier,
+            limit,
+            algorithm: selectedAlgorithm,
+          });
+        }
       } catch (error) {
         console.error("Error loading results:", error);
         router.push("/");
@@ -185,24 +224,69 @@ export default function WizardResultsPage() {
     ensureProfile();
   }, [user, authLoading, getProfile]);
 
+  useEffect(() => {
+    const loadUserLists = async () => {
+      if (authLoading || !user) {
+        setSavedUniversityIds(new Set());
+        setPlannedUniversityIds(new Set());
+        return;
+      }
+      try {
+        const [{ data: saved }, { data: planned }] = await Promise.all([
+          supabase
+            .from("saved_universities")
+            .select("university_id")
+            .eq("user_id", user.id),
+          supabase
+            .from("admission_applications")
+            .select("university_id")
+            .eq("user_id", user.id),
+        ]);
+        setSavedUniversityIds(new Set((saved ?? []).map((r: any) => r.university_id)));
+        setPlannedUniversityIds(new Set((planned ?? []).map((r: any) => r.university_id)));
+      } catch (e) {
+        console.error("Error loading saved/planned universities:", e);
+      }
+    };
+    loadUserLists();
+  }, [user, authLoading]);
+
   // Recalculate when user auth state changes
   useEffect(() => {
     if (formData && universities.length > 0 && !authLoading) {
-      const selectedAlgorithm: ScoringAlgorithm = user ? "pro" : "simple";
-      setAlgorithm(selectedAlgorithm);
+      const recalc = async () => {
+        const tierInfo = await getTierInfo();
+        setEffectiveTier(tierInfo.effectiveTier);
+        setBonusUniversities(tierInfo.bonusUniversities);
 
-      // If user just logged in, unlock Pro permanently
-      if (user && !proUnlocked) {
-        setProUnlocked(true);
-      }
+        const selectedAlgorithm: ScoringAlgorithm =
+          tierInfo.effectiveTier === "pro" || tierInfo.effectiveTier === "pro_plus" || tierInfo.effectiveTier === "pro_lite"
+            ? "pro"
+            : "simple";
+        setAlgorithm(selectedAlgorithm);
 
-      const scoredResults = scoreAllUniversities(formData, universities, selectedAlgorithm);
-      const sortedResults = sortBy === "chance" 
-        ? sortResultsByChance(scoredResults)
-        : sortResultsByBudget(scoredResults);
-      setResults(sortedResults);
+        // If user just logged in, unlock Pro permanently (legacy flag)
+        if (user && !proUnlocked) {
+          setProUnlocked(true);
+        }
+
+        const scoredResults = scoreAllUniversities(formData, universities, selectedAlgorithm);
+        const sortedResults = sortBy === "chance" 
+          ? sortResultsByChance(scoredResults)
+          : sortResultsByBudget(scoredResults);
+
+        const baseLimit =
+          tierInfo.effectiveTier === "free" ? 3 :
+          tierInfo.effectiveTier === "pro_lite" ? 6 :
+          null;
+        const limit = baseLimit === null ? null : baseLimit + (tierInfo.bonusUniversities || 0);
+        setTotalAvailable(sortedResults.length);
+        setCurrentLimit(limit);
+        setResults(limit ? sortedResults.slice(0, limit) : sortedResults);
+      };
+      recalc();
     }
-  }, [user, authLoading, formData, universities, sortBy, proUnlocked]);
+  }, [user, authLoading, formData, universities, sortBy, proUnlocked, getTierInfo]);
 
   const handleSortChange = (option: SortOption) => {
     setSortBy(option);
@@ -233,15 +317,27 @@ export default function WizardResultsPage() {
       <div className="container mx-auto px-4 py-8 max-w-6xl">
         {/* Header */}
         <div className="mb-6">
-          <Button
-            variant="ghost"
-            onClick={handleBack}
-            className="mb-4 hover:bg-blue-100"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Вернуться на главную
-          </Button>
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <Button
+              variant="ghost"
+              onClick={handleBack}
+              className="hover:bg-blue-100"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Вернуться на главную
+            </Button>
+            {user && (
+              <Button
+                variant="outline"
+                className="rounded-full w-11 h-11 p-0 border-2 border-blue-200 text-blue-700 hover:bg-blue-50"
+                aria-label="Профиль"
+                onClick={openProfileEditor}
+              >
+                <User className="w-5 h-5" />
+              </Button>
+            )}
+          </div>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2 mt-2">
             Ваши шансы поступления
           </h1>
           <p className="text-sm sm:text-base text-gray-600">
@@ -303,19 +399,91 @@ export default function WizardResultsPage() {
                 const simplePercentage = user && formData 
                   ? calculateSimpleChance(formData, result.university).percentage 
                   : undefined;
+                const isSaved = savedUniversityIds.has(result.university.id);
+                const isPlanned = plannedUniversityIds.has(result.university.id);
 
                 return (
                   <WizardResultCard 
                     key={result.university.id} 
                     result={result}
-                    onUpgradeClick={() => setAuthModalOpen(true)}
-                    showCTA={!user}
-                    isPro={!!user}
+                    onUpgradeClick={() => {
+                      trackEvent("upgrade_clicked", { from: "wizard-results", effectiveTier });
+                      setAuthModalOpen(true);
+                    }}
+                    showCTA={effectiveTier === "free" || effectiveTier === "pro_lite"}
+                    isPro={algorithm === "pro"}
+                    proLabel={effectiveTier === "pro_lite" ? "Pro Lite" : "Pro"}
+                    showInsights={effectiveTier === "pro" || effectiveTier === "pro_plus"}
                     formData={formData || undefined}
                     simplePercentage={simplePercentage}
+                    saved={isSaved}
+                    planned={isPlanned}
+                    onToggleSaved={async () => {
+                      if (!user) return;
+                      try {
+                        if (isSaved) {
+                          await supabase
+                            .from("saved_universities")
+                            .delete()
+                            .eq("user_id", user.id)
+                            .eq("university_id", result.university.id);
+                          setSavedUniversityIds((prev) => {
+                            const next = new Set(prev);
+                            next.delete(result.university.id);
+                            return next;
+                          });
+                          trackEvent("university_unsaved", { university_id: result.university.id });
+                        } else {
+                          await supabase
+                            .from("saved_universities")
+                            .insert({ user_id: user.id, university_id: result.university.id });
+                          setSavedUniversityIds((prev) => new Set(prev).add(result.university.id));
+                          trackEvent("university_saved", { university_id: result.university.id });
+                        }
+                      } catch (e) {
+                        console.error("Error toggling saved university:", e);
+                      }
+                    }}
+                    onAddToPlan={async () => {
+                      if (!user || isPlanned) return;
+                      try {
+                        await supabase.from("admission_applications").insert({
+                          user_id: user.id,
+                          university_id: result.university.id,
+                          status: "interested",
+                          progress_percent: 0,
+                        });
+                        setPlannedUniversityIds((prev) => new Set(prev).add(result.university.id));
+                        trackEvent("application_created", { university_id: result.university.id, status: "interested" });
+                      } catch (e) {
+                        console.error("Error adding university to plan:", e);
+                      }
+                    }}
                   />
                 );
               })}
+
+              {effectiveTier === "pro_lite" &&
+                currentLimit !== null &&
+                totalAvailable > currentLimit && (
+                  <div className="rounded-2xl border border-gray-200 bg-white shadow-sm p-5">
+                    <div className="text-xl font-bold text-gray-900 mb-2">
+                      🔒 Вы открыли {currentLimit} из {totalAvailable} университетов
+                    </div>
+                    <div className="text-sm text-gray-600 mb-4">
+                      Откройте полный список, экспертный breakdown и сценарии улучшения.
+                    </div>
+                    <Button
+                      className="bg-blue-600 hover:bg-blue-700 h-11"
+                      onClick={() => {
+                        trackEvent("upgrade_modal_opened", { from: "paywall_card" });
+                        setUpgradeModalOpen(true);
+                      }}
+                    >
+                      Улучшить план
+                    </Button>
+                  </div>
+                )}
             </div>
           </>
         )}
@@ -338,6 +506,31 @@ export default function WizardResultsPage() {
           onSubmit={async (profile) => {
             await upsertProfile(profile);
             setProfileModalOpen(false);
+          }}
+        />
+        <UpgradePlanModal
+          open={upgradeModalOpen}
+          onOpenChange={setUpgradeModalOpen}
+          onSelectPlan={async (plan) => {
+            if (!user) return;
+            trackEvent("upgrade_plan_selected", { plan, mode: "dev_stub" });
+            const { data } = await supabase.auth.getSession();
+            const token = data.session?.access_token;
+            if (!token) return;
+            await fetch("/api/dev/upgrade-tier", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({ tier_override: plan }),
+            });
+            trackEvent("dev_tier_override_applied", { plan });
+            setUpgradeModalOpen(false);
+            // trigger recalc by toggling auth state effect (user unchanged) via manual tier refresh
+            const tierInfo = await getTierInfo();
+            setEffectiveTier(tierInfo.effectiveTier);
+            setBonusUniversities(tierInfo.bonusUniversities);
           }}
         />
         <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} />

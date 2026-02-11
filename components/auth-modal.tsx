@@ -28,6 +28,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const [localError, setLocalError] = useState("");
+  const [activeTab, setActiveTab] = useState<"signin" | "signup">("signin");
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,19 +66,23 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
     }
 
     try {
-      await signUp(email, password, {
+      const { hasSession } = await signUp(email, password, {
         firstName: firstName.trim(),
         lastName: lastName.trim(),
         phone: phone.trim(),
       });
-      onOpenChange(false);
-      // Reset form
-      setEmail("");
-      setPassword("");
-      setFirstName("");
-      setLastName("");
-      setPhone("");
-      alert("Регистрация успешна! Проверьте email для подтверждения.");
+      if (hasSession) {
+        onOpenChange(false);
+        // Reset form
+        setEmail("");
+        setPassword("");
+        setFirstName("");
+        setLastName("");
+        setPhone("");
+      } else {
+        setActiveTab("signin");
+        setLocalError("Регистрация завершена. Подтвердите email и войдите.");
+      }
     } catch (err) {
       setLocalError("Ошибка регистрации. Возможно, email уже используется.");
     } finally {
@@ -110,7 +115,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
           </DialogDescription>
         </DialogHeader>
 
-        <Tabs defaultValue="signin" className="w-full">
+        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "signin" | "signup")} className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="signin">Вход</TabsTrigger>
             <TabsTrigger value="signup">Регистрация</TabsTrigger>

@@ -1,21 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { GraduationCap, User } from "lucide-react";
 import { AuthModal } from "@/components/auth-modal";
-import { ProfileCompletionModal } from "@/components/profile-completion-modal";
 import { useAuth } from "@/contexts/auth-context";
 
 export function Navbar() {
-  const { user, getProfile, upsertProfile } = useAuth();
+  const router = useRouter();
+  const { user } = useAuth();
   const [authModalOpen, setAuthModalOpen] = useState(false);
-  const [profileModalOpen, setProfileModalOpen] = useState(false);
-  const [profileInitial, setProfileInitial] = useState({
-    firstName: "",
-    lastName: "",
-    phone: "",
-  });
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-lg border-b-2 border-gray-100 shadow-sm">
@@ -37,19 +32,7 @@ export function Navbar() {
               variant="outline"
               className="rounded-full w-11 h-11 p-0 border-2 border-blue-200 text-blue-700 hover:bg-blue-50"
               aria-label="Профиль"
-              onClick={async () => {
-                try {
-                  const profile = await getProfile();
-                  setProfileInitial({
-                    firstName: profile?.first_name ?? "",
-                    lastName: profile?.last_name ?? "",
-                    phone: profile?.phone ?? "",
-                  });
-                  setProfileModalOpen(true);
-                } catch {
-                  setProfileModalOpen(true);
-                }
-              }}
+              onClick={() => router.push("/profile")}
             >
               <User className="w-5 h-5" />
             </Button>
@@ -64,16 +47,6 @@ export function Navbar() {
         </div>
       </div>
       <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} />
-      <ProfileCompletionModal
-        open={profileModalOpen}
-        initialFirstName={profileInitial.firstName}
-        initialLastName={profileInitial.lastName}
-        initialPhone={profileInitial.phone}
-        onSubmit={async (profile) => {
-          await upsertProfile(profile);
-          setProfileModalOpen(false);
-        }}
-      />
     </nav>
   );
 }
