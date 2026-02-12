@@ -62,13 +62,14 @@ export default function AdminPage() {
         return;
       }
       try {
+        // Avoid crashing if duplicate rows accidentally exist for the same user_id.
         const { data, error } = await supabase
           .from("profiles")
           .select("is_admin")
           .eq("user_id", user.id)
-          .maybeSingle();
+          .limit(1);
         if (error) throw error;
-        setIsAdmin(!!data?.is_admin);
+        setIsAdmin(!!data?.[0]?.is_admin);
       } catch {
         setIsAdmin(false);
       }
@@ -86,22 +87,24 @@ export default function AdminPage() {
       return;
     }
     try {
-      const [{ data: profileData, error: pErr }, { data: entData, error: eErr }] =
-        await Promise.all([
-          supabase
-            .from("profiles")
-            .select("user_id,first_name,last_name,phone,is_admin")
-            .eq("user_id", targetUserId.trim())
-            .maybeSingle(),
-          supabase
-            .from("entitlements")
-            .select("user_id,tier,bonus_universities,tier_override,override_ends_at,pro_trial_ends_at,updated_at")
-            .eq("user_id", targetUserId.trim())
-            .maybeSingle(),
-        ]);
+      const [
+        { data: profileRows, error: pErr },
+        { data: entData, error: eErr },
+      ] = await Promise.all([
+        supabase
+          .from("profiles")
+          .select("user_id,first_name,last_name,phone,is_admin")
+          .eq("user_id", targetUserId.trim())
+          .limit(1),
+        supabase
+          .from("entitlements")
+          .select("user_id,tier,bonus_universities,tier_override,override_ends_at,pro_trial_ends_at,updated_at")
+          .eq("user_id", targetUserId.trim())
+          .maybeSingle(),
+      ]);
       if (pErr) throw pErr;
       if (eErr) throw eErr;
-      setTargetProfile(profileData ?? null);
+      setTargetProfile(((profileRows as any[])?.[0] as any) ?? null);
       setEntitlements(entData ?? null);
       setBonusUniversities(String(entData?.bonus_universities ?? 0));
       setTierOverride(entData?.tier_override ?? "");

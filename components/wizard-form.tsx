@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ChevronDown, Check } from "lucide-react";
 
 interface FormDataType {
   // Step 1
@@ -69,6 +70,8 @@ interface FormDataType {
 export function WizardForm() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const analyzingTimeoutRef = useRef<number | null>(null);
   const [formData, setFormData] = useState<FormDataType>({
     nationality: "",
     countryOfStudy: "",
@@ -83,6 +86,41 @@ export function WizardForm() {
     faculty: [],
   });
   const [showErrors, setShowErrors] = useState({ 1: false, 2: false, 3: false });
+  const [facultyDropdownOpen, setFacultyDropdownOpen] = useState(false);
+  const facultyDropdownRef = useRef<HTMLDivElement>(null);
+
+  const FACULTY_OPTIONS = [
+    { value: "Finance", label: "Финансы" },
+    { value: "Accounting", label: "Бухгалтерский учёт" },
+    { value: "Economics", label: "Экономика" },
+    { value: "Banking", label: "Банковское дело" },
+    { value: "Investment / Asset Management", label: "Инвестиции / Управление активами" },
+    { value: "FinTech", label: "Финтех" },
+    { value: "Risk Management", label: "Управление рисками" },
+    { value: "Quantitative Finance", label: "Квантитативные финансы" },
+    { value: "Master in Finance / MSc Finance", label: "Master in Finance / MSc Finance" },
+  ];
+
+  useEffect(() => {
+    return () => {
+      if (analyzingTimeoutRef.current !== null) {
+        window.clearTimeout(analyzingTimeoutRef.current);
+        analyzingTimeoutRef.current = null;
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (facultyDropdownRef.current && !facultyDropdownRef.current.contains(e.target as Node)) {
+        setFacultyDropdownOpen(false);
+      }
+    };
+    if (facultyDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
+    }
+  }, [facultyDropdownOpen]);
 
   const updateField = (field: keyof FormDataType, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -286,6 +324,8 @@ export function WizardForm() {
   };
 
   const handleNext = () => {
+    if (isAnalyzing) return;
+
     if (currentStep === 1 && !isStep1Valid()) {
       setShowErrors((prev) => ({ ...prev, 1: true }));
       return;
@@ -294,9 +334,18 @@ export function WizardForm() {
       setShowErrors((prev) => ({ ...prev, 2: true }));
       return;
     }
-    if (currentStep < 3) {
-      setCurrentStep(currentStep + 1);
+
+    if (currentStep === 1) {
+      setIsAnalyzing(true);
+      analyzingTimeoutRef.current = window.setTimeout(() => {
+        setIsAnalyzing(false);
+        analyzingTimeoutRef.current = null;
+        setCurrentStep(2);
+      }, 1200);
+      return;
     }
+
+    if (currentStep < 3) setCurrentStep(currentStep + 1);
   };
 
   const handleBack = () => {
@@ -352,8 +401,6 @@ export function WizardForm() {
       programGoal: formData.programGoal,
       faculty: formData.faculty ?? [],
     };
-
-    console.log("Submitting wizard data:", wizardData);
     
     // Save to localStorage
     localStorage.setItem("wizardFormData", JSON.stringify(wizardData));
@@ -367,11 +414,6 @@ export function WizardForm() {
       <div className="max-w-5xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
-          <div className="inline-block px-4 py-2 bg-blue-100 rounded-full mb-4">
-            <span className="text-sm font-semibold text-blue-700">
-              Шаг {currentStep} из 3
-            </span>
-          </div>
           <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
             Анкета проверки шансов
           </h2>
@@ -381,10 +423,39 @@ export function WizardForm() {
         </div>
 
         <div className="bg-white rounded-3xl shadow-xl border border-gray-200 p-8 sm:p-12">
+          {(() => {
+            const progressPercentByStep: Record<number, number> = { 1: 0, 2: 33, 3: 66 };
+            const progressPercent = progressPercentByStep[currentStep] ?? 0;
+
+            return (
+              <div className="mb-8">
+                <div className="text-sm font-semibold text-slate-700 mb-2">
+                  Шаг {currentStep} из 3
+                </div>
+                <div className="w-full h-[6px] rounded-full bg-slate-200 overflow-hidden">
+                  <div
+                    className="h-[6px] rounded-full bg-violet-600 transition-[width] duration-500 ease-out"
+                    style={{ width: `${progressPercent}%` }}
+                  />
+                </div>
+              </div>
+            );
+          })()}
 
           {/* STEP 1 - BASIC INFORMATION */}
           {currentStep === 1 && (
-            <div className="space-y-6">
+            isAnalyzing ? (
+              <div className="py-16 sm:py-20 text-center">
+                <div className="mx-auto mb-6 h-10 w-10 rounded-full border-2 border-slate-200 border-t-slate-600 animate-spin" />
+                <div className="text-base font-semibold text-slate-900">
+                  Анализируем более 3,000 программ...
+                </div>
+                <div className="text-sm text-slate-600 mt-2">
+                  Сравниваем с профилями прошлых студентов...
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-6">
               <div className="flex items-center gap-3 pb-4 border-b-2 border-blue-100">
                 <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
                   <span className="text-white font-bold">1</span>
@@ -599,12 +670,14 @@ export function WizardForm() {
               <div className="pt-6 border-t border-gray-200">
                 <Button 
                   onClick={handleNext} 
+                  disabled={isAnalyzing}
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white py-6 rounded-xl font-semibold"
                 >
-                  Продолжить →
+                  {isAnalyzing ? "Анализируем..." : "Продолжить →"}
                 </Button>
               </div>
             </div>
+            )
           )}
 
           {/* STEP 2 - EXAMS */}
@@ -1275,7 +1348,7 @@ export function WizardForm() {
                   value={formData.programGoal}
                   onValueChange={(value) => updateField("programGoal", value)}
                 >
-                  <SelectTrigger id="programGoal" className="h-12 text-base border-2">
+                  <SelectTrigger id="programGoal" className="flex h-12 min-h-12 w-full items-center rounded-md border-2 border-gray-200 bg-white px-4 py-0 text-left text-base hover:border-blue-300 transition-colors">
                     <SelectValue placeholder="Выберите уровень" />
                   </SelectTrigger>
                   <SelectContent>
@@ -1289,49 +1362,51 @@ export function WizardForm() {
                 </Select>
               </div>
 
-              {/* Факультет / направление — multi-select, max 2 */}
-              <div className="space-y-3">
+              {/* Факультет / Направление — всплывающий список, до 2 вариантов */}
+              <div className="space-y-3" ref={facultyDropdownRef}>
                 <Label className="text-base font-semibold text-gray-700 block">
-                  Факультет / направление <span className="text-red-500">*</span>
+                  Факультет / Направление <span className="text-red-500">*</span>
                   <span className="text-gray-500 font-normal text-sm ml-2">(Можно выбрать до 2 вариантов)</span>
                 </Label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {[
-                    { value: "Finance", label: "Финансы" },
-                    { value: "Accounting", label: "Бухгалтерский учёт" },
-                    { value: "Economics", label: "Экономика" },
-                    { value: "Banking", label: "Банковское дело" },
-                    { value: "Investment / Asset Management", label: "Инвестиции / Управление активами" },
-                    { value: "FinTech", label: "Финтех" },
-                    { value: "Risk Management", label: "Управление рисками" },
-                    { value: "Quantitative Finance", label: "Квантитативные финансы" },
-                    { value: "Master in Finance / MSc Finance", label: "Master in Finance / MSc Finance" },
-                  ].map(({ value, label }) => {
-                    const selected = (formData.faculty ?? []).includes(value);
-                    const disabled = !selected && (formData.faculty?.length ?? 0) >= 2;
-                    return (
-                      <button
-                        key={value}
-                        type="button"
-                        onClick={() => !disabled && toggleFaculty(value)}
-                        disabled={disabled}
-                        className={`flex items-center gap-3 p-4 rounded-xl border-2 text-left transition-colors ${
-                          selected
-                            ? "border-blue-600 bg-blue-50 text-blue-900"
-                            : disabled
-                              ? "border-gray-100 bg-gray-50 text-gray-400 cursor-not-allowed"
-                              : "border-gray-200 hover:border-blue-300 hover:bg-gray-50"
-                        }`}
-                      >
-                        <div className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 ${
-                          selected ? "border-blue-600 bg-blue-600" : "border-gray-300"
-                        }`}>
-                          {selected && <span className="text-white text-xs font-bold">✓</span>}
-                        </div>
-                        <span className="font-medium text-sm">{label}</span>
-                      </button>
-                    );
-                  })}
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setFacultyDropdownOpen((v) => !v)}
+                    className="flex h-12 min-h-12 w-full items-center justify-between gap-2 rounded-md border-2 border-gray-200 bg-white px-4 py-0 text-left text-base hover:border-blue-300 transition-colors"
+                  >
+                    <span className={formData.faculty?.length ? "text-gray-900" : "text-gray-500"}>
+                      {formData.faculty?.length
+                        ? formData.faculty.map((v) => FACULTY_OPTIONS.find((o) => o.value === v)?.label ?? v).join(", ")
+                        : "Выберите до 2 направлений"}
+                    </span>
+                    <ChevronDown className={`h-5 w-5 shrink-0 text-gray-500 transition-transform ${facultyDropdownOpen ? "rotate-180" : ""}`} />
+                  </button>
+                  {facultyDropdownOpen && (
+                    <div className="absolute top-full left-0 right-0 z-50 mt-1 max-h-64 overflow-auto rounded-xl border border-gray-200 bg-white shadow-lg py-1">
+                      {FACULTY_OPTIONS.map(({ value, label }) => {
+                        const selected = (formData.faculty ?? []).includes(value);
+                        const disabled = !selected && (formData.faculty?.length ?? 0) >= 2;
+                        return (
+                          <button
+                            key={value}
+                            type="button"
+                            onClick={() => !disabled && toggleFaculty(value)}
+                            disabled={disabled}
+                            className={`flex w-full items-center gap-3 px-4 py-3 text-left text-sm transition-colors ${
+                              selected ? "bg-blue-50 text-blue-900" : disabled ? "cursor-not-allowed text-gray-400" : "hover:bg-gray-50"
+                            }`}
+                          >
+                            <div className={`flex h-5 w-5 shrink-0 items-center justify-center rounded border-2 ${
+                              selected ? "border-blue-600 bg-blue-600" : "border-gray-300"
+                            }`}>
+                              {selected && <Check className="h-3 w-3 text-white" />}
+                            </div>
+                            {label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -1339,7 +1414,7 @@ export function WizardForm() {
                 <Button
                   onClick={handleBack}
                   variant="outline"
-                  className="flex-1 py-6 rounded-xl font-semibold"
+                  className="flex-1 py-6 rounded-xl font-semibold text-base"
                 >
                   ← Назад
                 </Button>
@@ -1349,7 +1424,7 @@ export function WizardForm() {
                     handleSubmit();
                   }}
                   type="button"
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-6 rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-6 rounded-xl font-semibold text-base disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Получить результаты
                 </Button>

@@ -284,13 +284,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!user) return null;
     try {
       setError(null);
+      // Avoid crashing if duplicate rows accidentally exist for the same user_id.
       const { data, error } = await supabase
         .from("profiles")
         .select("first_name,last_name,phone")
         .eq("user_id", user.id)
-        .maybeSingle();
+        .limit(1);
       if (error) throw error;
-      return data ?? null;
+      return (data?.[0] as any) ?? null;
     } catch (error) {
       const authError = error as AuthError;
       setError(authError.message);

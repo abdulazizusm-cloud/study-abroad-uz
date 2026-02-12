@@ -9,17 +9,35 @@ import {
   sortResultsByBudget,
 } from "@/lib/wizard-scoring";
 import { WizardResultCard } from "@/components/wizard-result-card";
-import { WizardSummary } from "@/components/wizard-summary";
 import { AuthModal } from "@/components/auth-modal";
 import { ProfileCompletionModal } from "@/components/profile-completion-modal";
 import { UpgradePlanModal } from "@/components/upgrade-plan-modal";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, SortAsc, User } from "lucide-react";
+import { SortAsc, GraduationCap, Mail, MessageCircle } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import { calculateSimpleChance } from "@/lib/wizard-scoring-simple";
 import { supabase } from "@/lib/supabase-client";
+import { Navbar } from "@/components/navbar";
 
 type SortOption = "chance" | "budget";
+
+// Helper function to calculate tier limit
+function calculateTierLimit(tierInfo: { effectiveTier: string; bonusUniversities: number }): number | null {
+  const baseLimit =
+    tierInfo.effectiveTier === "free" ? 3 :
+    tierInfo.effectiveTier === "pro_lite" ? 6 :
+    null; // pro/pro_plus unlimited
+  return baseLimit === null ? null : baseLimit + (tierInfo.bonusUniversities || 0);
+}
+
+// Helper function to select algorithm based on tier
+function selectAlgorithm(tierInfo: { effectiveTier: string }): ScoringAlgorithm {
+  return tierInfo.effectiveTier === "pro" || 
+         tierInfo.effectiveTier === "pro_plus" || 
+         tierInfo.effectiveTier === "pro_lite"
+    ? "pro"
+    : "simple";
+}
 
 export default function WizardResultsPage() {
   const router = useRouter();
@@ -34,7 +52,6 @@ export default function WizardResultsPage() {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
   const [universities, setUniversities] = useState<ExtendedUniversity[]>([]);
-  const [proUnlocked, setProUnlocked] = useState(false);
   const lastSavedRef = useRef<string>("");
   const hasTrackedViewRef = useRef(false);
   const [totalAvailable, setTotalAvailable] = useState(0);
@@ -47,6 +64,34 @@ export default function WizardResultsPage() {
     lastName: "",
     phone: "",
   });
+
+  const getErrorMessage = (err: unknown) => {
+    if (err instanceof Error) return err.message || String(err);
+    if (typeof err === "string") return err;
+    if (err && typeof err === "object") {
+      const anyErr = err as any;
+      if (typeof anyErr.message === "string") return anyErr.message;
+      if (typeof anyErr.error_description === "string") return anyErr.error_description;
+      if (typeof anyErr.details === "string") return anyErr.details;
+      try {
+        const json = JSON.stringify(err);
+        if (json && json !== "{}") return json;
+      } catch {
+        // ignore
+      }
+    }
+    return String(err);
+  };
+
+  const formatUniversityCountRu = (n: number) => {
+    const abs = Math.abs(n);
+    const mod100 = abs % 100;
+    const mod10 = abs % 10;
+    if (mod100 >= 11 && mod100 <= 14) return "университетов";
+    if (mod10 === 1) return "университет";
+    if (mod10 >= 2 && mod10 <= 4) return "университета";
+    return "университетов";
+  };
 
   const deriveNamesFromMetadata = (metadata: Record<string, any>) => {
     const fullName = metadata?.full_name || metadata?.name;
@@ -61,10 +106,6 @@ export default function WizardResultsPage() {
       firstName: metadata?.first_name || "",
       lastName: metadata?.last_name || "",
     };
-  };
-
-  const openProfileEditor = async () => {
-    router.push("/profile");
   };
 
   useEffect(() => {
@@ -148,10 +189,7 @@ export default function WizardResultsPage() {
         setBonusUniversities(tierInfo.bonusUniversities);
 
         // Determine algorithm based on tier
-        const selectedAlgorithm: ScoringAlgorithm =
-          tierInfo.effectiveTier === "pro" || tierInfo.effectiveTier === "pro_plus" || tierInfo.effectiveTier === "pro_lite"
-            ? "pro"
-            : "simple";
+        const selectedAlgorithm = selectAlgorithm(tierInfo);
         setAlgorithm(selectedAlgorithm);
 
         // Calculate scores for all universities
@@ -161,11 +199,7 @@ export default function WizardResultsPage() {
         const sortedResults = sortResultsByChance(scoredResults);
 
         // Apply gating limits
-        const baseLimit =
-          tierInfo.effectiveTier === "free" ? 3 :
-          tierInfo.effectiveTier === "pro_lite" ? 6 :
-          null; // pro/pro_plus unlimited
-        const limit = baseLimit === null ? null : baseLimit + (tierInfo.bonusUniversities || 0);
+        const limit = calculateTierLimit(tierInfo);
         setTotalAvailable(sortedResults.length);
         setCurrentLimit(limit);
         setResults(limit ? sortedResults.slice(0, limit) : sortedResults);
@@ -194,7 +228,7 @@ export default function WizardResultsPage() {
       if (payload !== lastSavedRef.current) {
         lastSavedRef.current = payload;
         saveWizardProfile(formData).catch((error) => {
-          console.error("Error saving wizard profile:", error);
+          console.error("Error saving wizard profile:", getErrorMessage(error), error);
         });
       }
     }
@@ -217,7 +251,7 @@ export default function WizardResultsPage() {
           setProfileModalOpen(true);
         }
       } catch (error) {
-        console.error("Error loading profile:", error);
+        console.error("Error loading profile:", getErrorMessage(error), error);
       }
     };
 
@@ -255,38 +289,33 @@ export default function WizardResultsPage() {
   useEffect(() => {
     if (formData && universities.length > 0 && !authLoading) {
       const recalc = async () => {
-        const tierInfo = await getTierInfo();
-        setEffectiveTier(tierInfo.effectiveTier);
-        setBonusUniversities(tierInfo.bonusUniversities);
+        try {
+          const tierInfo = await getTierInfo();
+          setEffectiveTier(tierInfo.effectiveTier);
+          setBonusUniversities(tierInfo.bonusUniversities);
 
-        const selectedAlgorithm: ScoringAlgorithm =
-          tierInfo.effectiveTier === "pro" || tierInfo.effectiveTier === "pro_plus" || tierInfo.effectiveTier === "pro_lite"
-            ? "pro"
-            : "simple";
-        setAlgorithm(selectedAlgorithm);
+          const selectedAlgorithm = selectAlgorithm(tierInfo);
+          setAlgorithm(selectedAlgorithm);
 
-        // If user just logged in, unlock Pro permanently (legacy flag)
-        if (user && !proUnlocked) {
-          setProUnlocked(true);
+          const scoredResults = scoreAllUniversities(formData, universities, selectedAlgorithm);
+          const sortedResults = sortBy === "chance"
+            ? sortResultsByChance(scoredResults)
+            : sortResultsByBudget(scoredResults);
+
+          const limit = calculateTierLimit(tierInfo);
+          setTotalAvailable(sortedResults.length);
+          setCurrentLimit(limit);
+          setResults(limit ? sortedResults.slice(0, limit) : sortedResults);
+        } catch (error) {
+          // Prevent unhandled promise rejections / runtime overlay.
+          console.error("Error recalculating results:", getErrorMessage(error), error);
         }
-
-        const scoredResults = scoreAllUniversities(formData, universities, selectedAlgorithm);
-        const sortedResults = sortBy === "chance" 
-          ? sortResultsByChance(scoredResults)
-          : sortResultsByBudget(scoredResults);
-
-        const baseLimit =
-          tierInfo.effectiveTier === "free" ? 3 :
-          tierInfo.effectiveTier === "pro_lite" ? 6 :
-          null;
-        const limit = baseLimit === null ? null : baseLimit + (tierInfo.bonusUniversities || 0);
-        setTotalAvailable(sortedResults.length);
-        setCurrentLimit(limit);
-        setResults(limit ? sortedResults.slice(0, limit) : sortedResults);
       };
-      recalc();
+      recalc().catch((error) => {
+        console.error("Error recalculating results (unhandled):", getErrorMessage(error), error);
+      });
     }
-  }, [user, authLoading, formData, universities, sortBy, proUnlocked, getTierInfo]);
+  }, [user, authLoading, formData, universities, sortBy, getTierInfo]);
 
   const handleSortChange = (option: SortOption) => {
     setSortBy(option);
@@ -303,10 +332,13 @@ export default function WizardResultsPage() {
 
   if (isLoading || !formData) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Подбираем университеты...</p>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        <Navbar />
+        <div className="flex items-center justify-center min-h-screen pt-20">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Подбираем университеты...</p>
+          </div>
         </div>
       </div>
     );
@@ -314,39 +346,17 @@ export default function WizardResultsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
+      <Navbar />
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-8">
         {/* Header */}
         <div className="mb-6">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <Button
-              variant="ghost"
-              onClick={handleBack}
-              className="hover:bg-blue-100"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Вернуться на главную
-            </Button>
-            {user && (
-              <Button
-                variant="outline"
-                className="rounded-full w-11 h-11 p-0 border-2 border-blue-200 text-blue-700 hover:bg-blue-50"
-                aria-label="Профиль"
-                onClick={openProfileEditor}
-              >
-                <User className="w-5 h-5" />
-              </Button>
-            )}
-          </div>
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2 mt-2">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2">
             Ваши шансы поступления
           </h1>
           <p className="text-sm sm:text-base text-gray-600">
             Найдено {results.length} подходящих университетов
           </p>
         </div>
-
-        {/* User Summary */}
-        <WizardSummary formData={formData} />
 
         {/* Sorting Controls */}
         <div className="mb-6 flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:gap-3 sm:items-center">
@@ -408,12 +418,17 @@ export default function WizardResultsPage() {
                     result={result}
                     onUpgradeClick={() => {
                       trackEvent("upgrade_clicked", { from: "wizard-results", effectiveTier });
-                      setAuthModalOpen(true);
+                      if (effectiveTier === "free") {
+                        setAuthModalOpen(true);
+                      } else {
+                        setUpgradeModalOpen(true);
+                      }
                     }}
-                    showCTA={effectiveTier === "free" || effectiveTier === "pro_lite"}
+                    showCTA={effectiveTier === "free"}
                     isPro={algorithm === "pro"}
                     proLabel={effectiveTier === "pro_lite" ? "Pro Lite" : "Pro"}
-                    showInsights={effectiveTier === "pro" || effectiveTier === "pro_plus"}
+                    showInsights={effectiveTier === "pro_lite" || effectiveTier === "pro" || effectiveTier === "pro_plus"}
+                    showLiteAdvice={false}
                     formData={formData || undefined}
                     simplePercentage={simplePercentage}
                     saved={isSaved}
@@ -463,25 +478,119 @@ export default function WizardResultsPage() {
                 );
               })}
 
-              {effectiveTier === "pro_lite" &&
+              {effectiveTier === "free" &&
                 currentLimit !== null &&
                 totalAvailable > currentLimit && (
-                  <div className="rounded-2xl border border-gray-200 bg-white shadow-sm p-5">
-                    <div className="text-xl font-bold text-gray-900 mb-2">
-                      🔒 Вы открыли {currentLimit} из {totalAvailable} университетов
+                  <div className="rounded-2xl bg-white shadow-sm p-4 sm:p-5 relative overflow-hidden">
+                    <div className="space-y-3 opacity-60 blur-[2px] pointer-events-none select-none">
+                      {Array.from({ length: 2 }).map((_, idx) => (
+                        <div key={idx} className="rounded-2xl bg-gray-50 p-4">
+                          <div className="flex items-start justify-between gap-3">
+                            <div>
+                              <div className="text-sm font-semibold text-gray-900">
+                                {idx === 0 ? "University of Example" : "Example Business School"}
+                              </div>
+                              <div className="text-xs text-gray-600 mt-1">
+                                {idx === 0 ? "London, United Kingdom" : "Berlin, Germany"}
+                              </div>
+                            </div>
+                            <div className="shrink-0 px-2.5 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold">
+                              Средние шансы
+                            </div>
+                          </div>
+                          <div className="mt-3 grid grid-cols-3 gap-2">
+                            <div className="h-2 rounded bg-gray-200" />
+                            <div className="h-2 rounded bg-gray-200" />
+                            <div className="h-2 rounded bg-gray-200" />
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                    <div className="text-sm text-gray-600 mb-4">
-                      Откройте полный список, экспертный breakdown и сценарии улучшения.
+
+                    <div className="absolute inset-0 flex items-center justify-center p-5 sm:p-6 bg-white/55 backdrop-blur-sm">
+                      <div className="max-w-md text-center">
+                        {(() => {
+                          const hidden = 6;
+                          return (
+                            <div className="text-xl sm:text-2xl font-bold text-gray-900">
+                              Ещё {hidden} {formatUniversityCountRu(hidden)} скрыты
+                            </div>
+                          );
+                        })()}
+                        <div className="text-sm text-gray-600 mt-3">
+                          Откройте ещё 6 университетов и Pro-оценку.
+                        </div>
+                        <div className="mt-4">
+                          <Button
+                            className="bg-blue-600 hover:bg-blue-700 h-11 w-full sm:w-auto"
+                            onClick={() => {
+                              if (!user) {
+                                setAuthModalOpen(true);
+                                return;
+                              }
+                              trackEvent("upgrade_modal_opened", { from: "simple_locked_preview_card" });
+                              setUpgradeModalOpen(true);
+                            }}
+                          >
+                            Зарегистрироваться бесплатно
+                          </Button>
+                        </div>
+                      </div>
                     </div>
-                    <Button
-                      className="bg-blue-600 hover:bg-blue-700 h-11"
-                      onClick={() => {
-                        trackEvent("upgrade_modal_opened", { from: "paywall_card" });
-                        setUpgradeModalOpen(true);
-                      }}
-                    >
-                      Улучшить план
-                    </Button>
+                  </div>
+                )}
+
+              {effectiveTier === "pro_lite" &&
+                currentLimit !== null &&
+                totalAvailable >= currentLimit &&
+                results.length >= currentLimit && (
+                  <div className="rounded-2xl bg-white shadow-sm p-4 sm:p-5 relative overflow-hidden">
+                    <div className="space-y-3 opacity-60 blur-[2px] pointer-events-none select-none">
+                      {Array.from({ length: 2 }).map((_, idx) => (
+                        <div key={idx} className="rounded-2xl bg-gray-50 p-4">
+                          <div className="flex items-start justify-between gap-3">
+                            <div>
+                              <div className="text-sm font-semibold text-gray-900">
+                                {idx === 0 ? "University of Example" : "Example Business School"}
+                              </div>
+                              <div className="text-xs text-gray-600 mt-1">
+                                {idx === 0 ? "London, United Kingdom" : "Berlin, Germany"}
+                              </div>
+                            </div>
+                            <div className="shrink-0 px-2.5 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold">
+                              Средние шансы
+                            </div>
+                          </div>
+                          <div className="mt-3 grid grid-cols-3 gap-2">
+                            <div className="h-2 rounded bg-gray-200" />
+                            <div className="h-2 rounded bg-gray-200" />
+                            <div className="h-2 rounded bg-gray-200" />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="absolute inset-0 flex items-center justify-center p-5 sm:p-6 bg-white/55 backdrop-blur-sm">
+                      <div className="max-w-md text-center">
+                        <div className="text-xl sm:text-2xl font-bold text-gray-900">
+                          Откройте полный список
+                        </div>
+                        <div className="text-sm text-gray-600 mt-3">
+                          Откройте полный список и Pro-оценку.
+                        </div>
+                        <div className="mt-4">
+                          <Button
+                            className="bg-blue-600 hover:bg-blue-700 h-11 w-full sm:w-auto"
+                            onClick={() => {
+                              trackEvent("upgrade_modal_opened", { from: "pro_lite_locked_preview_card" });
+                              setUpgradeModalOpen(true);
+                            }}
+                          >
+                            Улучшить план
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 )}
             </div>
@@ -535,6 +644,49 @@ export default function WizardResultsPage() {
         />
         <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} />
       </div>
+
+      {/* Footer */}
+      <footer className="bg-gray-900 text-white py-8 px-4 border-t border-gray-800">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
+            {/* Brand */}
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                  <GraduationCap className="w-5 h-5 text-white" />
+                </div>
+                <h3 className="text-lg font-bold">Study Abroad UZ</h3>
+              </div>
+              <p className="text-gray-400 text-sm leading-relaxed">
+                Помогаем студентам из Узбекистана<br />
+                поступить в зарубежные университеты
+              </p>
+            </div>
+
+            {/* Contact */}
+            <div>
+              <h4 className="text-base font-bold mb-3 text-white">Контакты</h4>
+              <ul className="space-y-2">
+                <li className="flex items-center gap-2 text-gray-400 text-sm">
+                  <Mail className="w-4 h-4 text-blue-400" />
+                  <span>info@studyabroad.uz</span>
+                </li>
+                <li className="flex items-center gap-2 text-gray-400 text-sm">
+                  <MessageCircle className="w-4 h-4 text-blue-400" />
+                  <span>+998 90 123 45 67</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Bottom Bar */}
+          <div className="pt-6 border-t border-gray-700 text-center">
+            <p className="text-gray-500 text-xs">
+              © 2026 Study Abroad UZ. Все права защищены
+            </p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

@@ -2,7 +2,7 @@
 
 import { WizardFormData } from "@/lib/wizard-types";
 import { Card } from "./ui/card";
-import { User, GraduationCap, FileText, DollarSign, Globe } from "lucide-react";
+import { GraduationCap, FileText, DollarSign, Globe } from "lucide-react";
 
 const PROGRAM_GOAL_LABELS: Record<string, string> = {
   Bachelor: "Бакалавриат",

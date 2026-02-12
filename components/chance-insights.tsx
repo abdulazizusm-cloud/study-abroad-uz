@@ -22,6 +22,7 @@ interface ChanceInsightsProps {
   result: WizardScoringResult;
   formData: WizardFormData;
   simplePercentage?: number;
+  onUpgradeClick?: () => void;
 }
 
 interface ImprovementTip {
@@ -31,7 +32,7 @@ interface ImprovementTip {
   priority: "high" | "medium" | "low";
 }
 
-export function ChanceInsights({ result, formData, simplePercentage }: ChanceInsightsProps) {
+export function ChanceInsights({ result, formData, simplePercentage, onUpgradeClick }: ChanceInsightsProps) {
   const [isOpen, setIsOpen] = useState(false);
   const { percentage: proPercentage, matchDetails } = result;
   const difference = simplePercentage ? simplePercentage - proPercentage : 0;
@@ -115,8 +116,9 @@ export function ChanceInsights({ result, formData, simplePercentage }: ChanceIns
     ...baseTips,
   ].slice(0, 4);
 
-  const handleBookConsultation = () => {
-    alert("Функция записи на консультацию будет добавлена позже");
+  const handleUpgrade = () => {
+    if (onUpgradeClick) return onUpgradeClick();
+    alert("Функция улучшения плана будет добавлена позже");
   };
 
   return (
@@ -217,10 +219,10 @@ export function ChanceInsights({ result, formData, simplePercentage }: ChanceIns
                 </div>
               </div>
               <Button
-                onClick={handleBookConsultation}
+                onClick={handleUpgrade}
                 className="bg-purple-600 hover:bg-purple-700 text-white font-medium w-full sm:w-auto flex-shrink-0"
               >
-                Записаться на консультацию
+                Улучшить план
               </Button>
             </div>
           </div>

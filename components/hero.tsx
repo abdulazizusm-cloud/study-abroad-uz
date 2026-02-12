@@ -1,13 +1,33 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, Clock, UserCheck } from "lucide-react";
+import { useAuth } from "@/contexts/auth-context";
 
 export function Hero() {
+  const router = useRouter();
+  const { user, loading } = useAuth();
+  const [hasResults, setHasResults] = useState(false);
+
+  useEffect(() => {
+    const savedData = localStorage.getItem("wizardFormData");
+    setHasResults(!!savedData);
+  }, []);
+
   const scrollToForm = () => {
     const formSection = document.getElementById("form-section");
     if (formSection) {
       formSection.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  const handleButtonClick = () => {
+    if (user && hasResults) {
+      router.push("/wizard-results");
+    } else {
+      scrollToForm();
     }
   };
 
@@ -42,14 +62,18 @@ export function Hero() {
           университетов и вероятность поступления
         </p>
 
+        <p className="text-sm sm:text-base text-slate-600 max-w-md mx-auto text-center border-t border-slate-200 pt-6 mt-8 mb-8">
+          <span className="text-slate-800 font-medium">1,248+</span> профилей уже проанализировано
+        </p>
+
         {/* CTA Button - enhanced */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
           <Button
-            onClick={scrollToForm}
+            onClick={handleButtonClick}
             size="lg"
             className="bg-blue-600 hover:bg-blue-700 text-white text-lg px-10 py-7 rounded-2xl shadow-lg hover:shadow-xl transition-all font-semibold"
           >
-            Проверить шансы бесплатно
+            {user && hasResults ? "Вернуться к результатам" : "Проверить шансы бесплатно"}
           </Button>
         </div>
 

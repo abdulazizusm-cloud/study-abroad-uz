@@ -5,7 +5,7 @@ import { Card } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { ChanceInsights } from "./chance-insights";
-import { MapPin, GraduationCap, DollarSign, XCircle, CheckCircle } from "lucide-react";
+import { MapPin, GraduationCap, DollarSign, XCircle, CheckCircle, Heart, Plus, Check } from "lucide-react";
 
 interface WizardResultCardProps {
   result: WizardScoringResult;
@@ -14,6 +14,9 @@ interface WizardResultCardProps {
   isPro?: boolean;
   proLabel?: string;
   showInsights?: boolean;
+  showLiteAdvice?: boolean;
+  ctaText?: string;
+  ctaButtonText?: string;
   formData?: WizardFormData;
   simplePercentage?: number;
   saved?: boolean;
@@ -29,6 +32,9 @@ export function WizardResultCard({
   isPro = false,
   proLabel = "Pro",
   showInsights,
+  showLiteAdvice = false,
+  ctaText,
+  ctaButtonText,
   formData,
   simplePercentage,
   saved = false,
@@ -56,15 +62,67 @@ export function WizardResultCard({
     Low: "Низкие шансы",
   };
 
+  const liteAdvice = (() => {
+    const tips: string[] = [];
+    if (!matchDetails.standardizedTestMatch) tips.push("Сдать GRE/GMAT (если требуется) — это часто даёт сильный прирост");
+    if (!matchDetails.englishMatch) tips.push("Поднять английский выше минимума (лучше иметь запас, не “на границе”)");
+    if (!matchDetails.gpaMatch) tips.push("Усилить академический профиль: GPA/сертификаты/курсы");
+    if (!matchDetails.budgetMatch) tips.push("Рассмотреть гранты/стипендии или программы с меньшей стоимостью");
+    const unique = Array.from(new Set(tips));
+    return unique.slice(0, 2);
+  })();
+
   return (
     <Card className="p-3 md:p-4 hover:shadow-lg transition-shadow" style={{ fontFamily: 'var(--font-inter)' }}>
       {/* Header */}
       <div className="mb-2">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-1">
-          <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-[#374151]">{university.name}</h3>
-          <Badge className={`${chanceBadgeColors[chanceLevel]} ${chanceLevel === 'High' || chanceLevel === 'Low' ? 'px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base font-bold' : 'px-2.5 py-1 sm:px-3 text-xs sm:text-sm'} flex-shrink-0 self-start`}>
-            {chanceLabels[chanceLevel]}
-          </Badge>
+        <div className="flex flex-col sm:flex-row sm:items-start gap-2 mb-1">
+          <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-[#374151] flex-1">
+            {university.name}
+          </h3>
+          <div className="flex items-center gap-2 self-start">
+            <Badge className={`${chanceBadgeColors[chanceLevel]} ${chanceLevel === 'High' || chanceLevel === 'Low' ? 'px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base font-bold' : 'px-2.5 py-1 sm:px-3 text-xs sm:text-sm'} flex-shrink-0`}>
+              {chanceLabels[chanceLevel]}
+            </Badge>
+
+            {(onToggleSaved || onAddToPlan) && (
+              <div className="flex items-center gap-2">
+                {onToggleSaved && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={onToggleSaved}
+                    className={`h-10 w-10 p-0 rounded-xl ${
+                      saved
+                        ? "border-blue-300 bg-blue-50 text-blue-700 hover:bg-blue-100"
+                        : "hover:bg-gray-50"
+                    }`}
+                    aria-label={saved ? "Убрать лайк" : "Поставить лайк"}
+                    title={saved ? "Лайк поставлен" : "Лайк"}
+                  >
+                    <Heart className="w-5 h-5" fill={saved ? "currentColor" : "none"} />
+                  </Button>
+                )}
+                {onAddToPlan && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={onAddToPlan}
+                    className={`h-10 w-10 p-0 rounded-xl ${
+                      planned
+                        ? "border-blue-300 bg-blue-50 text-blue-700 cursor-default"
+                        : "hover:bg-gray-50"
+                    }`}
+                    aria-label={planned ? "Уже в плане" : "Добавить в план"}
+                    title={planned ? "В плане" : "Добавить в план"}
+                    aria-disabled={planned}
+                  >
+                    {planned ? <Check className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
+                  </Button>
+                )}
+              </div>
+            )}
+          </div>
         </div>
         <div className="flex items-center gap-3 flex-wrap">
           <div className="flex items-center gap-1.5 text-sm text-[#6B7280]">
@@ -175,32 +233,6 @@ export function WizardResultCard({
         <span className="font-semibold">$ {university.requirements.tuitionUSD.toLocaleString()}/год</span>
       </div>
 
-      {/* Actions (Save / Add to plan) */}
-      {(onToggleSaved || onAddToPlan) && (
-        <div className="mt-3 flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-end">
-          {onToggleSaved && (
-            <Button
-              type="button"
-              variant={saved ? "default" : "outline"}
-              onClick={onToggleSaved}
-              className={saved ? "bg-blue-600 hover:bg-blue-700" : ""}
-            >
-              {saved ? "Сохранено" : "Сохранить"}
-            </Button>
-          )}
-          {onAddToPlan && (
-            <Button
-              type="button"
-              variant={planned ? "secondary" : "outline"}
-              onClick={onAddToPlan}
-              disabled={planned}
-            >
-              {planned ? "В плане" : "Добавить в план"}
-            </Button>
-          )}
-        </div>
-      )}
-
       {/* Disciplines */}
       <div className="mb-0 flex flex-wrap gap-2">
         {university.disciplines.map((disc) => (
@@ -215,14 +247,45 @@ export function WizardResultCard({
         <div className="pt-0">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
             <p className="text-sm sm:text-base text-[#6B7280]">
-              Рассчитать реальный шанс по полной модели (Pro).
+              {ctaText ?? "Рассчитать реальный шанс по полной модели (Pro)."}
             </p>
             <Button
               onClick={onUpgradeClick}
               className="bg-purple-600 hover:bg-purple-700 text-white font-medium w-full sm:w-auto flex-shrink-0"
             >
-              Узнать реальные шансы
+              {ctaButtonText ?? "Узнать реальные шансы"}
             </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Pro Lite short advice (no breakdown) */}
+      {showLiteAdvice && liteAdvice.length > 0 && (
+        <div className="mt-3 border-t border-gray-200 pt-3">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <div className="text-xs sm:text-sm font-semibold text-[#374151] mb-1">
+                Как улучшить шанс (Pro Lite)
+              </div>
+              <ul className="space-y-1 text-xs sm:text-sm text-[#374151]">
+                {liteAdvice.map((t) => (
+                  <li key={t} className="flex items-start gap-2">
+                    <span className="text-blue-600 font-bold">•</span>
+                    <span>{t}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            {onUpgradeClick && (
+              <Button
+                type="button"
+                variant="outline"
+                className="flex-shrink-0"
+                onClick={onUpgradeClick}
+              >
+                Улучшить план
+              </Button>
+            )}
           </div>
         </div>
       )}
@@ -233,6 +296,7 @@ export function WizardResultCard({
           result={result} 
           formData={formData}
           simplePercentage={simplePercentage}
+          onUpgradeClick={onUpgradeClick}
         />
       )}
     </Card>
