@@ -11,9 +11,14 @@ import { UserAvatar } from "@/components/ui/user-avatar";
 
 export function Navbar() {
   const router = useRouter();
-  const { user, getProfile } = useAuth();
+  const { user, loading, getProfile } = useAuth();
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [profile, setProfile] = useState<{ first_name: string; last_name: string; phone: string } | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (user) {
@@ -36,27 +41,35 @@ export function Navbar() {
           </Link>
 
           {/* Auth / Profile */}
-          {user ? (
-            <button
-              className="relative group cursor-pointer"
-              aria-label="Профиль"
-              onClick={() => router.push("/profile")}
-            >
-              <UserAvatar
-                firstName={profile?.first_name || user.user_metadata?.first_name}
-                lastName={profile?.last_name || user.user_metadata?.last_name}
-                email={user.email}
-                size="sm"
-                className="ring-2 ring-blue-200 group-hover:ring-blue-400 transition-all"
-              />
-            </button>
-          ) : (
-            <Button
-              onClick={() => setAuthModalOpen(true)}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all px-6"
-            >
-              Регистрация / Вход
-            </Button>
+          {mounted && !loading && (
+            <>
+              {user ? (
+                <button
+                  className="relative group cursor-pointer"
+                  aria-label="Профиль"
+                  onClick={() => router.push("/profile")}
+                >
+                  <UserAvatar
+                    firstName={profile?.first_name || user.user_metadata?.first_name}
+                    lastName={profile?.last_name || user.user_metadata?.last_name}
+                    email={user.email}
+                    size="sm"
+                    className="ring-2 ring-blue-200 group-hover:ring-blue-400 transition-all"
+                  />
+                </button>
+              ) : (
+                <Button
+                  onClick={() => setAuthModalOpen(true)}
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all px-6"
+                >
+                  Регистрация / Вход
+                </Button>
+              )}
+            </>
+          )}
+          {/* Loading placeholder */}
+          {(!mounted || loading) && (
+            <div className="w-10 h-10 rounded-full bg-gray-200 animate-pulse" />
           )}
         </div>
       </div>

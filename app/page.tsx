@@ -10,6 +10,16 @@ import { useAuth } from "@/contexts/auth-context";
 export default function Home() {
   const { user, loading } = useAuth();
 
+  // Wait for auth to load to prevent hydration mismatch
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-gradient-to-b from-white via-gray-50 to-white">
+        <Navbar />
+        <Hero />
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-screen bg-gradient-to-b from-white via-gray-50 to-white">
       <Navbar />

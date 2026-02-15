@@ -31,6 +31,9 @@ export function Hero() {
     }
   };
 
+  // Determine button text (avoid hydration mismatch)
+  const buttonText = loading ? "Проверить шансы бесплатно" : (user && hasResults ? "Вернуться к результатам" : "Проверить шансы бесплатно");
+
   return (
     <section className="relative pt-32 pb-24 px-4 sm:px-6 lg:px-8 overflow-hidden">
       {/* Background gradient blobs - enhanced */}
@@ -73,7 +76,7 @@ export function Hero() {
             size="lg"
             className="bg-blue-600 hover:bg-blue-700 text-white text-lg px-10 py-7 rounded-2xl shadow-lg hover:shadow-xl transition-all font-semibold"
           >
-            {user && hasResults ? "Вернуться к результатам" : "Проверить шансы бесплатно"}
+            {buttonText}
           </Button>
         </div>
 
