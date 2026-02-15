@@ -6,7 +6,7 @@ import { useAuth } from "@/contexts/auth-context";
 import { WizardFormData } from "@/lib/wizard-types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { DollarSign, FileText, Globe, GraduationCap, Crown, User, Heart, ClipboardList } from "lucide-react";
+import { ArrowLeft, DollarSign, FileText, Globe, GraduationCap, Crown, User, Heart, ClipboardList, LogOut } from "lucide-react";
 import { UpgradePlanModal } from "@/components/upgrade-plan-modal";
 import { supabase } from "@/lib/supabase-client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -28,7 +28,7 @@ type UniversityMini = {
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { user, loading: authLoading, getProfile, upsertProfile, loadWizardProfile, getTierInfo, trackEvent } = useAuth();
+  const { user, loading: authLoading, getProfile, upsertProfile, loadWizardProfile, getTierInfo, trackEvent, signOut } = useAuth();
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [wizardData, setWizardData] = useState<WizardFormData | null>(null);
   const [loadError, setLoadError] = useState<string>("");
@@ -323,6 +323,20 @@ export default function ProfilePage() {
                         В плане
                       </TabsTrigger>
                     </TabsList>
+                  </div>
+
+                  <div className="p-2 border-t border-gray-200/60">
+                    <Button
+                      variant="ghost"
+                      onClick={async () => {
+                        await signOut();
+                        router.push("/");
+                      }}
+                      className="w-full justify-start gap-2 text-red-600 hover:text-red-700 hover:bg-red-50 text-sm px-3 py-2 rounded-xl"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Выйти из аккаунта
+                    </Button>
                   </div>
                 </div>
               </div>
