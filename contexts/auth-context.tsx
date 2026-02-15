@@ -214,10 +214,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signInWithGoogle = async () => {
     try {
       setError(null);
+      // Use production URL if available, otherwise use current origin
+      const redirectOrigin = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/wizard-results`,
+          redirectTo: `${redirectOrigin}/wizard-results`,
         },
       });
       if (error) throw error;
