@@ -661,8 +661,18 @@ export default function WizardResultsPage() {
       <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} />
       <ProfileCompletionModal
         open={profileModalOpen}
-        onOpenChange={setProfileModalOpen}
-        initialData={profileInitial}
+        onSubmit={async (profile) => {
+          try {
+            await upsertProfile(profile.firstName, profile.lastName, profile.phone);
+            setProfileModalOpen(false);
+          } catch (error) {
+            console.error("Error saving profile:", getErrorMessage(error), error);
+            throw error;
+          }
+        }}
+        initialFirstName={profileInitial.firstName}
+        initialLastName={profileInitial.lastName}
+        initialPhone={profileInitial.phone}
       />
       <UpgradePlanModal 
         open={upgradeModalOpen}
