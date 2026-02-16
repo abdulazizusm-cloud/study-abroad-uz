@@ -59,7 +59,6 @@ export default function WizardResultsPage() {
   const [savedUniversityIds, setSavedUniversityIds] = useState<Set<string>>(new Set());
   const [plannedUniversityIds, setPlannedUniversityIds] = useState<Set<string>>(new Set());
   const [profileModalOpen, setProfileModalOpen] = useState(false);
-  const [authModalOpen, setAuthModalOpen] = useState(false);
   const [profileInitial, setProfileInitial] = useState({
     firstName: "",
     lastName: "",
