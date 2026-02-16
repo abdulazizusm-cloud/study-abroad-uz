@@ -35,6 +35,7 @@ interface AuthContextType {
   ) => Promise<{ hasSession: boolean }>;
   signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
   saveWizardProfile: (wizardData: WizardFormData) => Promise<void>;
   loadWizardProfile: () => Promise<WizardFormData | null>;
   getProfile: () => Promise<{ first_name: string; last_name: string; phone: string } | null>;
@@ -246,6 +247,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const resetPassword = async (email: string) => {
+    try {
+      setError(null);
+      const redirectOrigin = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${redirectOrigin}/reset-password`,
+      });
+      if (error) throw error;
+    } catch (error) {
+      const authError = error as AuthError;
+      setError(authError.message);
+      throw error;
+    }
+  };
+
   const saveWizardProfile = async (wizardData: WizardFormData) => {
     if (!user) return;
     try {
@@ -430,6 +446,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signUp,
     signInWithGoogle,
     signOut,
+    resetPassword,
     saveWizardProfile,
     loadWizardProfile,
     getProfile,
