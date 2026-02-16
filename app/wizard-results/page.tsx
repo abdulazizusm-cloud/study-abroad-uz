@@ -663,7 +663,7 @@ export default function WizardResultsPage() {
         open={profileModalOpen}
         onSubmit={async (profile) => {
           try {
-            await upsertProfile(profile.firstName, profile.lastName, profile.phone);
+            await upsertProfile(profile);
             setProfileModalOpen(false);
           } catch (error) {
             console.error("Error saving profile:", getErrorMessage(error), error);
