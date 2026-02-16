@@ -1,6 +1,6 @@
 /**
- * GRE Score to Percentile Conversion Tables
- * Based on official ETS data
+ * GRE and GMAT Score to Percentile Conversion Tables
+ * Based on official ETS and GMAC data
  */
 
 export interface PercentileEntry {
@@ -113,6 +113,76 @@ export const GRE_AW_TABLE: PercentileEntry[] = [
   { score: 1.0, percentile: 0 },
   { score: 0.5, percentile: 0 },
   { score: 0.0, percentile: 0 },
+];
+
+// GMAT Quantitative Reasoning (60-90)
+export const GMAT_QUANT_TABLE: PercentileEntry[] = [
+  { score: 90, percentile: 97 },
+  { score: 89, percentile: 94 },
+  { score: 88, percentile: 91 },
+  { score: 87, percentile: 88 },
+  { score: 86, percentile: 85 },
+  { score: 85, percentile: 82 },
+  { score: 84, percentile: 78 },
+  { score: 83, percentile: 75 },
+  { score: 82, percentile: 71 },
+  { score: 81, percentile: 67 },
+  { score: 80, percentile: 63 },
+  { score: 79, percentile: 59 },
+  { score: 78, percentile: 55 },
+  { score: 77, percentile: 51 },
+  { score: 76, percentile: 47 },
+  { score: 75, percentile: 43 },
+  { score: 74, percentile: 40 },
+  { score: 73, percentile: 36 },
+  { score: 72, percentile: 33 },
+  { score: 71, percentile: 30 },
+  { score: 70, percentile: 27 },
+  { score: 69, percentile: 24 },
+  { score: 68, percentile: 21 },
+  { score: 67, percentile: 19 },
+  { score: 66, percentile: 17 },
+  { score: 65, percentile: 15 },
+  { score: 64, percentile: 13 },
+  { score: 63, percentile: 11 },
+  { score: 62, percentile: 9 },
+  { score: 61, percentile: 8 },
+  { score: 60, percentile: 6 },
+];
+
+// GMAT Verbal Reasoning (60-90)
+export const GMAT_VERBAL_TABLE: PercentileEntry[] = [
+  { score: 90, percentile: 99 },
+  { score: 89, percentile: 99 },
+  { score: 88, percentile: 98 },
+  { score: 87, percentile: 97 },
+  { score: 86, percentile: 96 },
+  { score: 85, percentile: 95 },
+  { score: 84, percentile: 93 },
+  { score: 83, percentile: 91 },
+  { score: 82, percentile: 89 },
+  { score: 81, percentile: 87 },
+  { score: 80, percentile: 84 },
+  { score: 79, percentile: 81 },
+  { score: 78, percentile: 78 },
+  { score: 77, percentile: 75 },
+  { score: 76, percentile: 71 },
+  { score: 75, percentile: 68 },
+  { score: 74, percentile: 64 },
+  { score: 73, percentile: 60 },
+  { score: 72, percentile: 56 },
+  { score: 71, percentile: 52 },
+  { score: 70, percentile: 48 },
+  { score: 69, percentile: 44 },
+  { score: 68, percentile: 40 },
+  { score: 67, percentile: 36 },
+  { score: 66, percentile: 33 },
+  { score: 65, percentile: 29 },
+  { score: 64, percentile: 26 },
+  { score: 63, percentile: 23 },
+  { score: 62, percentile: 20 },
+  { score: 61, percentile: 17 },
+  { score: 60, percentile: 14 },
 ];
 
 /**

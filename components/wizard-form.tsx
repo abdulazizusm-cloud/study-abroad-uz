@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ChevronDown, Check } from "lucide-react";
-import { lookupPercentile, GRE_VERBAL_TABLE, GRE_QUANT_TABLE, GRE_AW_TABLE } from "@/lib/grePercentiles";
+import { lookupPercentile, GRE_VERBAL_TABLE, GRE_QUANT_TABLE, GRE_AW_TABLE, GMAT_QUANT_TABLE, GMAT_VERBAL_TABLE } from "@/lib/grePercentiles";
 
 interface FormDataType {
   // Step 1
@@ -1180,7 +1180,17 @@ export function WizardForm() {
                       min={60}
                       max={90}
                       value={formData.gmatQuant ?? ""}
-                      onChange={(e) => updateField("gmatQuant", e.target.value)}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        updateField("gmatQuant", value);
+                        // Auto-fill percentile
+                        const percentile = lookupPercentile(GMAT_QUANT_TABLE, value);
+                        if (percentile !== null) {
+                          updateField("gmatQuantPercentile", percentile.toString());
+                        } else if (value === "") {
+                          updateField("gmatQuantPercentile", "");
+                        }
+                      }}
                       placeholder="0 - 90"
                       className="h-12 text-base border-2"
                     />
@@ -1220,7 +1230,17 @@ export function WizardForm() {
                       min={60}
                       max={90}
                       value={formData.gmatVerbal ?? ""}
-                      onChange={(e) => updateField("gmatVerbal", e.target.value)}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        updateField("gmatVerbal", value);
+                        // Auto-fill percentile
+                        const percentile = lookupPercentile(GMAT_VERBAL_TABLE, value);
+                        if (percentile !== null) {
+                          updateField("gmatVerbalPercentile", percentile.toString());
+                        } else if (value === "") {
+                          updateField("gmatVerbalPercentile", "");
+                        }
+                      }}
                       placeholder="0 - 90"
                       className="h-12 text-base border-2"
                     />
