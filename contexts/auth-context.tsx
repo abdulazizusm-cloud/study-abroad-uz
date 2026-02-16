@@ -176,10 +176,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   ) => {
     try {
       setError(null);
+      // Use production URL if available, otherwise use current origin
+      const redirectOrigin = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
+      
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
+          emailRedirectTo: `${redirectOrigin}/wizard-results`,
           data: {
             first_name: profile.firstName,
             last_name: profile.lastName,

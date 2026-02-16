@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/auth-context";
 import {
   Dialog,
@@ -20,6 +21,7 @@ interface AuthModalProps {
 }
 
 export function AuthModal({ open, onOpenChange }: AuthModalProps) {
+  const router = useRouter();
   const { signIn, signUp, signInWithGoogle, error } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -79,6 +81,11 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
         setFirstName("");
         setLastName("");
         setPhone("");
+        // Redirect to results if user has wizard data
+        const savedData = localStorage.getItem("wizardFormData");
+        if (savedData) {
+          router.push("/wizard-results");
+        }
       } else {
         setActiveTab("signin");
         setLocalError("Регистрация завершена. Подтвердите email и войдите.");
