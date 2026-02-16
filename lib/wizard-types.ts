@@ -22,6 +22,8 @@ export interface WizardFormData {
   // Step 3 - Field of Study
   programGoal: string;
   faculty: string[];
+  /** Whether the student is looking for a scholarship (Yes/No) */
+  scholarship?: string;
   /** @deprecated Legacy: used when reading old saved form data */
   discipline?: string;
 }

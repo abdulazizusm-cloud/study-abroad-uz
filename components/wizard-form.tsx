@@ -66,6 +66,7 @@ interface FormDataType {
   // Step 3 - Направление обучения
   programGoal: string; // Куда хотите поступить?
   faculty: string[];   // Факультет / направление, max 2
+  scholarship: string; // Стипендия: Да / Нет
 }
 
 export function WizardForm() {
@@ -85,6 +86,7 @@ export function WizardForm() {
     standardizedExamType: "None",
     programGoal: "",
     faculty: [],
+    scholarship: "",
   });
   const [showErrors, setShowErrors] = useState({ 1: false, 2: false, 3: false });
   const [facultyDropdownOpen, setFacultyDropdownOpen] = useState(false);
@@ -215,10 +217,11 @@ export function WizardForm() {
     
     if (step === 3) {
       let filled = 0;
-      let total = 2; // programGoal + faculty
+      let total = 3; // programGoal + faculty + scholarship
       
       if (formData.programGoal) filled++;
       if (formData.faculty && formData.faculty.length > 0) filled++;
+      if (formData.scholarship) filled++;
       
       return (filled / total) * 100;
     }
@@ -330,6 +333,7 @@ export function WizardForm() {
     const errors: string[] = [];
     if (!formData.programGoal) errors.push("Куда хотите поступить: выберите значение");
     if ((formData.faculty?.length ?? 0) < 1) errors.push("Факультет / направление: выберите минимум один вариант");
+    if (!formData.scholarship) errors.push("Стипендия: выберите Да или Нет");
     return errors;
   };
 
@@ -422,7 +426,7 @@ export function WizardForm() {
 
   // Step 3 validation
   const isStep3Valid = () => {
-    return formData.programGoal !== "" && (formData.faculty?.length ?? 0) >= 1;
+    return formData.programGoal !== "" && (formData.faculty?.length ?? 0) >= 1 && !!formData.scholarship;
   };
 
   const handleNext = () => {
@@ -502,6 +506,7 @@ export function WizardForm() {
       // Step 3
       programGoal: formData.programGoal,
       faculty: formData.faculty ?? [],
+      scholarship: formData.scholarship ?? "",
     };
     
     // Save to localStorage
@@ -1559,6 +1564,25 @@ export function WizardForm() {
                     </div>
                   )}
                 </div>
+              </div>
+
+              {/* Стипендия — Да / Нет */}
+              <div className="space-y-2">
+                <Label htmlFor="scholarship" className="text-base font-semibold text-gray-700">
+                  Стипендия <span className="text-red-500">*</span>
+                </Label>
+                <Select
+                  value={formData.scholarship}
+                  onValueChange={(value) => updateField("scholarship", value)}
+                >
+                  <SelectTrigger id="scholarship" className="flex h-12 min-h-12 w-full items-center rounded-md border-2 border-gray-200 bg-white px-4 py-0 text-left text-base hover:border-blue-300 transition-colors">
+                    <SelectValue placeholder="Выберите: Да или Нет" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Yes">Да</SelectItem>
+                    <SelectItem value="No">Нет</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="pt-6 border-t border-gray-200 flex gap-4">
