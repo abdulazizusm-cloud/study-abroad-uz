@@ -35,7 +35,7 @@ export function Navbar() {
             <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center">
               <GraduationCap className="w-6 h-6 text-white" />
             </div>
-            <h1 className="text-xl sm:text-2xl font-bold text-blue-600">
+            <h1 className="hidden sm:block text-xl sm:text-2xl font-bold text-blue-600">
               Study Abroad UZ
             </h1>
           </Link>
@@ -60,9 +60,10 @@ export function Navbar() {
               ) : (
                 <Button
                   onClick={() => setAuthModalOpen(true)}
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all px-6"
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all px-4 sm:px-6 text-sm sm:text-base"
                 >
-                  Регистрация / Вход
+                  <span className="hidden sm:inline">Регистрация / Вход</span>
+                  <span className="sm:hidden">Вход</span>
                 </Button>
               )}
             </>

@@ -261,14 +261,14 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <Navbar />
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-8">
+      <div className="max-w-6xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 pt-20 sm:pt-24 md:pt-28 pb-6 sm:pb-8">
 
         <Tabs defaultValue="profile" className="w-full">
-            <div className="grid gap-6 lg:grid-cols-[300px_1fr] items-start">
+            <div className="grid gap-4 sm:gap-6 lg:grid-cols-[280px_1fr] items-start">
               <div className="lg:sticky lg:top-6">
-                <div className="rounded-2xl bg-white/70 backdrop-blur-md shadow-sm overflow-hidden divide-y divide-gray-200/60">
-                  <div className="p-4">
-                    <div className="flex items-start gap-3">
+                <div className="rounded-xl sm:rounded-2xl bg-white/70 backdrop-blur-md shadow-sm overflow-hidden divide-y divide-gray-200/60">
+                  <div className="p-3 sm:p-4">
+                    <div className="flex items-start gap-2 sm:gap-3">
                       <UserAvatar
                         firstName={profile?.first_name}
                         lastName={profile?.last_name}
@@ -277,7 +277,7 @@ export default function ProfilePage() {
                         className="shrink-0"
                       />
                       <div className="min-w-0">
-                        <div className="font-semibold text-gray-900 truncate">
+                        <div className="font-semibold text-sm sm:text-base text-gray-900 truncate">
                           {[profile?.first_name, profile?.last_name].filter(Boolean).join(" ") || "Пользователь"}
                         </div>
                         <div className="text-xs text-gray-600 truncate">{user.email}</div>
@@ -285,56 +285,56 @@ export default function ProfilePage() {
                     </div>
                   </div>
 
-                  <div className="p-2">
+                  <div className="p-1.5 sm:p-2">
                     <TabsList className="flex lg:flex-col h-auto w-full p-1 bg-transparent gap-1 overflow-x-auto lg:overflow-visible justify-start">
                       <TabsTrigger
                         value="profile"
-                        className="justify-start px-3 py-2 rounded-xl w-full gap-2 text-gray-700 hover:bg-white/70 data-[state=active]:bg-blue-50/80 data-[state=active]:shadow-none data-[state=active]:text-blue-700"
+                        className="justify-start px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl w-full gap-1.5 sm:gap-2 text-xs sm:text-sm text-gray-700 hover:bg-white/70 data-[state=active]:bg-blue-50/80 data-[state=active]:shadow-none data-[state=active]:text-blue-700 whitespace-nowrap"
                       >
-                        <User className="w-4 h-4" />
+                        <User className="w-3 h-3 sm:w-4 sm:h-4" />
                         Личные данные
                       </TabsTrigger>
                       <TabsTrigger
                         value="plan"
-                        className="justify-start px-3 py-2 rounded-xl w-full gap-2 text-gray-700 hover:bg-white/70 data-[state=active]:bg-blue-50/80 data-[state=active]:shadow-none data-[state=active]:text-blue-700"
+                        className="justify-start px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl w-full gap-1.5 sm:gap-2 text-xs sm:text-sm text-gray-700 hover:bg-white/70 data-[state=active]:bg-blue-50/80 data-[state=active]:shadow-none data-[state=active]:text-blue-700 whitespace-nowrap"
                       >
-                        <Crown className="w-4 h-4" />
+                        <Crown className="w-3 h-3 sm:w-4 sm:h-4" />
                         Мой план
                       </TabsTrigger>
                       <TabsTrigger
                         value="questionnaire"
-                        className="justify-start px-3 py-2 rounded-xl w-full gap-2 text-gray-700 hover:bg-white/70 data-[state=active]:bg-blue-50/80 data-[state=active]:shadow-none data-[state=active]:text-blue-700"
+                        className="justify-start px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl w-full gap-1.5 sm:gap-2 text-xs sm:text-sm text-gray-700 hover:bg-white/70 data-[state=active]:bg-blue-50/80 data-[state=active]:shadow-none data-[state=active]:text-blue-700 whitespace-nowrap"
                       >
-                        <FileText className="w-4 h-4" />
+                        <FileText className="w-3 h-3 sm:w-4 sm:h-4" />
                         Анкета
                       </TabsTrigger>
                       <TabsTrigger
                         value="favorites"
-                        className="justify-start px-3 py-2 rounded-xl w-full gap-2 text-gray-700 hover:bg-white/70 data-[state=active]:bg-blue-50/80 data-[state=active]:shadow-none data-[state=active]:text-blue-700"
+                        className="justify-start px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl w-full gap-1.5 sm:gap-2 text-xs sm:text-sm text-gray-700 hover:bg-white/70 data-[state=active]:bg-blue-50/80 data-[state=active]:shadow-none data-[state=active]:text-blue-700 whitespace-nowrap"
                       >
-                        <Heart className="w-4 h-4" />
+                        <Heart className="w-3 h-3 sm:w-4 sm:h-4" />
                         Избранные
                       </TabsTrigger>
                       <TabsTrigger
                         value="planned"
-                        className="justify-start px-3 py-2 rounded-xl w-full gap-2 text-gray-700 hover:bg-white/70 data-[state=active]:bg-blue-50/80 data-[state=active]:shadow-none data-[state=active]:text-blue-700"
+                        className="justify-start px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl w-full gap-1.5 sm:gap-2 text-xs sm:text-sm text-gray-700 hover:bg-white/70 data-[state=active]:bg-blue-50/80 data-[state=active]:shadow-none data-[state=active]:text-blue-700 whitespace-nowrap"
                       >
-                        <ClipboardList className="w-4 h-4" />
+                        <ClipboardList className="w-3 h-3 sm:w-4 sm:h-4" />
                         В плане
                       </TabsTrigger>
                     </TabsList>
                   </div>
 
-                  <div className="p-2 border-t border-gray-200/60">
+                  <div className="p-1.5 sm:p-2 border-t border-gray-200/60">
                     <Button
                       variant="ghost"
                       onClick={async () => {
                         await signOut();
                         router.push("/");
                       }}
-                      className="w-full justify-start gap-2 text-red-600 hover:text-red-700 hover:bg-red-50 text-sm px-3 py-2 rounded-xl"
+                      className="w-full justify-start gap-1.5 sm:gap-2 text-red-600 hover:text-red-700 hover:bg-red-50 text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl"
                     >
-                      <LogOut className="w-4 h-4" />
+                      <LogOut className="w-3 h-3 sm:w-4 sm:h-4" />
                       Выйти из аккаунта
                     </Button>
                   </div>
@@ -351,8 +351,8 @@ export default function ProfilePage() {
                 <TabsContent value="plan" className="m-0">
                   <div className="space-y-4">
                     <div>
-                      <h2 className="text-2xl font-semibold text-gray-900">Мой план</h2>
-                      <p className="text-sm text-gray-600 mt-1">
+                      <h2 className="text-xl sm:text-xl sm:text-2xl font-semibold text-gray-900">Мой план</h2>
+                      <p className="text-xs sm:text-sm text-gray-600 mt-1">
                         Текущий доступ, лимиты и управление подпиской.
                       </p>
                     </div>
@@ -529,7 +529,7 @@ export default function ProfilePage() {
                 <TabsContent value="profile" className="m-0">
                   <div className="space-y-6">
                     <div>
-                      <h2 className="text-2xl font-semibold text-gray-900">Личные данные</h2>
+                      <h2 className="text-xl sm:text-2xl font-semibold text-gray-900">Личные данные</h2>
                       <p className="text-sm text-gray-600 mt-2">
                         Редактируйте имя, фамилию и номер телефона.
                       </p>
@@ -663,7 +663,7 @@ export default function ProfilePage() {
                 <TabsContent value="favorites" className="m-0">
                   <div className="space-y-4">
                     <div>
-                      <h2 className="text-2xl font-semibold text-gray-900">Избранные</h2>
+                      <h2 className="text-xl sm:text-2xl font-semibold text-gray-900">Избранные</h2>
                       <p className="text-sm text-gray-600 mt-1">
                         Университеты, которые вы лайкнули.
                       </p>
@@ -689,7 +689,7 @@ export default function ProfilePage() {
                 <TabsContent value="planned" className="m-0">
                   <div className="space-y-4">
                     <div>
-                      <h2 className="text-2xl font-semibold text-gray-900">В плане</h2>
+                      <h2 className="text-xl sm:text-2xl font-semibold text-gray-900">В плане</h2>
                       <p className="text-sm text-gray-600 mt-1">
                         Университеты, которые вы добавили в план.
                       </p>
@@ -715,7 +715,7 @@ export default function ProfilePage() {
                 <TabsContent value="questionnaire" className="m-0">
                   <div className="space-y-4">
                     <div>
-                      <h2 className="text-2xl font-semibold text-gray-900">Анкета</h2>
+                      <h2 className="text-xl sm:text-2xl font-semibold text-gray-900">Анкета</h2>
                       <p className="text-sm text-gray-600 mt-1">
                         Сводка ваших ответов из анкеты.
                       </p>

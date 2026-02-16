@@ -517,19 +517,19 @@ export function WizardForm() {
   };
 
   return (
-    <section className="py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-gray-50 to-white">
+    <section className="py-12 sm:py-24 px-3 sm:px-4 md:px-6 lg:px-8 bg-gradient-to-b from-gray-50 to-white">
       <div className="max-w-5xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
+        <div className="text-center mb-8 sm:mb-12">
+          <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-3 sm:mb-4 px-2">
             Анкета проверки шансов
           </h2>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <p className="text-base sm:text-xl text-gray-600 max-w-2xl mx-auto px-2">
             Заполните информацию о себе для получения персонального подбора университетов
           </p>
         </div>
 
-        <div className="bg-white rounded-3xl shadow-xl border border-gray-200 p-8 sm:p-12">
+        <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-200 p-4 sm:p-8 md:p-12">
           {(() => {
             const overallProgress = calculateOverallProgress();
             const step1Progress = calculateStepProgress(1);
@@ -594,14 +594,14 @@ export function WizardForm() {
                 </div>
               </div>
             ) : (
-              <div className="space-y-6">
-              <div className="flex items-center gap-3 pb-4 border-b-2 border-blue-100">
-                <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold">1</span>
+              <div className="space-y-4 sm:space-y-6">
+              <div className="flex items-center gap-2 sm:gap-3 pb-3 sm:pb-4 border-b-2 border-blue-100">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <span className="text-white font-bold text-sm sm:text-base">1</span>
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-gray-900">Основная информация</h3>
-                  <p className="text-sm text-gray-600">Базовые данные о вас и ваших планах</p>
+                  <h3 className="text-base sm:text-xl font-bold text-gray-900">Основная информация</h3>
+                  <p className="text-xs sm:text-sm text-gray-600">Базовые данные о вас и ваших планах</p>
                 </div>
               </div>
               {showErrors[1] && getStep1Errors().length > 0 && (
@@ -777,7 +777,7 @@ export function WizardForm() {
                 <Button 
                   onClick={handleNext} 
                   disabled={isAnalyzing}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-6 rounded-xl font-semibold"
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-5 sm:py-6 rounded-xl font-semibold text-sm sm:text-base"
                 >
                   {isAnalyzing ? "Анализируем..." : "Продолжить →"}
                 </Button>
@@ -788,14 +788,14 @@ export function WizardForm() {
 
           {/* STEP 2 - EXAMS */}
           {currentStep === 2 && (
-            <div className="space-y-6">
-              <div className="flex items-center gap-3 pb-4 border-b-2 border-blue-100">
-                <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold">2</span>
+            <div className="space-y-4 sm:space-y-6">
+              <div className="flex items-center gap-2 sm:gap-3 pb-3 sm:pb-4 border-b-2 border-blue-100">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <span className="text-white font-bold text-sm sm:text-base">2</span>
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-gray-900">Тесты и экзамены</h3>
-                  <p className="text-sm text-gray-600">Информация о языковых и академических тестах</p>
+                  <h3 className="text-base sm:text-xl font-bold text-gray-900">Тесты и экзамены</h3>
+                  <p className="text-xs sm:text-sm text-gray-600">Информация о языковых и академических тестах</p>
                 </div>
               </div>
               {showErrors[2] && getStep2Errors().length > 0 && (
@@ -1454,17 +1454,17 @@ export function WizardForm() {
             </div>
           )}
 
-              <div className="pt-6 border-t border-gray-200 flex gap-4">
+              <div className="pt-6 border-t border-gray-200 flex flex-col sm:flex-row gap-3 sm:gap-4">
                 <Button 
                   onClick={handleBack} 
                   variant="outline"
-                  className="flex-1 py-6 rounded-xl font-semibold"
+                  className="flex-1 py-5 sm:py-6 rounded-xl font-semibold text-sm sm:text-base order-2 sm:order-1"
                 >
                   ← Назад
                 </Button>
                 <Button 
                   onClick={handleNext} 
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-6 rounded-xl font-semibold"
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-5 sm:py-6 rounded-xl font-semibold text-sm sm:text-base order-1 sm:order-2"
                 >
                   Продолжить →
                 </Button>
@@ -1474,14 +1474,14 @@ export function WizardForm() {
 
           {/* STEP 3 - FIELD OF STUDY */}
           {currentStep === 3 && (
-            <div className="space-y-6">
-              <div className="flex items-center gap-3 pb-4 border-b-2 border-blue-100">
-                <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold">3</span>
+            <div className="space-y-4 sm:space-y-6">
+              <div className="flex items-center gap-2 sm:gap-3 pb-3 sm:pb-4 border-b-2 border-blue-100">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <span className="text-white font-bold text-sm sm:text-base">3</span>
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-gray-900">Направление обучения</h3>
-                  <p className="text-sm text-gray-600">Куда и на какое направление планируете поступить</p>
+                  <h3 className="text-base sm:text-xl font-bold text-gray-900">Направление обучения</h3>
+                  <p className="text-xs sm:text-sm text-gray-600">Куда и на какое направление планируете поступить</p>
                 </div>
               </div>
               {showErrors[3] && getStep3Errors().length > 0 && (
@@ -1585,11 +1585,11 @@ export function WizardForm() {
                 </Select>
               </div>
 
-              <div className="pt-6 border-t border-gray-200 flex gap-4">
+              <div className="pt-6 border-t border-gray-200 flex flex-col sm:flex-row gap-3 sm:gap-4">
                 <Button
                   onClick={handleBack}
                   variant="outline"
-                  className="flex-1 py-6 rounded-xl font-semibold text-base"
+                  className="flex-1 py-5 sm:py-6 rounded-xl font-semibold text-sm sm:text-base order-2 sm:order-1"
                 >
                   ← Назад
                 </Button>
@@ -1599,7 +1599,7 @@ export function WizardForm() {
                     handleSubmit();
                   }}
                   type="button"
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-6 rounded-xl font-semibold text-base disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-5 sm:py-6 rounded-xl font-semibold text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed order-1 sm:order-2"
                 >
                   Получить результаты
                 </Button>
