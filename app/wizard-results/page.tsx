@@ -319,11 +319,7 @@ export default function WizardResultsPage() {
 
   const handleSortChange = (option: SortOption) => {
     setSortBy(option);
-    if (option === "chance") {
-      setResults(sortResultsByChance(results));
-    } else if (option === "budget") {
-      setResults(sortResultsByBudget(results));
-    }
+    // useEffect автоматически пересчитает результаты при изменении sortBy
   };
 
   const handleBack = () => {
