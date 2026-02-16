@@ -594,7 +594,7 @@ export default function WizardResultsPage() {
                               setUpgradeModalOpen(true);
                             }}
                           >
-                            Улучшить план
+                            Получить персональное сопровождение
                           </Button>
                         </div>
                       </div>

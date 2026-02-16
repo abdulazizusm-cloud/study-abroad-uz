@@ -494,7 +494,7 @@ export default function ProfilePage() {
                                 setUpgradeModalOpen(true);
                               }}
                             >
-                              Улучшить план
+                              Получить персональное сопровождение
                             </Button>
                             {isAdmin && (
                               <Button

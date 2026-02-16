@@ -222,7 +222,7 @@ export function ChanceInsights({ result, formData, simplePercentage, onUpgradeCl
                 onClick={handleUpgrade}
                 className="bg-purple-600 hover:bg-purple-700 text-white font-medium w-full sm:w-auto flex-shrink-0"
               >
-                Улучшить план
+                Получить персональное сопровождение
               </Button>
             </div>
           </div>

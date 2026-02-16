@@ -283,7 +283,7 @@ export function WizardResultCard({
                 className="flex-shrink-0"
                 onClick={onUpgradeClick}
               >
-                Улучшить план
+                Получить персональное сопровождение
               </Button>
             )}
           </div>

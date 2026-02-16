@@ -25,7 +25,7 @@ export function UpgradePlanModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[900px]">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold">Улучшить план</DialogTitle>
+          <DialogTitle className="text-2xl font-bold">Получить персональное сопровождение</DialogTitle>
           <DialogDescription>
             Выберите уровень доступа, чтобы открыть больше возможностей.
           </DialogDescription>
