@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ChevronDown, Check } from "lucide-react";
+import { lookupPercentile, GRE_VERBAL_TABLE, GRE_QUANT_TABLE, GRE_AW_TABLE } from "@/lib/grePercentiles";
 
 interface FormDataType {
   // Step 1
@@ -997,7 +998,17 @@ export function WizardForm() {
                     min={130}
                     max={170}
                     value={formData.greVerbal ?? ""}
-                    onChange={(e) => updateField("greVerbal", e.target.value)}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      updateField("greVerbal", value);
+                      // Auto-fill percentile
+                      const percentile = lookupPercentile(GRE_VERBAL_TABLE, value);
+                      if (percentile !== null) {
+                        updateField("greVerbalPercentile", percentile.toString());
+                      } else if (value === "") {
+                        updateField("greVerbalPercentile", "");
+                      }
+                    }}
                     placeholder="130 - 170"
                     className="h-12 text-base border-2"
                   />
@@ -1031,7 +1042,17 @@ export function WizardForm() {
                     min={130}
                     max={170}
                     value={formData.greQuant ?? ""}
-                    onChange={(e) => updateField("greQuant", e.target.value)}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      updateField("greQuant", value);
+                      // Auto-fill percentile
+                      const percentile = lookupPercentile(GRE_QUANT_TABLE, value);
+                      if (percentile !== null) {
+                        updateField("greQuantPercentile", percentile.toString());
+                      } else if (value === "") {
+                        updateField("greQuantPercentile", "");
+                      }
+                    }}
                     placeholder="130 - 170"
                     className="h-12 text-base border-2"
                   />
@@ -1066,7 +1087,17 @@ export function WizardForm() {
                     min={0}
                     max={6}
                     value={formData.greWriting ?? ""}
-                    onChange={(e) => updateField("greWriting", e.target.value)}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      updateField("greWriting", value);
+                      // Auto-fill percentile
+                      const percentile = lookupPercentile(GRE_AW_TABLE, value);
+                      if (percentile !== null) {
+                        updateField("greWritingPercentile", percentile.toString());
+                      } else if (value === "") {
+                        updateField("greWritingPercentile", "");
+                      }
+                    }}
                     placeholder="0 - 6.0"
                     className="h-12 text-base border-2"
                   />
