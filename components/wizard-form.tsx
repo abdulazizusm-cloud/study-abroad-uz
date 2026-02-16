@@ -137,6 +137,115 @@ export function WizardForm() {
     });
   };
 
+  // Calculate progress for each step based on filled fields
+  const calculateStepProgress = (step: number): number => {
+    if (step === 1) {
+      const fields = [
+        formData.nationality,
+        formData.countryOfStudy,
+        formData.level,
+        formData.gradingScheme,
+        formData.gradingAverage,
+        formData.financeSource,
+        formData.budget,
+      ];
+      const filled = fields.filter(f => f && f !== "").length;
+      return (filled / fields.length) * 100;
+    }
+    
+    if (step === 2) {
+      let totalFields = 0;
+      let filledFields = 0;
+
+      // English exam fields
+      if (formData.englishExamType === "IELTS") {
+        const ieltsFields = [
+          formData.ieltsOverall,
+          formData.ieltsListening,
+          formData.ieltsReading,
+          formData.ieltsWriting,
+          formData.ieltsSpeaking,
+        ];
+        totalFields += ieltsFields.length;
+        filledFields += ieltsFields.filter(f => f && f !== "").length;
+      } else if (formData.englishExamType === "TOEFL") {
+        const toeflFields = [
+          formData.toeflTotal,
+          formData.toeflReading,
+          formData.toeflListening,
+          formData.toeflSpeaking,
+          formData.toeflWriting,
+        ];
+        totalFields += toeflFields.length;
+        filledFields += toeflFields.filter(f => f && f !== "").length;
+      } else if (formData.englishExamType === "Duolingo") {
+        totalFields += 1;
+        if (formData.duolingoOverall) filledFields += 1;
+      }
+
+      // Standardized exam fields
+      if (formData.standardizedExamType === "GRE") {
+        const greFields = [
+          formData.greVerbal,
+          formData.greVerbalPercentile,
+          formData.greQuant,
+          formData.greQuantPercentile,
+          formData.greWriting,
+          formData.greWritingPercentile,
+        ];
+        totalFields += greFields.length;
+        filledFields += greFields.filter(f => f && f !== "").length;
+      } else if (formData.standardizedExamType === "GMAT") {
+        const gmatFields = [
+          formData.gmatTotal,
+          formData.gmatTotalPercentile,
+          formData.gmatQuant,
+          formData.gmatQuantPercentile,
+          formData.gmatVerbal,
+          formData.gmatVerbalPercentile,
+          formData.gmatDataInsights,
+          formData.gmatDataInsightsPercentile,
+        ];
+        totalFields += gmatFields.length;
+        filledFields += gmatFields.filter(f => f && f !== "").length;
+      }
+
+      return totalFields > 0 ? (filledFields / totalFields) * 100 : 0;
+    }
+    
+    if (step === 3) {
+      let filled = 0;
+      let total = 2; // programGoal + faculty
+      
+      if (formData.programGoal) filled++;
+      if (formData.faculty && formData.faculty.length > 0) filled++;
+      
+      return (filled / total) * 100;
+    }
+    
+    return 0;
+  };
+
+  // Calculate overall progress
+  const calculateOverallProgress = (): number => {
+    const step1Progress = calculateStepProgress(1);
+    const step2Progress = calculateStepProgress(2);
+    const step3Progress = calculateStepProgress(3);
+    
+    // Current step gets its actual progress
+    // Previous steps are 100%
+    // Future steps are 0%
+    if (currentStep === 1) {
+      return step1Progress / 3;
+    } else if (currentStep === 2) {
+      return (100 + step2Progress) / 3;
+    } else if (currentStep === 3) {
+      return (200 + step3Progress) / 3;
+    }
+    
+    return 0;
+  };
+
   const getStep1Errors = () => {
     const errors: string[] = [];
     if (!formData.nationality) errors.push("Гражданство: выберите значение");
@@ -417,19 +526,51 @@ export function WizardForm() {
 
         <div className="bg-white rounded-3xl shadow-xl border border-gray-200 p-8 sm:p-12">
           {(() => {
-            const progressPercentByStep: Record<number, number> = { 1: 0, 2: 33, 3: 66 };
-            const progressPercent = progressPercentByStep[currentStep] ?? 0;
+            const overallProgress = calculateOverallProgress();
+            const step1Progress = calculateStepProgress(1);
+            const step2Progress = calculateStepProgress(2);
+            const step3Progress = calculateStepProgress(3);
 
             return (
               <div className="mb-8">
-                <div className="text-sm font-semibold text-slate-700 mb-2">
-                  Шаг {currentStep} из 3
+                <div className="flex items-center justify-between mb-2">
+                  <div className="text-sm font-semibold text-slate-700">
+                    Шаг {currentStep} из 3
+                  </div>
+                  <div className="text-sm font-semibold text-violet-600">
+                    {Math.round(overallProgress)}%
+                  </div>
                 </div>
-                <div className="w-full h-[6px] rounded-full bg-slate-200 overflow-hidden">
-                  <div
-                    className="h-[6px] rounded-full bg-violet-600 transition-[width] duration-500 ease-out"
-                    style={{ width: `${progressPercent}%` }}
-                  />
+                
+                {/* Three-section progress bar */}
+                <div className="flex gap-2">
+                  {/* Step 1 */}
+                  <div className="flex-1 h-2 rounded-full bg-slate-200 overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-300 ${
+                        currentStep > 1 ? 'bg-green-500' : 'bg-violet-600'
+                      }`}
+                      style={{ width: `${currentStep >= 1 ? (currentStep > 1 ? 100 : step1Progress) : 0}%` }}
+                    />
+                  </div>
+                  
+                  {/* Step 2 */}
+                  <div className="flex-1 h-2 rounded-full bg-slate-200 overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-300 ${
+                        currentStep > 2 ? 'bg-green-500' : 'bg-violet-600'
+                      }`}
+                      style={{ width: `${currentStep >= 2 ? (currentStep > 2 ? 100 : step2Progress) : 0}%` }}
+                    />
+                  </div>
+                  
+                  {/* Step 3 */}
+                  <div className="flex-1 h-2 rounded-full bg-slate-200 overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-violet-600 transition-all duration-300"
+                      style={{ width: `${currentStep >= 3 ? step3Progress : 0}%` }}
+                    />
+                  </div>
                 </div>
               </div>
             );
