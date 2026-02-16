@@ -759,6 +759,7 @@ export default function ProfilePage() {
                               { label: "Страна обучения", value: renderValue(wizardData?.countryOfStudy) },
                               { label: "Направления", value: wizardData?.faculty?.length ? wizardData.faculty.map((f) => FACULTY_LABELS[f] || f).join(", ") : "не указано" },
                               { label: "Цель", value: PROGRAM_GOAL_LABELS[wizardData?.programGoal || ""] || renderValue(wizardData?.programGoal) },
+                              { label: "Стипендия", value: wizardData?.scholarship === "Yes" ? "Да" : wizardData?.scholarship === "No" ? "Нет" : "не указано" },
                             ],
                           },
                         ].map((card) => {
