@@ -499,15 +499,11 @@ export function WizardForm() {
                 <SelectValue placeholder="Выберите страну" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="USA">США</SelectItem>
-                <SelectItem value="UK">Великобритания</SelectItem>
-                <SelectItem value="Canada">Канада</SelectItem>
-                <SelectItem value="Australia">Австралия</SelectItem>
-                <SelectItem value="Germany">Германия</SelectItem>
+                <SelectItem value="Poland">Польша</SelectItem>
+                <SelectItem value="Hungary">Венгрия</SelectItem>
                 <SelectItem value="Turkey">Турция</SelectItem>
                 <SelectItem value="Korea">Южная Корея</SelectItem>
-                <SelectItem value="Poland">Польша</SelectItem>
-                <SelectItem value="Czech">Чехия</SelectItem>
+                <SelectItem value="USA">США</SelectItem>
               </SelectContent>
             </Select>
           </div>
