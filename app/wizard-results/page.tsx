@@ -59,6 +59,7 @@ export default function WizardResultsPage() {
   const [savedUniversityIds, setSavedUniversityIds] = useState<Set<string>>(new Set());
   const [plannedUniversityIds, setPlannedUniversityIds] = useState<Set<string>>(new Set());
   const [profileModalOpen, setProfileModalOpen] = useState(false);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
   const [profileInitial, setProfileInitial] = useState({
     firstName: "",
     lastName: "",
@@ -434,7 +435,10 @@ export default function WizardResultsPage() {
                     saved={isSaved}
                     planned={isPlanned}
                     onToggleSaved={async () => {
-                      if (!user) return;
+                      if (!user) {
+                        setAuthModalOpen(true);
+                        return;
+                      }
                       try {
                         if (isSaved) {
                           await supabase
@@ -460,7 +464,11 @@ export default function WizardResultsPage() {
                       }
                     }}
                     onAddToPlan={async () => {
-                      if (!user || isPlanned) return;
+                      if (!user) {
+                        setAuthModalOpen(true);
+                        return;
+                      }
+                      if (isPlanned) return;
                       try {
                         await supabase.from("admission_applications").insert({
                           user_id: user.id,
@@ -605,44 +613,6 @@ export default function WizardResultsPage() {
             </p>
           </div>
         )}
-
-        {/* Auth Modal */}
-        <ProfileCompletionModal
-          open={profileModalOpen}
-          initialFirstName={profileInitial.firstName}
-          initialLastName={profileInitial.lastName}
-          initialPhone={profileInitial.phone}
-          onSubmit={async (profile) => {
-            await upsertProfile(profile);
-            setProfileModalOpen(false);
-          }}
-        />
-        <UpgradePlanModal
-          open={upgradeModalOpen}
-          onOpenChange={setUpgradeModalOpen}
-          onSelectPlan={async (plan) => {
-            if (!user) return;
-            trackEvent("upgrade_plan_selected", { plan, mode: "dev_stub" });
-            const { data } = await supabase.auth.getSession();
-            const token = data.session?.access_token;
-            if (!token) return;
-            await fetch("/api/dev/upgrade-tier", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-              },
-              body: JSON.stringify({ tier_override: plan }),
-            });
-            trackEvent("dev_tier_override_applied", { plan });
-            setUpgradeModalOpen(false);
-            // trigger recalc by toggling auth state effect (user unchanged) via manual tier refresh
-            const tierInfo = await getTierInfo();
-            setEffectiveTier(tierInfo.effectiveTier);
-            setBonusUniversities(tierInfo.bonusUniversities);
-          }}
-        />
-        <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} />
       </div>
 
       {/* Footer */}
@@ -687,6 +657,39 @@ export default function WizardResultsPage() {
           </div>
         </div>
       </footer>
+
+      {/* Modals */}
+      <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} />
+      <ProfileCompletionModal
+        open={profileModalOpen}
+        onOpenChange={setProfileModalOpen}
+        initialData={profileInitial}
+      />
+      <UpgradePlanModal 
+        open={upgradeModalOpen}
+        onOpenChange={setUpgradeModalOpen}
+        onSelectPlan={async (plan) => {
+          if (!user) return;
+          trackEvent("upgrade_plan_selected", { plan, mode: "dev_stub" });
+          const { data } = await supabase.auth.getSession();
+          const token = data.session?.access_token;
+          if (!token) return;
+          await fetch("/api/dev/upgrade-tier", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ tier_override: plan }),
+          });
+          trackEvent("dev_tier_override_applied", { plan });
+          setUpgradeModalOpen(false);
+          // trigger recalc by toggling auth state effect (user unchanged) via manual tier refresh
+          const tierInfo = await getTierInfo();
+          setEffectiveTier(tierInfo.effectiveTier);
+          setBonusUniversities(tierInfo.bonusUniversities);
+        }}
+      />
     </div>
   );
 }
