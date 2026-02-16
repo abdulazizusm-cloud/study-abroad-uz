@@ -139,9 +139,6 @@ export function WizardForm() {
   const getStep1Errors = () => {
     const errors: string[] = [];
     if (!formData.nationality) errors.push("Гражданство: выберите значение");
-    if (formData.nationality === "Other" && !formData.specifyNationality) {
-      errors.push("Укажите гражданство: заполните поле");
-    }
     if (!formData.countryOfStudy) errors.push("Страна обучения: выберите значение");
     if (!formData.level) errors.push("Уровень обучения: выберите значение");
     if (!formData.gradingScheme) errors.push("Система оценивания: выберите значение");
@@ -237,11 +234,6 @@ export function WizardForm() {
       formData.financeSource,
       formData.budget,
     ];
-
-    // Check if "Other" nationality requires specification
-    if (formData.nationality === "Other" && !formData.specifyNationality) {
-      return false;
-    }
 
     return required.every((field) => field !== "");
   };
@@ -483,45 +475,16 @@ export function WizardForm() {
             </Label>
             <Select
               value={formData.nationality}
-              onValueChange={(value) => {
-                updateField("nationality", value);
-                // Clear specify nationality if not "Other"
-                if (value !== "Other") {
-                  updateField("specifyNationality", "");
-                }
-              }}
+              onValueChange={(value) => updateField("nationality", value)}
             >
             <SelectTrigger id="nationality" className="h-12 text-base border-2">
               <SelectValue placeholder="Выберите гражданство" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="Uzbekistan">Узбекистан</SelectItem>
-                <SelectItem value="Kazakhstan">Казахстан</SelectItem>
-                <SelectItem value="Tajikistan">Таджикистан</SelectItem>
-                <SelectItem value="Kyrgyzstan">Кыргызстан</SelectItem>
-                <SelectItem value="Turkmenistan">Туркменистан</SelectItem>
-                <SelectItem value="Other">Другое</SelectItem>
               </SelectContent>
             </Select>
           </div>
-
-          {/* Specify Nationality (conditional) */}
-          {formData.nationality === "Other" && (
-            <div className="animate-fade-in">
-              <Label htmlFor="specifyNationality" className="text-base font-semibold text-gray-700">
-                Укажите гражданство <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                id="specifyNationality"
-                value={formData.specifyNationality || ""}
-                onChange={(e) =>
-                  updateField("specifyNationality", e.target.value)
-                }
-                placeholder="Введите ваше гражданство"
-                className="h-12 text-base border-2 mt-2"
-              />
-            </div>
-          )}
 
           {/* Country of Study */}
           <div>
