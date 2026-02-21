@@ -35,7 +35,7 @@ interface ImprovementTip {
 export function ChanceInsights({ result, formData, simplePercentage, onUpgradeClick }: ChanceInsightsProps) {
   const [isOpen, setIsOpen] = useState(false);
   const { percentage: proPercentage, matchDetails } = result;
-  const difference = simplePercentage ? simplePercentage - proPercentage : 0;
+  const difference = simplePercentage ? simplePercentage - (proPercentage ?? 0) : 0;
 
   // Generate reasons why Pro score is lower
   const reasons: string[] = [];
