@@ -50,7 +50,7 @@ export function scoreAllUniversities(
 export function sortResultsByChance(
   results: WizardScoringResult[]
 ): WizardScoringResult[] {
-  return [...results].sort((a, b) => b.percentage - a.percentage);
+  return [...results].sort((a, b) => (b.percentage ?? 0) - (a.percentage ?? 0));
 }
 
 /**
