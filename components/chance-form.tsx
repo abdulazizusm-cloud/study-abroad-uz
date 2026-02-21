@@ -238,7 +238,6 @@ export function ChanceForm() {
                         <SelectItem value="Secondary">Среднее образование (школа / лицей / колледж)</SelectItem>
                         <SelectItem value="Foundation">Foundation</SelectItem>
                         <SelectItem value="Бакалавриат">Бакалавриат</SelectItem>
-                        <SelectItem value="Магистратура">Магистратура</SelectItem>
                       </SelectContent>
                     </Select>
                     {errors.level && (

@@ -689,7 +689,6 @@ export function WizardForm() {
               <SelectContent>
                 <SelectItem value="Secondary">Среднее образование (школа / лицей / колледж)</SelectItem>
                 <SelectItem value="Bachelor">Бакалавриат</SelectItem>
-                <SelectItem value="Master">Магистратура</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -1527,7 +1526,6 @@ export function WizardForm() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="Bachelor">Бакалавриат</SelectItem>
-                    <SelectItem value="Master">Магистратура</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

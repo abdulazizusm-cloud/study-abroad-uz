@@ -85,17 +85,6 @@ export function WizardResultCard({
     return null;
   })();
 
-  const financialStatusMessage = (() => {
-    if (!result.financialStatus) return null;
-    if (result.financialStatus === "Affordable") {
-      return "Финансово: подходит (по tuition)";
-    }
-    if (result.financialStatus === "Not Affordable") {
-      return "Финансово: не подходит (бюджета недостаточно по tuition)";
-    }
-    return null;
-  })();
-
   return (
     <Card className="p-3 md:p-4 hover:shadow-lg transition-shadow" style={{ fontFamily: 'var(--font-inter)' }}>
       {/* Header */}
@@ -183,31 +172,6 @@ export function WizardResultCard({
             />
           </div>
           
-          {/* PRO: Academic score note */}
-          {isPro && (
-            <div className="mt-2 px-3 py-2 bg-purple-50 border border-purple-200 rounded-lg">
-              <p className="text-xs sm:text-sm text-purple-800">
-                Процент рассчитан без учёта финансовых ограничений.
-              </p>
-            </div>
-          )}
-          
-          {/* PRO: Financial Status */}
-          {isPro && financialStatusMessage && (
-            <div className={`mt-2 px-3 py-2 rounded-lg border ${
-              result.financialStatus === "Affordable" 
-                ? "bg-green-50 border-green-200" 
-                : "bg-red-50 border-red-200"
-            }`}>
-              <p className={`text-xs sm:text-sm font-medium ${
-                result.financialStatus === "Affordable" 
-                  ? "text-green-800" 
-                  : "text-red-800"
-              }`}>
-                {financialStatusMessage}
-              </p>
-            </div>
-          )}
         </div>
       ) : (
         /* NotEligible Status */
@@ -311,7 +275,7 @@ export function WizardResultCard({
         <div className="pt-0">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
             <p className="text-sm sm:text-base text-[#6B7280]">
-              {ctaText ?? "Рассчитать реальный шанс по полной модели (Pro)."}
+              {ctaText ?? "Рассчитать реальную вероятность поступления с учетом конкуренции"}
             </p>
             <Button
               onClick={onUpgradeClick}
