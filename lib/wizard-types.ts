@@ -10,14 +10,51 @@ export interface WizardFormData {
   financeSource: string;
   budget: string;
   
-  // Step 2 - Exams
+  // Step 2 - English Exams
   englishExamType: string;
-  englishScore?: string;
+  englishScore?: string; // Overall/Total for backward compatibility
+  
+  // IELTS detailed scores
+  ieltsOverall?: string;
+  ieltsListening?: string;
+  ieltsReading?: string;
+  ieltsWriting?: string;
+  ieltsSpeaking?: string;
+  
+  // TOEFL detailed scores
+  toeflTotal?: string;
+  toeflReading?: string;
+  toeflListening?: string;
+  toeflSpeaking?: string;
+  toeflWriting?: string;
+  
+  // Duolingo detailed scores
+  duolingoOverall?: string;
+  duolingoLiteracy?: string;
+  duolingoComprehension?: string;
+  duolingoConversation?: string;
+  duolingoProduction?: string;
+  
+  // Step 2 - Standardized Tests
   standardizedExamType: string;
+  
+  // GRE with percentiles
   greVerbal?: string;
+  greVerbalPercentile?: string;
   greQuant?: string;
+  greQuantPercentile?: string;
   greWriting?: string;
+  greWritingPercentile?: string;
+  
+  // GMAT Focus Edition with percentiles
   gmatTotal?: string;
+  gmatTotalPercentile?: string;
+  gmatQuant?: string;
+  gmatQuantPercentile?: string;
+  gmatVerbal?: string;
+  gmatVerbalPercentile?: string;
+  gmatDataInsights?: string;
+  gmatDataInsightsPercentile?: string;
   
   // Step 3 - Field of Study
   programGoal: string;
@@ -70,11 +107,11 @@ export interface ExtendedUniversity {
 export type ScoringAlgorithm = "simple" | "pro";
 
 // Scoring result
-export type WizardChanceLevel = "High" | "Medium" | "Low";
+export type WizardChanceLevel = "High" | "Medium" | "Low" | "NotEligible";
 
 export interface WizardScoringResult {
   university: ExtendedUniversity;
-  percentage: number;
+  percentage: number | null; // null for Not Eligible cases
   chanceLevel: WizardChanceLevel;
   explanation: string;
   matchDetails: {
@@ -84,6 +121,8 @@ export interface WizardScoringResult {
     disciplineMatch: boolean;
     standardizedTestMatch: boolean;
   };
+  eligibilityIssue?: "level" | "discipline" | null; // Reason for Not Eligible
+  financialStatus?: "Affordable" | "Not Affordable" | null; // PRO v2: null if budget not specified or NotEligible
 }
 
 // Budget mapping constants

@@ -31,20 +31,41 @@ export function calculateProChance(
       ? university.disciplines.some((d) => formData.faculty!.includes(d))
       : !!formData.discipline && university.disciplines.includes(formData.discipline);
 
-  if (!levelMatch || !disciplineMatch) {
-    // If basic filters don't match, return very low score
+  // NOT ELIGIBLE - level mismatch
+  if (!levelMatch) {
     return {
       university,
-      percentage: 5,
-      chanceLevel: "Low",
-      explanation: "По текущим параметрам шанс поступления низкий.",
+      percentage: null,
+      chanceLevel: "NotEligible",
+      explanation: "Нет такого уровня",
+      eligibilityIssue: "level",
       matchDetails: {
         gpaMatch: false,
         englishMatch: false,
         budgetMatch: false,
-        disciplineMatch,
+        disciplineMatch: false,
         standardizedTestMatch: false,
       },
+      financialStatus: null,  // Don't calculate financial status for ineligible programs
+    };
+  }
+
+  // NOT ELIGIBLE - discipline mismatch
+  if (!disciplineMatch) {
+    return {
+      university,
+      percentage: null,
+      chanceLevel: "NotEligible",
+      explanation: "Нет такого факультета",
+      eligibilityIssue: "discipline",
+      matchDetails: {
+        gpaMatch: false,
+        englishMatch: false,
+        budgetMatch: false,
+        disciplineMatch: false,
+        standardizedTestMatch: false,
+      },
+      financialStatus: null,  // Don't calculate financial status for ineligible programs
     };
   }
 
@@ -121,40 +142,19 @@ export function calculateProChance(
     negativePenalties += standardizedScore;
   }
 
-  // 4. Budget Matching - PRO version (reduced weight: +5/-20)
-  const userBudgetMax = WIZARD_BUDGET_MAX[formData.budget] || 0;
-  const tuition = university.requirements.tuitionUSD;
-  const budgetMatch = tuition <= userBudgetMax;
-  let budgetScore = 0;
+  // 4. Financial Status (PRO v2: separate from admission score)
+  // Calculate only if budget is specified
+  let financialStatus: "Affordable" | "Not Affordable" | null = null;
+  let budgetMatch = false;  // Keep for compatibility with Simple
 
-  if (budgetMatch) {
-    budgetScore = 5; // Reduced from +15 in Simple
-  } else {
-    budgetScore = -20; // Increased penalty from -15 in Simple
+  if (formData.budget && WIZARD_BUDGET_MAX[formData.budget]) {
+    const userBudgetMax = WIZARD_BUDGET_MAX[formData.budget];
+    const tuition = university.requirements.tuitionUSD;
+    budgetMatch = tuition <= userBudgetMax;
+    financialStatus = budgetMatch ? "Affordable" : "Not Affordable";
   }
 
-  if (budgetScore > 0) {
-    positiveBonuses += budgetScore;
-  } else {
-    negativePenalties += budgetScore;
-  }
-
-  // 5. Discipline Matching (+/- 10 points)
-  let disciplineScore = disciplineMatch ? 10 : -10;
-  
-  if (disciplineScore > 0) {
-    positiveBonuses += disciplineScore;
-  } else {
-    negativePenalties += disciplineScore;
-  }
-
-  // 6. Scholarship bonus (+5 points)
-  if (
-    university.requirements.scholarshipAvailable &&
-    (formData.financeSource === "Scholarship" || formData.financeSource === "Mixed")
-  ) {
-    positiveBonuses += 5;
-  }
+  // Budget does NOT affect admission score in PRO v2
 
   // PRO FEATURE: Apply diminishing returns to positive bonuses
   const scoreBeforeClamp = 50 + positiveBonuses + negativePenalties;
@@ -175,11 +175,11 @@ export function calculateProChance(
   // Clamp score between 5 and 95
   const finalPercentage = Math.max(5, Math.min(95, finalScore));
 
-  // Determine chance level
+  // Determine chance level - NEW THRESHOLDS
   let chanceLevel: WizardChanceLevel;
-  if (finalPercentage >= 70) {
+  if (finalPercentage >= 60) {
     chanceLevel = "High";
-  } else if (finalPercentage >= 40) {
+  } else if (finalPercentage >= 30) {
     chanceLevel = "Medium";
   } else {
     chanceLevel = "Low";
@@ -189,7 +189,6 @@ export function calculateProChance(
   const explanation = generateDetailedExplanation(
     gpaMatch,
     englishCheck.meets,
-    budgetMatch,
     standardizedCheck,
     userGPA,
     minGPA,
@@ -208,6 +207,7 @@ export function calculateProChance(
       disciplineMatch,
       standardizedTestMatch: standardizedCheck.required ? standardizedCheck.meets : true,
     },
+    financialStatus,  // PRO v2: separate financial status
   };
 }
 
@@ -217,7 +217,6 @@ export function calculateProChance(
 function generateDetailedExplanation(
   gpaMatch: boolean,
   englishMatch: boolean,
-  budgetMatch: boolean,
   standardizedCheck: { meets: boolean; required: boolean },
   userGPA: number,
   minGPA: number | null,
@@ -251,13 +250,6 @@ function generateDetailedExplanation(
     parts.push("английский не соответствует требованиям");
   }
 
-  // Budget (PRO explanation - different weight)
-  if (budgetMatch) {
-    parts.push("стоимость в рамках бюджета");
-  } else {
-    parts.push("стоимость значительно превышает бюджет");
-  }
-
   // Standardized tests
   if (standardizedCheck.required) {
     if (standardizedCheck.meets) {
@@ -267,11 +259,14 @@ function generateDetailedExplanation(
     }
   }
 
-  let explanation = parts.join(", ") + ".";
+  let explanation = parts.join(", ") + ". ";
+
+  // PRO v2: Add note that this is academic score only
+  explanation += "Процент рассчитан только по академическим критериям (без учёта финансов).";
 
   // Add note about Pro algorithm if diminishing returns applied
   if (diminishingApplied) {
-    explanation += " (Pro расчет: учтены конкурентность и реалистичность)";
+    explanation += " Pro расчет: учтены конкурентность и реалистичность.";
   }
 
   return explanation;

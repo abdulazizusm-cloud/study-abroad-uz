@@ -48,18 +48,21 @@ export function WizardResultCard({
     High: "bg-[#10B981]",
     Medium: "bg-[#F59E0B]",
     Low: "bg-[#F87171]",
+    NotEligible: "bg-[#9CA3AF]",
   };
 
   const chanceBadgeColors = {
     High: "bg-[#ECFDF5] text-[#059669]",
     Medium: "bg-[#FFFBEB] text-[#D97706]",
     Low: "bg-[#FEF2F2] text-[#DC2626]",
+    NotEligible: "bg-[#F3F4F6] text-[#6B7280]",
   };
 
   const chanceLabels = {
     High: "Высокие шансы",
     Medium: "Средние шансы",
     Low: "Низкие шансы",
+    NotEligible: "Не подходит",
   };
 
   const liteAdvice = (() => {
@@ -70,6 +73,27 @@ export function WizardResultCard({
     if (!matchDetails.budgetMatch) tips.push("Рассмотреть гранты/стипендии или программы с меньшей стоимостью");
     const unique = Array.from(new Set(tips));
     return unique.slice(0, 2);
+  })();
+
+  const eligibilityMessage = (() => {
+    if (result.eligibilityIssue === "level") {
+      return "Нет такого уровня";
+    }
+    if (result.eligibilityIssue === "discipline") {
+      return "Нет такого факультета";
+    }
+    return null;
+  })();
+
+  const financialStatusMessage = (() => {
+    if (!result.financialStatus) return null;
+    if (result.financialStatus === "Affordable") {
+      return "Финансово: подходит (по tuition)";
+    }
+    if (result.financialStatus === "Not Affordable") {
+      return "Финансово: не подходит (бюджета недостаточно по tuition)";
+    }
+    return null;
   })();
 
   return (
@@ -137,30 +161,70 @@ export function WizardResultCard({
         </div>
       </div>
 
-      {/* Percentage */}
-      <div className="mb-2">
-        <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-3 mb-2">
-          <div className="text-3xl sm:text-4xl font-bold text-blue-600">{percentage}%</div>
-          <div className="flex flex-col justify-center">
-            <div className="text-sm sm:text-base font-semibold text-[#374151]">
-              {isPro ? `Реальная оценка шансов (${proLabel})` : "Примерный шанс поступления (Simple)"}
-            </div>
-            <div className="text-xs sm:text-sm text-[#6B7280]">
-              {isPro ? "По полной экспертной модели" : "По базовым требованиям"}
+      {/* Percentage OR NotEligible Status */}
+      {chanceLevel !== "NotEligible" ? (
+        <div className="mb-2">
+          <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-3 mb-2">
+            <div className="text-3xl sm:text-4xl font-bold text-blue-600">{percentage}%</div>
+            <div className="flex flex-col justify-center">
+              <div className="text-sm sm:text-base font-semibold text-[#374151]">
+                {isPro ? `Реальная оценка шансов (${proLabel})` : "Примерный шанс поступления (Simple)"}
+              </div>
+              <div className="text-xs sm:text-sm text-[#6B7280]">
+                {isPro ? "По полной экспертной модели" : "По базовым требованиям"}
+              </div>
             </div>
           </div>
+          {/* Progress bar */}
+          <div className="w-full bg-gray-200 rounded-full h-3">
+            <div
+              className={`h-3 rounded-full ${chanceColors[chanceLevel]} transition-all`}
+              style={{ width: `${percentage}%` }}
+            />
+          </div>
+          
+          {/* PRO: Academic score note */}
+          {isPro && (
+            <div className="mt-2 px-3 py-2 bg-purple-50 border border-purple-200 rounded-lg">
+              <p className="text-xs sm:text-sm text-purple-800">
+                Процент рассчитан без учёта финансовых ограничений.
+              </p>
+            </div>
+          )}
+          
+          {/* PRO: Financial Status */}
+          {isPro && financialStatusMessage && (
+            <div className={`mt-2 px-3 py-2 rounded-lg border ${
+              result.financialStatus === "Affordable" 
+                ? "bg-green-50 border-green-200" 
+                : "bg-red-50 border-red-200"
+            }`}>
+              <p className={`text-xs sm:text-sm font-medium ${
+                result.financialStatus === "Affordable" 
+                  ? "text-green-800" 
+                  : "text-red-800"
+              }`}>
+                {financialStatusMessage}
+              </p>
+            </div>
+          )}
         </div>
-        {/* Progress bar */}
-        <div className="w-full bg-gray-200 rounded-full h-3">
-          <div
-            className={`h-3 rounded-full ${chanceColors[chanceLevel]} transition-all`}
-            style={{ width: `${percentage}%` }}
-          />
+      ) : (
+        /* NotEligible Status */
+        <div className="mb-2 px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg">
+          <div className="text-base sm:text-lg font-bold text-gray-700 mb-1">
+            Status: Not eligible
+          </div>
+          {eligibilityMessage && (
+            <p className="text-sm sm:text-base text-gray-600">
+              {eligibilityMessage}
+            </p>
+          )}
         </div>
-      </div>
+      )}
 
       {/* Positive factors for High/Medium chance */}
-      {chanceLevel !== "Low" && (
+      {chanceLevel !== "Low" && chanceLevel !== "NotEligible" && (
         <div className="mb-0 pb-0">
           <h4 className="text-sm sm:text-base font-semibold text-[#059669] mb-2.5">Ваши преимущества</h4>
           <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3 text-sm sm:text-base text-[#374151]">

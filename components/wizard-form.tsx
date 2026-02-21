@@ -94,14 +94,8 @@ export function WizardForm() {
 
   const FACULTY_OPTIONS = [
     { value: "Finance", label: "Финансы" },
-    { value: "Accounting", label: "Бухгалтерский учёт" },
-    { value: "Economics", label: "Экономика" },
-    { value: "Banking", label: "Банковское дело" },
-    { value: "Investment / Asset Management", label: "Инвестиции / Управление активами" },
-    { value: "FinTech", label: "Финтех" },
-    { value: "Risk Management", label: "Управление рисками" },
-    { value: "Quantitative Finance", label: "Квантитативные финансы" },
-    { value: "Master in Finance / MSc Finance", label: "Master in Finance / MSc Finance" },
+    { value: "Business", label: "Бизнес" },
+    { value: "IT", label: "ИТ / Информационные технологии" },
   ];
 
   useEffect(() => {
@@ -478,7 +472,7 @@ export function WizardForm() {
       financeSource: formData.financeSource,
       budget: formData.budget,
       
-      // Step 2 - English
+      // Step 2 - English Exams
       englishExamType: formData.englishExamType,
       englishScore: 
         formData.englishExamType === "IELTS" ? formData.ieltsOverall :
@@ -486,14 +480,39 @@ export function WizardForm() {
         formData.englishExamType === "Duolingo" ? formData.duolingoOverall :
         undefined,
       
+      // IELTS detailed scores
+      ieltsOverall: formData.ieltsOverall,
+      ieltsListening: formData.ieltsListening,
+      ieltsReading: formData.ieltsReading,
+      ieltsWriting: formData.ieltsWriting,
+      ieltsSpeaking: formData.ieltsSpeaking,
+      
+      // TOEFL detailed scores
+      toeflTotal: formData.toeflTotal,
+      toeflReading: formData.toeflReading,
+      toeflListening: formData.toeflListening,
+      toeflSpeaking: formData.toeflSpeaking,
+      toeflWriting: formData.toeflWriting,
+      
+      // Duolingo detailed scores
+      duolingoOverall: formData.duolingoOverall,
+      duolingoLiteracy: formData.duolingoLiteracy,
+      duolingoComprehension: formData.duolingoComprehension,
+      duolingoConversation: formData.duolingoConversation,
+      duolingoProduction: formData.duolingoProduction,
+      
       // Step 2 - Standardized tests
       standardizedExamType: formData.standardizedExamType,
+      
+      // GRE with percentiles
       greVerbal: formData.greVerbal,
       greVerbalPercentile: formData.greVerbalPercentile,
       greQuant: formData.greQuant,
       greQuantPercentile: formData.greQuantPercentile,
       greWriting: formData.greWriting,
       greWritingPercentile: formData.greWritingPercentile,
+      
+      // GMAT with percentiles
       gmatTotal: formData.gmatTotal,
       gmatTotalPercentile: formData.gmatTotalPercentile,
       gmatQuant: formData.gmatQuant,
@@ -671,7 +690,6 @@ export function WizardForm() {
                 <SelectItem value="Secondary">Среднее образование (школа / лицей / колледж)</SelectItem>
                 <SelectItem value="Bachelor">Бакалавриат</SelectItem>
                 <SelectItem value="Master">Магистратура</SelectItem>
-                <SelectItem value="Foundation">Foundation</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -1510,10 +1528,6 @@ export function WizardForm() {
                   <SelectContent>
                     <SelectItem value="Bachelor">Бакалавриат</SelectItem>
                     <SelectItem value="Master">Магистратура</SelectItem>
-                    <SelectItem value="MBA">MBA / Бизнес-школа</SelectItem>
-                    <SelectItem value="PhD">Аспирантура (PhD)</SelectItem>
-                    <SelectItem value="Language">Языковые курсы</SelectItem>
-                    <SelectItem value="Foundation">Foundation / Pathway</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

@@ -102,13 +102,11 @@ export function checkStandardizedTest(
     if (userExamType === "GRE") {
       const verbal = parseFloat(formData.greVerbal || "0");
       const quant = parseFloat(formData.greQuant || "0");
-      const writing = parseFloat(formData.greWriting || "0");
 
       const meetsVerbal = verbal >= (university.requirements.minGREVerbal || 0);
       const meetsQuant = quant >= (university.requirements.minGREQuant || 0);
-      const meetsWriting = writing >= (university.requirements.minGREWriting || 0);
 
-      greResult = meetsVerbal && meetsQuant && meetsWriting;
+      greResult = meetsVerbal && meetsQuant; // Only Verbal and Quant
     } else {
       greResult = false; // GRE required but not provided
     }
@@ -152,8 +150,6 @@ export function calculateSimpleChance(
   formData: WizardFormData,
   university: ExtendedUniversity
 ): WizardScoringResult {
-  let score = 50; // Base score
-
   // Check basic filters first (programGoal from Step 3, level from Step 1; faculty = directions)
   const userLevel = formData.programGoal || formData.level;
   const levelMatch = university.level === userLevel;
@@ -162,22 +158,44 @@ export function calculateSimpleChance(
       ? university.disciplines.some((d) => formData.faculty!.includes(d))
       : !!formData.discipline && university.disciplines.includes(formData.discipline);
 
-  if (!levelMatch || !disciplineMatch) {
-    // If basic filters don't match, return very low score
+  // NOT ELIGIBLE - level mismatch
+  if (!levelMatch) {
     return {
       university,
-      percentage: 5,
-      chanceLevel: "Low",
-      explanation: "По текущим параметрам шанс поступления низкий.",
+      percentage: null,
+      chanceLevel: "NotEligible",
+      explanation: "Нет такого уровня",
+      eligibilityIssue: "level",
       matchDetails: {
         gpaMatch: false,
         englishMatch: false,
         budgetMatch: false,
-        disciplineMatch,
+        disciplineMatch: false,
         standardizedTestMatch: false,
       },
     };
   }
+
+  // NOT ELIGIBLE - discipline mismatch
+  if (!disciplineMatch) {
+    return {
+      university,
+      percentage: null,
+      chanceLevel: "NotEligible",
+      explanation: "Нет такого факультета",
+      eligibilityIssue: "discipline",
+      matchDetails: {
+        gpaMatch: false,
+        englishMatch: false,
+        budgetMatch: false,
+        disciplineMatch: false,
+        standardizedTestMatch: false,
+      },
+    };
+  }
+
+  // ELIGIBLE - continue with calculation
+  let score = 50; // Base score
 
   // 1. GPA Matching (graduated: -20 to +20 points)
   const userGPA = convertToGPA4Scale(formData.gradingAverage, formData.gradingScheme);
@@ -241,29 +259,14 @@ export function calculateSimpleChance(
     score -= 15;
   }
 
-  // 5. Discipline Matching (+/- 10 points)
-  if (disciplineMatch) {
-    score += 10;
-  } else {
-    score -= 10;
-  }
-
-  // 6. Scholarship bonus (+5 points)
-  if (
-    university.requirements.scholarshipAvailable &&
-    (formData.financeSource === "Scholarship" || formData.financeSource === "Mixed")
-  ) {
-    score += 5;
-  }
-
   // Clamp score between 5 and 95
   const finalPercentage = Math.max(5, Math.min(95, score));
 
-  // Determine chance level
+  // Determine chance level - NEW THRESHOLDS
   let chanceLevel: WizardChanceLevel;
-  if (finalPercentage >= 70) {
+  if (finalPercentage >= 60) {
     chanceLevel = "High";
-  } else if (finalPercentage >= 40) {
+  } else if (finalPercentage >= 30) {
     chanceLevel = "Medium";
   } else {
     chanceLevel = "Low";
