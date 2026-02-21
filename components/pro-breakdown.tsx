@@ -10,7 +10,7 @@ interface ProBreakdownProps {
 
 export function ProBreakdown({ proResult, simplePercentage }: ProBreakdownProps) {
   const { percentage: proPercentage, matchDetails } = proResult;
-  const difference = simplePercentage - proPercentage;
+  const difference = simplePercentage - (proPercentage ?? 0);
 
   // Generate reasons why Pro score is lower
   const reasons: string[] = [];
