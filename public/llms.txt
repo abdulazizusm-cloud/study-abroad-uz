@@ -1,0 +1,56 @@
+# ApplySmart
+
+> ApplySmart is a free web application that helps students from Uzbekistan calculate their chances of admission to universities abroad. Users enter their academic scores, English exam results, and budget, and receive a personalized list of matching universities with an estimated probability of admission.
+
+## About
+
+ApplySmart uses a multi-factor scoring model that accounts for GPA, English language proficiency (IELTS, TOEFL, Duolingo, PTE), standardized tests (GRE, GMAT, SAT), competition, and financial requirements to calculate a realistic admission probability for each university.
+
+- Target audience: School graduates and students from Uzbekistan planning to study abroad (Bachelor's level)
+- Languages: Russian, Uzbek, English
+- Available at: https://applysmart.uz
+- Free to use; Pro features available for deeper analysis
+
+## Key Pages
+
+- [Home](https://applysmart.uz/): Landing page explaining the service and embedding the quick chance calculator
+- [Wizard](https://applysmart.uz/wizard): Step-by-step admission chance calculator (enter academic profile → get matched universities)
+- [Results](https://applysmart.uz/results): Personalized university list with admission probability scores
+- [Wizard Results](https://applysmart.uz/wizard-results): Detailed analysis of admission chances per university with Pro scoring
+
+## What ApplySmart Does
+
+1. Collects user academic data: GPA (4-point, 5-point, or percentage scale), English exam scores, standardized test scores
+2. Matches users to a curated database of universities in the US, UK, Europe, Asia, and other regions
+3. Calculates admission probability using a weighted scoring model
+4. Highlights strengths and weaknesses in the applicant's profile
+5. Provides actionable recommendations to improve admission chances
+
+## University Database
+
+ApplySmart maintains a database of universities across popular study destinations:
+- United Kingdom
+- United States
+- Germany
+- Netherlands
+- South Korea
+- Malaysia
+- Turkey
+- Czech Republic
+- Poland
+- Other countries
+
+## Scoring Model
+
+The admission probability is calculated based on:
+- GPA match against university minimum requirements
+- English proficiency level (IELTS/TOEFL/Duolingo/PTE)
+- Standardized test scores (GRE/GMAT/SAT) with percentile adjustment
+- Budget vs. tuition cost
+- Field of study / faculty match
+- Competitive adjustment factor (accounts for real applicant pool competition)
+
+## Contact
+
+- Website: https://applysmart.uz
+- Telegram: https://t.me/applysmartuz

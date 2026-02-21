@@ -7,6 +7,31 @@ import { WizardForm } from "@/components/wizard-form";
 import { GraduationCap, Mail, MessageCircle } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 
+const webAppSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  name: "ApplySmart",
+  url: "https://applysmart.uz",
+  applicationCategory: "EducationApplication",
+  operatingSystem: "Web",
+  offers: {
+    "@type": "Offer",
+    price: "0",
+    priceCurrency: "USD",
+  },
+  description:
+    "Бесплатный калькулятор шансов поступления в зарубежные университеты для студентов из Узбекистана. Введи оценки и уровень английского — получи список подходящих вузов с вероятностью поступления.",
+  inLanguage: ["ru", "uz", "en"],
+  audience: {
+    "@type": "Audience",
+    audienceType: "Students from Uzbekistan seeking to study abroad",
+    geographicArea: {
+      "@type": "Country",
+      name: "Uzbekistan",
+    },
+  },
+};
+
 export default function Home() {
   const { user, loading } = useAuth();
 
@@ -22,6 +47,10 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-white via-gray-50 to-white">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webAppSchema) }}
+      />
       <Navbar />
       <Hero />
       
