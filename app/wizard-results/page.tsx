@@ -426,7 +426,7 @@ export default function WizardResultsPage() {
                     showInsights={effectiveTier === "pro_lite" || effectiveTier === "pro" || effectiveTier === "pro_plus"}
                     showLiteAdvice={false}
                     formData={formData || undefined}
-                    simplePercentage={simplePercentage}
+                    simplePercentage={simplePercentage ?? undefined}
                     saved={isSaved}
                     planned={isPlanned}
                     onToggleSaved={async () => {
