@@ -112,21 +112,24 @@ export function ChanceInsights({ result, formData, simplePercentage, onUpgradeCl
     if (onUpgradeClick) return onUpgradeClick(plan);
   };
 
+  // NotEligible — не показываем плашку «Как повысить шанс?»
+  if (chanceLevel === "NotEligible") {
+    return null;
+  }
+
   // High chance — mentor CTA
   if (chanceLevel === "High") {
     return (
       <div className="mt-3 border-t border-gray-200 pt-3">
         <div className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-lg p-3 sm:p-4">
           <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-            <div className="flex items-start gap-3 flex-1">
+            <div className="flex items-center gap-3 flex-1">
               <div className="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center flex-shrink-0">
                 <GraduationCap className="w-6 h-6 text-white" />
               </div>
-              <div className="flex-1">
-                <p className="text-sm sm:text-base font-semibold text-[#374151]">
-                  Следующий шаг — грамотно выстроить стратегию подачи документов.
-                </p>
-              </div>
+              <p className="text-sm sm:text-base font-semibold text-[#374151] flex-1">
+                Следующий шаг — выстроить стратегию подачи документов.
+              </p>
             </div>
             <Button
               onClick={() => handleUpgrade("mentorship")}
