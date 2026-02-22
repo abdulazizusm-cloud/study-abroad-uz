@@ -350,7 +350,7 @@ export default function ProfilePage() {
                   </div>
                 )}
                 <TabsContent value="plan" className="m-0">
-                  <div className="space-y-6">
+                  <div className="space-y-8 bg-gray-50/50 rounded-2xl p-6 sm:p-8">
                     <div>
                       <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">Мой план</h2>
                       <p className="text-sm text-gray-500 mt-1.5">
@@ -358,110 +358,98 @@ export default function ProfilePage() {
                       </p>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                       {[
                         {
                           key: "free",
-                          emoji: "🟢",
                           title: "Бесплатно",
                           subtitle: "Проверка шансов",
                           price: "0 сум",
                           priceNote: "",
-                          accentColor: "bg-green-500",
-                          accentBg: "bg-green-50",
-                          borderColor: "border-green-200",
+                          recommended: false,
                           bullets: [
-                            "Базовый расчет вероятности поступления",
-                            "До 3 подходящих университетов",
-                            "Общий процент шанса (High / Medium / Low)",
+                            "До 3 вузов",
+                            "Базовый расчёт шанса",
+                            "Уровень High / Medium / Low",
                           ],
                         },
                         {
                           key: "pro",
-                          emoji: "🔵",
                           title: "PRO",
                           subtitle: "Расширенный анализ поступления",
                           price: "59 000 сум",
                           priceNote: "/ месяц",
-                          accentColor: "bg-blue-600",
-                          accentBg: "bg-blue-50",
-                          borderColor: "border-blue-200",
+                          recommended: true,
                           bullets: [
-                            "Всё, что входит в бесплатную версию",
-                            "Более точный расчет с учетом конкуренции",
-                            "Детальный разбор сильных и слабых сторон профиля",
-                            "Персональные рекомендации по повышению шансов",
+                            "Без лимита вузов",
+                            "Расчёт с учётом конкуренции",
+                            "Разбор сильных и слабых сторон",
+                            "Рекомендации по улучшению",
                           ],
                         },
                         {
                           key: "profile_review",
-                          emoji: "🟡",
                           title: "Разбор профиля",
                           subtitle: "Персональный план поступления",
                           price: "299 000 сум",
                           priceNote: "разовая оплата",
-                          accentColor: "bg-amber-500",
-                          accentBg: "bg-amber-50",
-                          borderColor: "border-amber-200",
+                          recommended: false,
                           bullets: [
-                            "Онлайн-консультация 30–40 минут",
-                            "Персональный список 5–10 университетов",
-                            "Индивидуальная стратегия подачи документов",
-                            "Конкретные рекомендации по усилению профиля",
-                            "Ответы на все ваши вопросы",
+                            "Консультация 30–40 мин",
+                            "Список 5–10 вузов",
+                            "Стратегия подачи документов",
+                            "Рекомендации по профилю",
                           ],
                         },
                         {
                           key: "mentorship",
-                          emoji: "🟣",
                           title: "Менторство (1 университет)",
                           subtitle: "Полное сопровождение до оффера",
                           price: "1 500 000 сум",
                           priceNote: "разовая оплата",
-                          accentColor: "bg-violet-600",
-                          accentBg: "bg-violet-50",
-                          borderColor: "border-violet-200",
+                          recommended: false,
                           bullets: [
-                            "Подбор и финальное подтверждение программы",
-                            "Проверка и доработка мотивационного письма (SOP)",
-                            "Проверка и корректировка полного пакета документов",
-                            "Помощь с подачей заявки",
-                            "Контроль дедлайнов и статуса заявки",
-                            "Поддержка до получения оффера",
+                            "Один вуз под ключ",
+                            "SOP и пакет документов",
+                            "Подача и дедлайны",
+                            "Поддержка до оффера",
                             "Персональный куратор",
                           ],
                         },
                       ].map((p) => {
                         const planType = p.key === "pro" ? "pro" : p.key === "profile_review" ? "profile_review" : p.key === "mentorship" ? "mentorship" : null;
+                        const isPro = p.key === "pro";
                         return (
                           <div
                             key={p.key}
-                            className={`rounded-2xl bg-white border ${p.borderColor} shadow-sm hover:shadow-md transition-shadow p-5 flex flex-col min-h-[320px]`}
+                            className={`rounded-2xl bg-white border border-gray-200 shadow-sm transition-shadow p-6 flex flex-col min-h-[300px] ${isPro ? "shadow-md hover:shadow-lg hover:ring-2 hover:ring-blue-500/20" : "hover:shadow-md"}`}
                           >
-                            <div className={`w-12 h-12 rounded-xl ${p.accentBg} flex items-center justify-center text-2xl mb-4`}>
-                              {p.emoji}
-                            </div>
-                            <h3 className="text-lg font-bold text-gray-900">{p.title}</h3>
+                            {p.recommended && (
+                              <span className="inline-flex w-fit text-xs font-medium text-white bg-blue-600 px-2.5 py-1 rounded-full mb-4">
+                                Рекомендуемый
+                              </span>
+                            )}
+                            <h3 className="text-xl font-bold text-gray-900">{p.title}</h3>
                             <p className="text-sm text-gray-500 mt-0.5 mb-4">{p.subtitle}</p>
                             <ul className="space-y-2 text-sm text-gray-600 flex-1">
                               {p.bullets.map((b) => (
                                 <li key={b} className="flex gap-2.5">
-                                  <span className={`mt-1.5 w-1.5 h-1.5 rounded-full ${p.accentColor} shrink-0`} />
+                                  <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-gray-300 shrink-0" />
                                   <span>{b}</span>
                                 </li>
                               ))}
                             </ul>
                             <div className="mt-5 pt-4 border-t border-gray-100 flex flex-col gap-3">
                               <div className="flex items-baseline gap-1">
-                                <span className="text-lg font-bold text-gray-900">{p.price}</span>
+                                <span className="text-2xl font-bold text-gray-900">{p.price}</span>
                                 {p.priceNote && (
-                                  <span className="text-xs text-gray-500">{p.priceNote}</span>
+                                  <span className="text-sm text-gray-500">{p.priceNote}</span>
                                 )}
                               </div>
                               {planType && (
                                 <Button
                                   type="button"
-                                  className={`w-full flex-shrink-0 rounded-xl h-11 text-sm font-semibold transition-all ${p.key === "pro" ? "bg-blue-600 hover:bg-blue-700 shadow-sm" : p.key === "profile_review" ? "bg-amber-500 hover:bg-amber-600 text-white shadow-sm" : "bg-violet-600 hover:bg-violet-700 text-white shadow-sm"}`}
+                                  className={`w-full flex-shrink-0 rounded-xl h-11 text-sm font-semibold transition-colors ${isPro ? "bg-blue-600 hover:bg-blue-700 text-white" : "border border-gray-300 text-gray-700 bg-white hover:bg-gray-50"}`}
                                   onClick={() => {
                                     setUpgradePlanType(planType);
                                     setUpgradeModalOpen(true);
@@ -477,33 +465,23 @@ export default function ProfilePage() {
                     </div>
 
                     {planInfo ? (
-                      <div className="rounded-2xl bg-gradient-to-br from-gray-50 to-white border border-gray-200 shadow-sm overflow-hidden">
-                        <div className="p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-                          <div className="flex items-center gap-4">
-                            <div className="w-14 h-14 rounded-2xl bg-blue-600 flex items-center justify-center shadow-lg">
-                              <Crown className="w-7 h-7 text-white" />
-                            </div>
-                            <div>
-                              <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">Текущий тариф</p>
-                              <p className="text-xl font-bold text-gray-900 mt-0.5">
-                                {getTierLabel(planInfo.effectiveTier)}
-                              </p>
-                              <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-sm text-gray-600">
-                                <span>Бонусные универы: <strong className="text-gray-900">{planInfo.bonusUniversities ?? 0}</strong></span>
-                                {planInfo.proTrialEndsAt && (
-                                  <span>Trial до: <strong className="text-gray-900">{new Date(planInfo.proTrialEndsAt).toLocaleDateString("ru-RU")}</strong></span>
-                                )}
-                                {planInfo.tierOverride && (
-                                  <span>Override: <strong className="text-gray-900">{planInfo.tierOverride}</strong>
-                                    {planInfo.overrideEndsAt && ` до ${new Date(planInfo.overrideEndsAt).toLocaleDateString("ru-RU")}`}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
+                      <div className="rounded-2xl bg-white border border-gray-200 shadow-sm p-6">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+                          <div>
+                            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Текущий тариф</p>
+                            <p className="text-lg font-semibold text-gray-900 mt-0.5">
+                              {getTierLabel(planInfo.effectiveTier)}
+                            </p>
+                            <p className="text-sm text-gray-500 mt-1">
+                              Бонусные универы: {planInfo.bonusUniversities ?? 0}
+                              {planInfo.proTrialEndsAt && ` · Trial до ${new Date(planInfo.proTrialEndsAt).toLocaleDateString("ru-RU")}`}
+                              {planInfo.tierOverride && ` · Override: ${planInfo.tierOverride}${planInfo.overrideEndsAt ? ` до ${new Date(planInfo.overrideEndsAt).toLocaleDateString("ru-RU")}` : ""}`}
+                            </p>
                           </div>
                           <div className="flex flex-col sm:flex-row gap-3">
                             <Button
-                              className="bg-blue-600 hover:bg-blue-700 h-11 px-6 rounded-xl font-semibold shadow-sm order-first sm:order-none"
+                              variant="outline"
+                              className="h-10 rounded-xl border-gray-300 text-gray-700 hover:bg-gray-50 order-first sm:order-none"
                               onClick={() => {
                                 trackEvent("upgrade_modal_opened", { from: "profile_my_plan" });
                                 setUpgradePlanType("profile_review");
@@ -515,7 +493,7 @@ export default function ProfilePage() {
                             {isAdmin && (
                               <Button
                                 variant="outline"
-                                className="h-10 rounded-xl border-gray-300"
+                                className="h-10 rounded-xl border-gray-300 text-gray-600 hover:bg-gray-50"
                                 disabled={tierApplying === "clear"}
                                 onClick={() => applyTierForTesting(null)}
                                 title="Сбросить админский override (вернуться к Pro Lite по умолчанию)"
@@ -525,7 +503,7 @@ export default function ProfilePage() {
                             )}
                             <Button
                               variant="outline"
-                              className="h-10 rounded-xl border-gray-300 opacity-60 cursor-not-allowed"
+                              className="h-10 rounded-xl border-gray-300 text-gray-500 opacity-60 cursor-not-allowed"
                               disabled
                               title="Будет доступно после подключения Stripe portal"
                             >
@@ -535,7 +513,7 @@ export default function ProfilePage() {
                         </div>
                       </div>
                     ) : (
-                      <div className="rounded-2xl bg-white border border-gray-200 shadow-sm p-8 text-center text-gray-500">
+                      <div className="rounded-2xl bg-white border border-gray-200 shadow-sm p-8 text-center text-gray-500 text-sm">
                         Данные плана не найдены
                       </div>
                     )}
