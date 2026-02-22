@@ -205,12 +205,6 @@ export function WizardResultCard({
                 <span className="flex-1">Английский на требуемом уровне</span>
               </li>
             )}
-            {matchDetails.budgetMatch && (
-              <li className="flex items-center gap-3">
-                <CheckCircle className="w-4 h-4 text-[#10B981] flex-shrink-0" />
-                <span className="flex-1">Стоимость в рамках бюджета</span>
-              </li>
-            )}
             {matchDetails.standardizedTestMatch && (
               <li className="flex items-center gap-3">
                 <CheckCircle className="w-4 h-4 text-[#10B981] flex-shrink-0" />
@@ -230,12 +224,6 @@ export function WizardResultCard({
               <li className="flex items-center gap-3">
                 <XCircle className="w-4 h-4 text-[#F87171] flex-shrink-0" />
                 <span className="flex-1">GPA ниже среднего по программе</span>
-              </li>
-            )}
-            {!matchDetails.budgetMatch && (
-              <li className="flex items-center gap-3">
-                <XCircle className="w-4 h-4 text-[#F87171] flex-shrink-0" />
-                <span className="flex-1">Бюджет не покрывает tuition</span>
               </li>
             )}
             {!matchDetails.englishMatch && (

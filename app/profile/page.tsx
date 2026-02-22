@@ -7,7 +7,7 @@ import { WizardFormData } from "@/lib/wizard-types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, DollarSign, FileText, Globe, GraduationCap, Crown, User, Heart, ClipboardList, LogOut } from "lucide-react";
-import { UpgradePlanModal } from "@/components/upgrade-plan-modal";
+import { UpgradePlanModal, UpgradePlanType } from "@/components/upgrade-plan-modal";
 import { supabase } from "@/lib/supabase-client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UserAvatar } from "@/components/ui/user-avatar";
@@ -43,6 +43,7 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
+  const [upgradePlanType, setUpgradePlanType] = useState<UpgradePlanType>("pro");
   const [planInfo, setPlanInfo] = useState<{
     tier: string;
     effectiveTier: string;
@@ -349,15 +350,15 @@ export default function ProfilePage() {
                   </div>
                 )}
                 <TabsContent value="plan" className="m-0">
-                  <div className="space-y-4">
+                  <div className="space-y-6">
                     <div>
-                      <h2 className="text-xl sm:text-xl sm:text-2xl font-semibold text-gray-900">Мой план</h2>
-                      <p className="text-xs sm:text-sm text-gray-600 mt-1">
+                      <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">Мой план</h2>
+                      <p className="text-sm text-gray-500 mt-1.5">
                         Текущий доступ, лимиты и управление подпиской.
                       </p>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                       {[
                         {
                           key: "free",
@@ -366,7 +367,9 @@ export default function ProfilePage() {
                           subtitle: "Проверка шансов",
                           price: "0 сум",
                           priceNote: "",
-                          accentColor: "bg-green-600",
+                          accentColor: "bg-green-500",
+                          accentBg: "bg-green-50",
+                          borderColor: "border-green-200",
                           bullets: [
                             "Базовый расчет вероятности поступления",
                             "До 3 подходящих университетов",
@@ -381,6 +384,8 @@ export default function ProfilePage() {
                           price: "59 000 сум",
                           priceNote: "/ месяц",
                           accentColor: "bg-blue-600",
+                          accentBg: "bg-blue-50",
+                          borderColor: "border-blue-200",
                           bullets: [
                             "Всё, что входит в бесплатную версию",
                             "Более точный расчет с учетом конкуренции",
@@ -395,7 +400,9 @@ export default function ProfilePage() {
                           subtitle: "Персональный план поступления",
                           price: "299 000 сум",
                           priceNote: "разовая оплата",
-                          accentColor: "bg-yellow-500",
+                          accentColor: "bg-amber-500",
+                          accentBg: "bg-amber-50",
+                          borderColor: "border-amber-200",
                           bullets: [
                             "Онлайн-консультация 30–40 минут",
                             "Персональный список 5–10 университетов",
@@ -411,7 +418,9 @@ export default function ProfilePage() {
                           subtitle: "Полное сопровождение до оффера",
                           price: "1 500 000 сум",
                           priceNote: "разовая оплата",
-                          accentColor: "bg-purple-600",
+                          accentColor: "bg-violet-600",
+                          accentBg: "bg-violet-50",
+                          borderColor: "border-violet-200",
                           bullets: [
                             "Подбор и финальное подтверждение программы",
                             "Проверка и доработка мотивационного письма (SOP)",
@@ -422,72 +431,82 @@ export default function ProfilePage() {
                             "Персональный куратор",
                           ],
                         },
-                      ].map((p) => (
-                        <div key={p.key} className="rounded-2xl bg-white shadow-sm p-4 flex flex-col">
-                          <div className="text-base font-bold text-gray-900">{p.emoji} {p.title}</div>
-                          <div className="text-xs text-gray-500 mt-0.5 mb-3">{p.subtitle}</div>
-                          <ul className="space-y-1.5 text-xs text-gray-700 flex-1">
-                            {p.bullets.map((b) => (
-                              <li key={b} className="flex gap-2">
-                                <span className={`mt-[5px] w-1.5 h-1.5 rounded-full ${p.accentColor} shrink-0`} />
-                                <span>{b}</span>
-                              </li>
-                            ))}
-                          </ul>
-                          <div className="mt-4 pt-3 border-t border-gray-100">
-                            <span className="text-sm font-bold text-gray-900">{p.price}</span>
-                            {p.priceNote && (
-                              <span className="text-xs text-gray-500 ml-1">{p.priceNote}</span>
-                            )}
+                      ].map((p) => {
+                        const planType = p.key === "pro" ? "pro" : p.key === "profile_review" ? "profile_review" : p.key === "mentorship" ? "mentorship" : null;
+                        return (
+                          <div
+                            key={p.key}
+                            className={`rounded-2xl bg-white border ${p.borderColor} shadow-sm hover:shadow-md transition-shadow p-5 flex flex-col min-h-[320px]`}
+                          >
+                            <div className={`w-12 h-12 rounded-xl ${p.accentBg} flex items-center justify-center text-2xl mb-4`}>
+                              {p.emoji}
+                            </div>
+                            <h3 className="text-lg font-bold text-gray-900">{p.title}</h3>
+                            <p className="text-sm text-gray-500 mt-0.5 mb-4">{p.subtitle}</p>
+                            <ul className="space-y-2 text-sm text-gray-600 flex-1">
+                              {p.bullets.map((b) => (
+                                <li key={b} className="flex gap-2.5">
+                                  <span className={`mt-1.5 w-1.5 h-1.5 rounded-full ${p.accentColor} shrink-0`} />
+                                  <span>{b}</span>
+                                </li>
+                              ))}
+                            </ul>
+                            <div className="mt-5 pt-4 border-t border-gray-100 flex flex-col gap-3">
+                              <div className="flex items-baseline gap-1">
+                                <span className="text-lg font-bold text-gray-900">{p.price}</span>
+                                {p.priceNote && (
+                                  <span className="text-xs text-gray-500">{p.priceNote}</span>
+                                )}
+                              </div>
+                              {planType && (
+                                <Button
+                                  type="button"
+                                  className={`w-full flex-shrink-0 rounded-xl h-11 text-sm font-semibold transition-all ${p.key === "pro" ? "bg-blue-600 hover:bg-blue-700 shadow-sm" : p.key === "profile_review" ? "bg-amber-500 hover:bg-amber-600 text-white shadow-sm" : "bg-violet-600 hover:bg-violet-700 text-white shadow-sm"}`}
+                                  onClick={() => {
+                                    setUpgradePlanType(planType);
+                                    setUpgradeModalOpen(true);
+                                  }}
+                                >
+                                  Оформить подписку
+                                </Button>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
 
                     {planInfo ? (
-                      <div className="rounded-2xl bg-white shadow-sm p-4">
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="flex items-start gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center">
-                              <Crown className="w-5 h-5" />
+                      <div className="rounded-2xl bg-gradient-to-br from-gray-50 to-white border border-gray-200 shadow-sm overflow-hidden">
+                        <div className="p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+                          <div className="flex items-center gap-4">
+                            <div className="w-14 h-14 rounded-2xl bg-blue-600 flex items-center justify-center shadow-lg">
+                              <Crown className="w-7 h-7 text-white" />
                             </div>
                             <div>
-                              <div className="text-sm text-gray-500">Тариф</div>
-                              <div className="text-lg font-bold text-gray-900">
+                              <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">Текущий тариф</p>
+                              <p className="text-xl font-bold text-gray-900 mt-0.5">
                                 {getTierLabel(planInfo.effectiveTier)}
-                              </div>
-                              <div className="text-sm text-gray-700 mt-2 space-y-1">
-                                <div>
-                                  <span className="text-gray-500">Бонусные универы:</span>{" "}
-                                  <span className="font-medium text-gray-900">{planInfo.bonusUniversities ?? 0}</span>
-                                </div>
+                              </p>
+                              <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-sm text-gray-600">
+                                <span>Бонусные универы: <strong className="text-gray-900">{planInfo.bonusUniversities ?? 0}</strong></span>
                                 {planInfo.proTrialEndsAt && (
-                                  <div>
-                                    <span className="text-gray-500">Trial до:</span>{" "}
-                                    <span className="font-medium text-gray-900">
-                                      {new Date(planInfo.proTrialEndsAt).toLocaleDateString("ru-RU")}
-                                    </span>
-                                  </div>
+                                  <span>Trial до: <strong className="text-gray-900">{new Date(planInfo.proTrialEndsAt).toLocaleDateString("ru-RU")}</strong></span>
                                 )}
                                 {planInfo.tierOverride && (
-                                  <div>
-                                    <span className="text-gray-500">Override:</span>{" "}
-                                    <span className="font-medium text-gray-900">{planInfo.tierOverride}</span>
-                                    {planInfo.overrideEndsAt && (
-                                      <span className="text-gray-500">
-                                        {" "}до {new Date(planInfo.overrideEndsAt).toLocaleDateString("ru-RU")}
-                                      </span>
-                                    )}
-                                  </div>
+                                  <span>Override: <strong className="text-gray-900">{planInfo.tierOverride}</strong>
+                                    {planInfo.overrideEndsAt && ` до ${new Date(planInfo.overrideEndsAt).toLocaleDateString("ru-RU")}`}
+                                  </span>
                                 )}
                               </div>
                             </div>
                           </div>
-                          <div className="flex flex-col gap-2">
+                          <div className="flex flex-col sm:flex-row gap-3">
                             <Button
-                              className="bg-blue-600 hover:bg-blue-700 h-10"
+                              className="bg-blue-600 hover:bg-blue-700 h-11 px-6 rounded-xl font-semibold shadow-sm order-first sm:order-none"
                               onClick={() => {
                                 trackEvent("upgrade_modal_opened", { from: "profile_my_plan" });
+                                setUpgradePlanType("profile_review");
                                 setUpgradeModalOpen(true);
                               }}
                             >
@@ -496,7 +515,7 @@ export default function ProfilePage() {
                             {isAdmin && (
                               <Button
                                 variant="outline"
-                                className="h-10"
+                                className="h-10 rounded-xl border-gray-300"
                                 disabled={tierApplying === "clear"}
                                 onClick={() => applyTierForTesting(null)}
                                 title="Сбросить админский override (вернуться к Pro Lite по умолчанию)"
@@ -506,7 +525,7 @@ export default function ProfilePage() {
                             )}
                             <Button
                               variant="outline"
-                              className="h-10 opacity-60 cursor-not-allowed"
+                              className="h-10 rounded-xl border-gray-300 opacity-60 cursor-not-allowed"
                               disabled
                               title="Будет доступно после подключения Stripe portal"
                             >
@@ -516,7 +535,7 @@ export default function ProfilePage() {
                         </div>
                       </div>
                     ) : (
-                      <div className="rounded-2xl bg-white shadow-sm p-4 text-gray-600">
+                      <div className="rounded-2xl bg-white border border-gray-200 shadow-sm p-8 text-center text-gray-500">
                         Данные плана не найдены
                       </div>
                     )}
@@ -798,6 +817,7 @@ export default function ProfilePage() {
         <UpgradePlanModal
           open={upgradeModalOpen}
           onOpenChange={setUpgradeModalOpen}
+          planType={upgradePlanType}
           onSelectPlan={async (plan) => {
             if (!user) return;
             trackEvent("upgrade_plan_selected", { plan, mode: "dev_stub" });
