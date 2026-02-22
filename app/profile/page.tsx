@@ -6,7 +6,7 @@ import { useAuth } from "@/contexts/auth-context";
 import { WizardFormData } from "@/lib/wizard-types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, DollarSign, FileText, Globe, GraduationCap, Crown, User, Heart, ClipboardList, LogOut } from "lucide-react";
+import { ArrowLeft, DollarSign, FileText, Globe, GraduationCap, Crown, User, Heart, ClipboardList, LogOut, CheckCircle2 } from "lucide-react";
 import { UpgradePlanModal, UpgradePlanType } from "@/components/upgrade-plan-modal";
 import { supabase } from "@/lib/supabase-client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -302,57 +302,96 @@ export default function ProfilePage() {
                   </div>
                 )}
                 <TabsContent value="plan" className="m-0">
-                  <div className="space-y-8 bg-gray-50/50 rounded-2xl p-6 sm:p-8">
+                  <div className="space-y-6 bg-gray-50/50 rounded-2xl p-6 sm:p-8">
                     <div>
                       <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">Мой план</h2>
                       <p className="text-sm text-gray-500 mt-1.5">
                         Текущий доступ, лимиты и управление подпиской.
                       </p>
                     </div>
-                    <div className="grid grid-cols-2 gap-4 sm:gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
                       {[
-                        { key: "free", title: "Бесплатно", subtitle: "Проверка шансов", price: "0 сум", priceNote: "", recommended: false, bullets: ["До 3 вузов", "Базовый расчёт шанса", "Уровень High / Medium / Low"] },
-                        { key: "pro", title: "PRO", subtitle: "Расширенный анализ поступления", price: "59 000 сум", priceNote: "/ месяц", recommended: true, bullets: ["Без лимита вузов", "Расчёт с учётом конкуренции", "Разбор сильных и слабых сторон", "Рекомендации по улучшению"] },
-                        { key: "profile_review", title: "Разбор профиля", subtitle: "Персональный план поступления", price: "299 000 сум", priceNote: "разовая оплата", recommended: false, bullets: ["Консультация 30–40 мин", "Список 5–10 вузов", "Стратегия подачи документов", "Рекомендации по профилю"] },
-                        { key: "mentorship", title: "Менторство (1 университет)", subtitle: "Полное сопровождение до оффера", price: "1 500 000 сум", priceNote: "разовая оплата", recommended: false, bullets: ["Один вуз под ключ", "SOP и пакет документов", "Подача и дедлайны", "Поддержка до оффера", "Персональный куратор"] },
+                        {
+                          key: "free",
+                          title: "Бесплатно",
+                          subtitle: "Проверка шансов",
+                          price: "0 сум",
+                          priceNote: "",
+                          recommended: false,
+                          cardColor: "bg-gray-50 border-gray-200",
+                          buttonColor: "",
+                          buttonLabel: "",
+                          features: ["До 3 вузов", "Базовый расчёт шанса", "Уровень High / Medium / Low"],
+                        },
+                        {
+                          key: "pro",
+                          title: "PRO",
+                          subtitle: "Расширенный анализ поступления",
+                          price: "59 000 сум",
+                          priceNote: "/ месяц",
+                          recommended: true,
+                          cardColor: "bg-blue-50 border-blue-200",
+                          buttonColor: "bg-blue-600 hover:bg-blue-700 text-white",
+                          buttonLabel: "Перейти на PRO",
+                          features: ["Без лимита вузов", "Расчёт с учётом конкуренции", "Разбор сильных и слабых сторон", "Рекомендации по улучшению"],
+                        },
+                        {
+                          key: "profile_review",
+                          title: "Разбор профиля",
+                          subtitle: "Персональный план поступления",
+                          price: "299 000 сум",
+                          priceNote: "разовая оплата",
+                          recommended: false,
+                          cardColor: "bg-yellow-50 border-yellow-200",
+                          buttonColor: "bg-yellow-500 hover:bg-yellow-600 text-white",
+                          buttonLabel: "Записаться на разбор профиля",
+                          features: ["Консультация 30–40 мин", "Список 5–10 вузов", "Стратегия подачи документов", "Рекомендации по профилю", "Ответы на все вопросы"],
+                        },
+                        {
+                          key: "mentorship",
+                          title: "Менторство (1 университет)",
+                          subtitle: "Полное сопровождение до оффера",
+                          price: "1 500 000 сум",
+                          priceNote: "разовая оплата",
+                          recommended: false,
+                          cardColor: "bg-purple-50 border-purple-200",
+                          buttonColor: "bg-purple-600 hover:bg-purple-700 text-white",
+                          buttonLabel: "Начать поступление с ментором",
+                          features: ["Один вуз под ключ", "SOP и пакет документов", "Подача и дедлайны", "Поддержка до оффера", "Персональный куратор"],
+                        },
                       ].map((p) => {
                         const planType = p.key === "pro" ? "pro" : p.key === "profile_review" ? "profile_review" : p.key === "mentorship" ? "mentorship" : null;
-                        const isPro = p.key === "pro";
-                        const isExpanded = expandedPlanKey === p.key;
                         return (
-                          <div key={p.key} className={`rounded-2xl bg-white border border-gray-200 shadow-sm transition-all overflow-hidden ${isPro && isExpanded ? "shadow-md ring-2 ring-blue-500/20" : ""}`}>
-                            <div className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                              <div className="min-w-0">
-                                {p.recommended && <span className="inline-flex text-xs font-medium text-white bg-blue-600 px-2 py-0.5 rounded-full mb-2">Рекомендуемый</span>}
-                                <h3 className="text-lg font-bold text-gray-900">{p.title}</h3>
-                              </div>
-                              <Button type="button" variant="outline" size="sm" className="rounded-xl border-gray-300 text-gray-700 shrink-0 w-full sm:w-auto" onClick={() => setExpandedPlanKey(isExpanded ? null : p.key)}>
-                                {isExpanded ? "Свернуть" : "Подробнее"}
-                              </Button>
+                          <div key={p.key} className={`rounded-2xl border ${p.cardColor} p-5 flex flex-col gap-4`}>
+                            <div>
+                              {p.recommended && (
+                                <span className="inline-flex text-xs font-medium text-white bg-blue-600 px-2.5 py-0.5 rounded-full mb-2">
+                                  Рекомендуемый
+                                </span>
+                              )}
+                              <h3 className="text-lg font-bold text-gray-900">{p.title}</h3>
+                              <p className="text-sm text-gray-500 mt-0.5">{p.subtitle}</p>
                             </div>
-                            {isExpanded && (
-                              <div className="px-4 sm:px-5 pb-4 sm:pb-5 pt-0 border-t border-gray-100 animate-in slide-in-from-top-2 duration-200">
-                                <p className="text-sm text-gray-500 mt-3 mb-4">{p.subtitle}</p>
-                                <ul className="space-y-2 text-sm text-gray-600 mb-4">
-                                  {p.bullets.map((b) => (
-                                    <li key={b} className="flex gap-2.5">
-                                      <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-gray-300 shrink-0" />
-                                      <span>{b}</span>
-                                    </li>
-                                  ))}
-                                </ul>
-                                <div className="flex flex-col gap-3">
-                                  <div className="flex items-baseline gap-1">
-                                    <span className="text-xl font-bold text-gray-900">{p.price}</span>
-                                    {p.priceNote && <span className="text-sm text-gray-500">{p.priceNote}</span>}
-                                  </div>
-                                  {planType && (
-                                    <Button type="button" className={`w-full rounded-xl h-10 text-sm font-semibold transition-colors ${isPro ? "bg-blue-600 hover:bg-blue-700 text-white" : "border border-gray-300 text-gray-700 bg-white hover:bg-gray-50"}`} onClick={() => { setUpgradePlanType(planType); setUpgradeModalOpen(true); }}>
-                                      Оформить подписку
-                                    </Button>
-                                  )}
-                                </div>
-                              </div>
+                            <ul className="space-y-2 text-sm text-gray-700 flex-1">
+                              {p.features.map((f) => (
+                                <li key={f} className="flex items-start gap-2">
+                                  <CheckCircle2 className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+                                  <span>{f}</span>
+                                </li>
+                              ))}
+                            </ul>
+                            <div className="flex items-baseline gap-1.5">
+                              <span className="text-2xl font-bold text-gray-900">{p.price}</span>
+                              {p.priceNote && <span className="text-sm text-gray-500">{p.priceNote}</span>}
+                            </div>
+                            {planType && p.buttonLabel && (
+                              <Button
+                                type="button"
+                                className={`w-full h-11 rounded-xl text-sm font-semibold transition-colors ${p.buttonColor}`}
+                                onClick={() => { setUpgradePlanType(planType); setUpgradeModalOpen(true); }}
+                              >
+                                {p.buttonLabel}
+                              </Button>
                             )}
                           </div>
                         );
