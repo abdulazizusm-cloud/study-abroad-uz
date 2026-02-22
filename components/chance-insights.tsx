@@ -11,7 +11,6 @@ import {
   BookOpen, 
   MessageCircle, 
   TrendingUp, 
-  Award, 
   Calendar, 
   Globe,
   GraduationCap,
@@ -84,15 +83,6 @@ export function ChanceInsights({ result, formData, simplePercentage, onUpgradeCl
       title: "Сдать GRE/GMAT",
       description: "Это обязательное условие для поступления на многие программы",
       priority: "high",
-    });
-  }
-
-  if (!matchDetails.budgetMatch) {
-    specificTips.push({
-      icon: <Award className="w-4 h-4" />,
-      title: "Изучить scholarship opportunities",
-      description: "Рассмотреть стипендии и гранты для снижения финансовой нагрузки",
-      priority: "medium",
     });
   }
 

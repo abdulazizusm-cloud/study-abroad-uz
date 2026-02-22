@@ -36,6 +36,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
   const [showSignupPassword, setShowSignupPassword] = useState(false);
   const [forgotPasswordMode, setForgotPasswordMode] = useState(false);
   const [resetEmailSent, setResetEmailSent] = useState(false);
+  const [privacyAccepted, setPrivacyAccepted] = useState(false);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,6 +73,12 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
       return;
     }
 
+    if (!privacyAccepted) {
+      setLocalError("Необходимо принять Политику конфиденциальности");
+      setLoading(false);
+      return;
+    }
+
     try {
       const { hasSession } = await signUp(email, password, {
         firstName: firstName.trim(),
@@ -86,6 +93,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
         setFirstName("");
         setLastName("");
         setPhone("");
+        setPrivacyAccepted(false);
         // Redirect to results if user has wizard data
         const savedData = localStorage.getItem("wizardFormData");
         if (savedData) {
@@ -397,6 +405,24 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                 </div>
               </div>
 
+              <div className="flex items-start gap-2">
+                <input
+                  id="privacy-checkbox"
+                  type="checkbox"
+                  checked={privacyAccepted}
+                  onChange={(e) => setPrivacyAccepted(e.target.checked)}
+                  className="mt-1 h-4 w-4 cursor-pointer accent-blue-600"
+                  disabled={loading}
+                />
+                <label htmlFor="privacy-checkbox" className="text-xs text-gray-600 leading-relaxed cursor-pointer">
+                  Я соглашаюсь с{" "}
+                  <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                    Политикой конфиденциальности
+                  </a>{" "}
+                  и даю согласие на обработку персональных данных.
+                </label>
+              </div>
+
               {(localError || error) && (
                 <p className="text-sm text-red-600">{localError || error}</p>
               )}
@@ -448,9 +474,6 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                 Зарегистрироваться через Google
               </Button>
 
-              <p className="text-xs text-center text-gray-600 mt-4">
-                Регистрируясь, вы соглашаетесь с условиями использования
-              </p>
             </form>
           </TabsContent>
         </Tabs>
