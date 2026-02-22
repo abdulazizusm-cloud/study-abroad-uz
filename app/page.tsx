@@ -97,6 +97,25 @@ export default function Home() {
             </div>
           </div>
 
+          {/* Telegram CTA */}
+          <div className="py-6 sm:py-8 border-t border-gray-700 text-center">
+            <p className="text-white text-base sm:text-lg font-semibold mb-1">
+              Если есть сомнения или что-то непонятно, свяжитесь с нами
+            </p>
+            <p className="text-gray-400 text-sm mb-4">
+              Напишите нам и опытный менеджер поможет вам сделать правильный выбор
+            </p>
+            <a
+              href="https://t.me/PLACEHOLDER"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold px-6 py-3 rounded-xl transition-colors text-sm sm:text-base"
+            >
+              <MessageCircle className="w-5 h-5" />
+              Написать в Telegram
+            </a>
+          </div>
+
           {/* Bottom Bar */}
           <div className="pt-4 sm:pt-6 border-t border-gray-700 text-center">
             <p className="text-gray-500 text-xs">
