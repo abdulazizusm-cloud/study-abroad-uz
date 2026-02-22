@@ -5,11 +5,12 @@ import { Card } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { ChanceInsights } from "./chance-insights";
+import { UpgradePlanType } from "@/components/upgrade-plan-modal";
 import { MapPin, GraduationCap, DollarSign, XCircle, CheckCircle, Heart, Plus, Check } from "lucide-react";
 
 interface WizardResultCardProps {
   result: WizardScoringResult;
-  onUpgradeClick?: () => void;
+  onUpgradeClick?: (plan: UpgradePlanType) => void;
   showCTA?: boolean;
   isPro?: boolean;
   proLabel?: string;
@@ -278,7 +279,7 @@ export function WizardResultCard({
               {ctaText ?? "Рассчитать реальную вероятность поступления с учетом конкуренции"}
             </p>
             <Button
-              onClick={onUpgradeClick}
+              onClick={() => onUpgradeClick("pro")}
               className="bg-purple-600 hover:bg-purple-700 text-white font-medium w-full sm:w-auto flex-shrink-0"
             >
               {ctaButtonText ?? "Узнать реальные шансы"}
@@ -309,7 +310,7 @@ export function WizardResultCard({
                 type="button"
                 variant="outline"
                 className="flex-shrink-0"
-                onClick={onUpgradeClick}
+                onClick={() => onUpgradeClick("pro")}
               >
                 Получить персональное сопровождение
               </Button>

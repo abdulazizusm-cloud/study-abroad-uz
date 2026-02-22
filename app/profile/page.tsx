@@ -360,91 +360,88 @@ export default function ProfilePage() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                       {[
                         {
-                          key: "simple",
-                          title: "Simple",
-                          subtitle: "Free (гость)",
-                          limit: "3 университета",
-                          algorithm: "Simple расчёт",
-                          bullets: ["Без регистрации", "Базовый подбор"],
-                        },
-                        {
-                          key: "pro_lite",
-                          title: "Pro Lite",
-                          subtitle: "Free (регистрация)",
-                          limit: "6 университетов",
-                          algorithm: "Pro расчёт",
-                          bullets: ["Требует вход", "Без экспертного breakdown"],
+                          key: "free",
+                          emoji: "🟢",
+                          title: "Бесплатно",
+                          subtitle: "Проверка шансов",
+                          price: "0 сум",
+                          priceNote: "",
+                          accentColor: "bg-green-600",
+                          bullets: [
+                            "Базовый расчет вероятности поступления",
+                            "До 3 подходящих университетов",
+                            "Общий процент шанса (High / Medium / Low)",
+                          ],
                         },
                         {
                           key: "pro",
-                          title: "Pro",
-                          subtitle: "Подписка",
-                          limit: "Без лимита",
-                          algorithm: "Pro расчёт + breakdown",
-                          bullets: ["Полный список", "Экспертный breakdown"],
+                          emoji: "🔵",
+                          title: "PRO",
+                          subtitle: "Расширенный анализ поступления",
+                          price: "59 000 сум",
+                          priceNote: "/ месяц",
+                          accentColor: "bg-blue-600",
+                          bullets: [
+                            "Всё, что входит в бесплатную версию",
+                            "Более точный расчет с учетом конкуренции",
+                            "Детальный разбор сильных и слабых сторон профиля",
+                            "Персональные рекомендации по повышению шансов",
+                          ],
                         },
                         {
-                          key: "pro_plus",
-                          title: "Pro+",
-                          subtitle: "Подписка",
-                          limit: "Без лимита",
-                          algorithm: "Максимум возможностей",
-                          bullets: ["Приоритетные фичи", "Расширенный доступ"],
+                          key: "profile_review",
+                          emoji: "🟡",
+                          title: "Разбор профиля",
+                          subtitle: "Персональный план поступления",
+                          price: "299 000 сум",
+                          priceNote: "разовая оплата",
+                          accentColor: "bg-yellow-500",
+                          bullets: [
+                            "Онлайн-консультация 30–40 минут",
+                            "Персональный список 5–10 университетов",
+                            "Индивидуальная стратегия подачи документов",
+                            "Конкретные рекомендации по усилению профиля",
+                            "Ответы на все ваши вопросы",
+                          ],
                         },
-                      ].map((p) => {
-                        const effective = planInfo?.effectiveTier ?? "pro_lite";
-                        const isCurrent =
-                          (effective === "free" && p.key === "simple") ||
-                          effective === p.key;
-                        const targetOverride =
-                          p.key === "simple"
-                            ? ("free" as const)
-                            : (p.key as "pro_lite" | "pro" | "pro_plus");
-                        const isApplying = tierApplying === targetOverride;
-                        return (
-                          <div key={p.key} className="rounded-2xl bg-white shadow-sm p-4 relative">
-                            {isCurrent && (
-                              <div className="absolute top-3 right-3 text-[11px] px-2 py-0.5 rounded-full bg-blue-600 text-white">
-                                Текущий
-                              </div>
-                            )}
-                            <div className="text-sm font-semibold text-gray-900">{p.title}</div>
-                            <div className="text-xs text-gray-600 mt-0.5">{p.subtitle}</div>
-                            <div className="mt-3 space-y-1 text-xs text-gray-700">
-                              <div>
-                                <span className="text-gray-500">Лимит:</span>{" "}
-                                <span className="font-medium text-gray-900">{p.limit}</span>
-                              </div>
-                              <div>
-                                <span className="text-gray-500">Алгоритм:</span>{" "}
-                                <span className="font-medium text-gray-900">{p.algorithm}</span>
-                              </div>
-                            </div>
-                            <ul className="mt-3 space-y-1 text-xs text-gray-700">
-                              {p.bullets.map((b) => (
-                                <li key={b} className="flex gap-2">
-                                  <span className="mt-[6px] w-1.5 h-1.5 rounded-full bg-blue-600 shrink-0" />
-                                  <span>{b}</span>
-                                </li>
-                              ))}
-                            </ul>
-
-                            {isAdmin && (
-                              <div className="mt-4">
-                                <Button
-                                  variant={isCurrent ? "outline" : "default"}
-                                  className={`${isCurrent ? "" : "bg-blue-600 hover:bg-blue-700"} h-9 w-full`}
-                                  disabled={isApplying}
-                                  onClick={() => applyTierForTesting(targetOverride)}
-                                  title="Доступно только администратору (для тестов)"
-                                >
-                                  {isApplying ? "Применяем..." : isCurrent ? "Текущий" : "Выбрать"}
-                                </Button>
-                              </div>
+                        {
+                          key: "mentorship",
+                          emoji: "🟣",
+                          title: "Менторство (1 университет)",
+                          subtitle: "Полное сопровождение до оффера",
+                          price: "1 500 000 сум",
+                          priceNote: "разовая оплата",
+                          accentColor: "bg-purple-600",
+                          bullets: [
+                            "Подбор и финальное подтверждение программы",
+                            "Проверка и доработка мотивационного письма (SOP)",
+                            "Проверка и корректировка полного пакета документов",
+                            "Помощь с подачей заявки",
+                            "Контроль дедлайнов и статуса заявки",
+                            "Поддержка до получения оффера",
+                            "Персональный куратор",
+                          ],
+                        },
+                      ].map((p) => (
+                        <div key={p.key} className="rounded-2xl bg-white shadow-sm p-4 flex flex-col">
+                          <div className="text-base font-bold text-gray-900">{p.emoji} {p.title}</div>
+                          <div className="text-xs text-gray-500 mt-0.5 mb-3">{p.subtitle}</div>
+                          <ul className="space-y-1.5 text-xs text-gray-700 flex-1">
+                            {p.bullets.map((b) => (
+                              <li key={b} className="flex gap-2">
+                                <span className={`mt-[5px] w-1.5 h-1.5 rounded-full ${p.accentColor} shrink-0`} />
+                                <span>{b}</span>
+                              </li>
+                            ))}
+                          </ul>
+                          <div className="mt-4 pt-3 border-t border-gray-100">
+                            <span className="text-sm font-bold text-gray-900">{p.price}</span>
+                            {p.priceNote && (
+                              <span className="text-xs text-gray-500 ml-1">{p.priceNote}</span>
                             )}
                           </div>
-                        );
-                      })}
+                        </div>
+                      ))}
                     </div>
 
                     {planInfo ? (

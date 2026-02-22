@@ -3,107 +3,122 @@
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, Sparkles } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 
-type Plan = "pro" | "pro_plus";
+export type UpgradePlanType = "pro" | "profile_review" | "mentorship";
+
+const PLANS: Record<
+  UpgradePlanType,
+  {
+    title: string;
+    subtitle: string;
+    price: string;
+    priceNote: string;
+    color: string;
+    buttonColor: string;
+    buttonLabel: string;
+    features: string[];
+  }
+> = {
+  pro: {
+    title: "PRO",
+    subtitle: "Расширенный анализ поступления",
+    price: "59 000 сум",
+    priceNote: "/ месяц",
+    color: "bg-blue-50 border-blue-200",
+    buttonColor: "bg-blue-600 hover:bg-blue-700",
+    buttonLabel: "Перейти на PRO",
+    features: [
+      "Всё, что входит в бесплатную версию",
+      "Более точный расчет с учетом конкуренции",
+      "Детальный разбор сильных и слабых сторон профиля",
+      "Персональные рекомендации по повышению шансов",
+    ],
+  },
+  profile_review: {
+    title: "Разбор профиля",
+    subtitle: "Персональный план поступления",
+    price: "299 000 сум",
+    priceNote: "разовая оплата",
+    color: "bg-yellow-50 border-yellow-200",
+    buttonColor: "bg-yellow-500 hover:bg-yellow-600",
+    buttonLabel: "Записаться на разбор профиля",
+    features: [
+      "Онлайн-консультация 30–40 минут",
+      "Персональный список 5–10 университетов",
+      "Индивидуальная стратегия подачи документов",
+      "Конкретные рекомендации по усилению профиля",
+      "Ответы на все ваши вопросы",
+    ],
+  },
+  mentorship: {
+    title: "Менторство (1 университет)",
+    subtitle: "Полное сопровождение до оффера",
+    price: "1 500 000 сум",
+    priceNote: "разовая оплата",
+    color: "bg-purple-50 border-purple-200",
+    buttonColor: "bg-purple-600 hover:bg-purple-700",
+    buttonLabel: "Начать поступление с ментором",
+    features: [
+      "Подбор и финальное подтверждение программы",
+      "Проверка и доработка мотивационного письма (SOP)",
+      "Проверка и корректировка полного пакета документов",
+      "Помощь с подачей заявки",
+      "Контроль дедлайнов и статуса заявки",
+      "Поддержка до получения оффера",
+      "Персональный куратор",
+    ],
+  },
+};
 
 export function UpgradePlanModal({
   open,
   onOpenChange,
   onSelectPlan,
+  planType = "pro",
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSelectPlan: (plan: Plan) => Promise<void> | void;
+  onSelectPlan: (plan: UpgradePlanType) => Promise<void> | void;
+  planType?: UpgradePlanType;
 }) {
+  const plan = PLANS[planType];
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[900px]">
+      <DialogContent className="sm:max-w-[480px]">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold">Получить персональное сопровождение</DialogTitle>
-          <DialogDescription>
-            Выберите уровень доступа, чтобы открыть больше возможностей.
-          </DialogDescription>
+          <DialogTitle className="text-xl font-bold">{plan.title}</DialogTitle>
+          <p className="text-sm text-gray-500 mt-1">{plan.subtitle}</p>
         </DialogHeader>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="rounded-2xl border border-gray-200 bg-white shadow-sm p-5 flex flex-col gap-4">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <div className="text-lg font-bold text-gray-900">Pro</div>
-                <div className="text-sm text-gray-600">
-                  Полный доступ к результатам и экспертной оценке.
-                </div>
-              </div>
-              <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center">
-                <Sparkles className="w-5 h-5" />
-              </div>
-            </div>
+        <div className={`rounded-2xl border ${plan.color} p-5 flex flex-col gap-4`}>
+          <ul className="space-y-2 text-sm text-gray-700">
+            {plan.features.map((feature) => (
+              <li key={feature} className="flex items-start gap-2">
+                <CheckCircle2 className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+                <span>{feature}</span>
+              </li>
+            ))}
+          </ul>
 
-            <ul className="space-y-2 text-sm text-gray-700">
-              {[
-                "Полный список университетов",
-                "Экспертный расчёт (Pro)",
-                "Breakdown факторов",
-                "Сценарии улучшения (что‑если)",
-              ].map((t) => (
-                <li key={t} className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-green-600 mt-0.5" />
-                  <span>{t}</span>
-                </li>
-              ))}
-            </ul>
-
-            <Button
-              className="bg-blue-600 hover:bg-blue-700 h-11"
-              onClick={() => onSelectPlan("pro")}
-            >
-              Перейти на Pro
-            </Button>
+          <div className="flex items-baseline gap-1.5 mt-1">
+            <span className="text-2xl font-bold text-gray-900">{plan.price}</span>
+            <span className="text-sm text-gray-500">{plan.priceNote}</span>
           </div>
 
-          <div className="rounded-2xl border border-gray-200 bg-white shadow-sm p-5 flex flex-col gap-4">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <div className="text-lg font-bold text-gray-900">Pro+</div>
-                <div className="text-sm text-gray-600">
-                  Study Abroad OS: планирование поступления под дедлайны.
-                </div>
-              </div>
-              <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-700 flex items-center justify-center">
-                <Sparkles className="w-5 h-5" />
-              </div>
-            </div>
-
-            <ul className="space-y-2 text-sm text-gray-700">
-              {[
-                "Roadmap поступления",
-                "Дедлайны и напоминания",
-                "Document tracker",
-                "Шаблоны SOP + AI review",
-              ].map((t) => (
-                <li key={t} className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-green-600 mt-0.5" />
-                  <span>{t}</span>
-                </li>
-              ))}
-            </ul>
-
-            <Button
-              className="bg-purple-600 hover:bg-purple-700 h-11"
-              onClick={() => onSelectPlan("pro_plus")}
-            >
-              Перейти на Pro+
-            </Button>
-          </div>
+          <Button
+            className={`${plan.buttonColor} text-white h-11 w-full`}
+            onClick={() => onSelectPlan(planType)}
+          >
+            {plan.buttonLabel}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
   );
 }
-

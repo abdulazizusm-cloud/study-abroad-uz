@@ -4,6 +4,7 @@ import { useState } from "react";
 import { WizardScoringResult, WizardFormData } from "@/lib/wizard-types";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { UpgradePlanType } from "@/components/upgrade-plan-modal";
 import { 
   ChevronDown, 
   ChevronUp, 
@@ -21,7 +22,7 @@ interface ChanceInsightsProps {
   result: WizardScoringResult;
   formData: WizardFormData;
   simplePercentage?: number;
-  onUpgradeClick?: () => void;
+  onUpgradeClick?: (plan: UpgradePlanType) => void;
   chanceLevel?: "High" | "Medium" | "Low" | "NotEligible";
 }
 
@@ -107,9 +108,8 @@ export function ChanceInsights({ result, formData, simplePercentage, onUpgradeCl
     ...baseTips,
   ].slice(0, 4);
 
-  const handleUpgrade = () => {
-    if (onUpgradeClick) return onUpgradeClick();
-    alert("Функция улучшения плана будет добавлена позже");
+  const handleUpgrade = (plan: UpgradePlanType) => {
+    if (onUpgradeClick) return onUpgradeClick(plan);
   };
 
   // High chance — mentor CTA
@@ -129,7 +129,7 @@ export function ChanceInsights({ result, formData, simplePercentage, onUpgradeCl
               </div>
             </div>
             <Button
-              onClick={handleUpgrade}
+              onClick={() => handleUpgrade("mentorship")}
               className="bg-green-600 hover:bg-green-700 text-white font-medium w-full sm:w-auto flex-shrink-0"
             >
               Начать поступление с ментором
@@ -160,7 +160,7 @@ export function ChanceInsights({ result, formData, simplePercentage, onUpgradeCl
               </div>
             </div>
             <Button
-              onClick={handleUpgrade}
+              onClick={() => handleUpgrade("profile_review")}
               className="bg-orange-500 hover:bg-orange-600 text-white font-medium w-full sm:w-auto flex-shrink-0"
             >
               Записаться на консультацию
@@ -253,27 +253,27 @@ export function ChanceInsights({ result, formData, simplePercentage, onUpgradeCl
             </div>
           </div>
 
-          {/* Consultation CTA - Compact Version */}
-          <div className="bg-gradient-to-br from-indigo-50 to-blue-50 border-2 border-indigo-200 rounded-lg p-3 sm:p-4">
+          {/* PRO Upgrade CTA */}
+          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-lg p-3 sm:p-4">
             <div className="flex flex-col sm:flex-row sm:items-center gap-3">
               <div className="flex items-start gap-3 flex-1">
-                <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <GraduationCap className="w-6 h-6 text-white" />
+                <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <TrendingUp className="w-6 h-6 text-white" />
                 </div>
                 <div className="flex-1">
                   <h6 className="text-sm font-bold text-[#374151] mb-1">
-                    Разобрать профиль с экспертом
+                    Получить точный расчет с учетом конкуренции
                   </h6>
                   <p className="text-xs text-[#6B7280]">
-                    Получите персональную стратегию поступления
+                    PRO-алгоритм учитывает реальную статистику и вашу конкурентоспособность
                   </p>
                 </div>
               </div>
               <Button
-                onClick={handleUpgrade}
-                className="bg-purple-600 hover:bg-purple-700 text-white font-medium w-full sm:w-auto flex-shrink-0"
+                onClick={() => handleUpgrade("pro")}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-medium w-full sm:w-auto flex-shrink-0"
               >
-                Получить персональное сопровождение
+                Улучшить расчет
               </Button>
             </div>
           </div>

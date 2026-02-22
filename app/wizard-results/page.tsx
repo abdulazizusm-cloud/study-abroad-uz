@@ -11,7 +11,7 @@ import {
 import { WizardResultCard } from "@/components/wizard-result-card";
 import { AuthModal } from "@/components/auth-modal";
 import { ProfileCompletionModal } from "@/components/profile-completion-modal";
-import { UpgradePlanModal } from "@/components/upgrade-plan-modal";
+import { UpgradePlanModal, UpgradePlanType } from "@/components/upgrade-plan-modal";
 import { Button } from "@/components/ui/button";
 import { SortAsc, GraduationCap, Mail, MessageCircle } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
@@ -51,6 +51,7 @@ export default function WizardResultsPage() {
   const [bonusUniversities, setBonusUniversities] = useState(0);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
+  const [upgradePlanType, setUpgradePlanType] = useState<UpgradePlanType>("pro");
   const [universities, setUniversities] = useState<ExtendedUniversity[]>([]);
   const lastSavedRef = useRef<string>("");
   const hasTrackedViewRef = useRef(false);
@@ -412,11 +413,12 @@ export default function WizardResultsPage() {
                   <WizardResultCard 
                     key={result.university.id} 
                     result={result}
-                    onUpgradeClick={() => {
-                      trackEvent("upgrade_clicked", { from: "wizard-results", effectiveTier });
+                    onUpgradeClick={(plan) => {
+                      trackEvent("upgrade_clicked", { from: "wizard-results", effectiveTier, plan });
                       if (effectiveTier === "free") {
                         setAuthModalOpen(true);
                       } else {
+                        setUpgradePlanType(plan);
                         setUpgradeModalOpen(true);
                       }
                     }}
@@ -673,6 +675,7 @@ export default function WizardResultsPage() {
       <UpgradePlanModal 
         open={upgradeModalOpen}
         onOpenChange={setUpgradeModalOpen}
+        planType={upgradePlanType}
         onSelectPlan={async (plan) => {
           if (!user) return;
           trackEvent("upgrade_plan_selected", { plan, mode: "dev_stub" });
