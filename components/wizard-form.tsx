@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -91,6 +92,16 @@ export function WizardForm() {
   const [showErrors, setShowErrors] = useState({ 1: false, 2: false, 3: false });
   const [facultyDropdownOpen, setFacultyDropdownOpen] = useState(false);
   const facultyDropdownRef = useRef<HTMLDivElement>(null);
+  const WIZARD_SUBMIT_KEY = "wizard_form_submit_count";
+  const CAPTCHA_THRESHOLD = 3;
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [captchaRequired, setCaptchaRequired] = useState(() => {
+    if (typeof window === "undefined") return false;
+    const count = parseInt(localStorage.getItem("wizard_form_submit_count") || "0");
+    return count >= 3;
+  });
+  const turnstileRef = useRef<TurnstileInstance>(undefined);
+  const [captchaError, setCaptchaError] = useState("");
 
   const FACULTY_OPTIONS = [
     { value: "Finance", label: "Финансы" },
@@ -454,10 +465,34 @@ export function WizardForm() {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!isStep3Valid()) {
       setShowErrors((prev) => ({ ...prev, 3: true }));
       return;
+    }
+
+    // Track submit attempts for CAPTCHA
+    const currentCount = parseInt(localStorage.getItem(WIZARD_SUBMIT_KEY) || "0");
+    const newCount = currentCount + 1;
+    localStorage.setItem(WIZARD_SUBMIT_KEY, String(newCount));
+
+    if (newCount >= CAPTCHA_THRESHOLD) {
+      setCaptchaRequired(true);
+      if (!captchaToken) {
+        return;
+      }
+      // Verify CAPTCHA token server-side
+      const res = await fetch("/api/verify-captcha", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: captchaToken }),
+      });
+      if (!res.ok) {
+        setCaptchaError("Пожалуйста, пройдите проверку");
+        turnstileRef.current?.reset();
+        setCaptchaToken(null);
+        return;
+      }
     }
 
     // Convert form data to WizardFormData format
@@ -1598,6 +1633,21 @@ export function WizardForm() {
                 </Select>
               </div>
 
+              {captchaRequired && (
+                <div className="flex flex-col items-center gap-2 pt-4">
+                  <p className="text-sm text-gray-600 text-center">
+                    Для продолжения пройдите быструю проверку
+                  </p>
+                  <Turnstile
+                    ref={turnstileRef}
+                    siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+                    onSuccess={(token) => { setCaptchaToken(token); setCaptchaError(""); }}
+                    onExpire={() => setCaptchaToken(null)}
+                    options={{ theme: "light", language: "ru" }}
+                  />
+                  {captchaError && <p className="text-red-500 text-sm">{captchaError}</p>}
+                </div>
+              )}
               <div className="pt-6 border-t border-gray-200 flex flex-col sm:flex-row gap-3 sm:gap-4">
                 <Button
                   onClick={handleBack}
@@ -1612,6 +1662,7 @@ export function WizardForm() {
                     handleSubmit();
                   }}
                   type="button"
+                  disabled={captchaRequired && !captchaToken}
                   className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-5 sm:py-6 rounded-xl font-semibold text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed order-1 sm:order-2"
                 >
                   Получить результаты

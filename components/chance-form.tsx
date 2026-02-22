@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { FormData } from "@/lib/types";
+import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile";
 import { 
   Globe, 
   GraduationCap, 
@@ -24,6 +25,9 @@ import {
   User
 } from "lucide-react";
 
+const SUBMIT_COUNT_KEY = "chance_form_submit_count";
+const CAPTCHA_THRESHOLD = 3;
+
 export function ChanceForm() {
   const router = useRouter();
   const [formData, setFormData] = useState<Partial<FormData>>({
@@ -31,6 +35,13 @@ export function ChanceForm() {
     english: "Нет",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [captchaRequired, setCaptchaRequired] = useState(() => {
+    if (typeof window === "undefined") return false;
+    const count = parseInt(localStorage.getItem(SUBMIT_COUNT_KEY) || "0");
+    return count >= CAPTCHA_THRESHOLD;
+  });
+  const turnstileRef = useRef<TurnstileInstance>(undefined);
 
   const updateField = (field: keyof FormData, value: string | number) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -73,11 +84,36 @@ export function ChanceForm() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!validate()) {
       return;
+    }
+
+    // Update submit count
+    const currentCount = parseInt(localStorage.getItem(SUBMIT_COUNT_KEY) || "0");
+    const newCount = currentCount + 1;
+    localStorage.setItem(SUBMIT_COUNT_KEY, String(newCount));
+
+    // Require captcha after threshold
+    if (newCount >= CAPTCHA_THRESHOLD) {
+      setCaptchaRequired(true);
+      if (!captchaToken) {
+        return;
+      }
+      // Verify token server-side
+      const res = await fetch("/api/verify-captcha", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: captchaToken }),
+      });
+      if (!res.ok) {
+        setErrors((prev) => ({ ...prev, captcha: "Пожалуйста, пройдите проверку" }));
+        turnstileRef.current?.reset();
+        setCaptchaToken(null);
+        return;
+      }
     }
 
     // Save to localStorage
@@ -430,10 +466,26 @@ export function ChanceForm() {
               </div>
 
               {/* Submit Section */}
-              <div className="pt-6 border-t-2 border-gray-200">
+              <div className="pt-6 border-t-2 border-gray-200 space-y-4">
+                {captchaRequired && (
+                  <div className="flex flex-col items-center gap-2">
+                    <p className="text-sm text-gray-600 text-center">
+                      Для продолжения пройдите быструю проверку
+                    </p>
+                    <Turnstile
+                      ref={turnstileRef}
+                      siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+                      onSuccess={(token) => { setCaptchaToken(token); setErrors((prev) => { const e = { ...prev }; delete e.captcha; return e; }); }}
+                      onExpire={() => setCaptchaToken(null)}
+                      options={{ theme: "light", language: "ru" }}
+                    />
+                    {errors.captcha && <p className="text-red-500 text-sm">{errors.captcha}</p>}
+                  </div>
+                )}
                 <Button
                   type="submit"
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white text-xl py-7 rounded-xl shadow-lg hover:shadow-xl transition-all font-semibold"
+                  disabled={captchaRequired && !captchaToken}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white text-xl py-7 rounded-xl shadow-lg hover:shadow-xl transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Получить результаты проверки
                 </Button>
