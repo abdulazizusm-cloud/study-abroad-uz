@@ -4,7 +4,7 @@ import { Navbar } from "@/components/navbar";
 import { Hero } from "@/components/hero";
 import { HowItWorks } from "@/components/how-it-works";
 import { WizardForm } from "@/components/wizard-form";
-import { GraduationCap, Mail, MessageCircle } from "lucide-react";
+import { GraduationCap, MessageCircle } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 
 const webAppSchema = {
@@ -66,35 +66,18 @@ export default function Home() {
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-6 sm:py-8 px-3 sm:px-4 border-t border-gray-800">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 mb-4 sm:mb-6">
-            {/* Brand */}
-            <div>
-              <div className="flex items-center gap-2 mb-2 sm:mb-3">
-                <div className="w-7 h-7 sm:w-8 sm:h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                  <GraduationCap className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-                </div>
-                <h3 className="text-base sm:text-lg font-bold">Study Abroad UZ</h3>
+          {/* Brand */}
+          <div className="mb-4 sm:mb-6">
+            <div className="flex items-center gap-2 mb-2 sm:mb-3">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                <GraduationCap className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
               </div>
-              <p className="text-gray-400 text-xs sm:text-sm leading-relaxed">
-                Помогаем студентам из Узбекистана<br />
-                поступить в зарубежные университеты
-              </p>
+              <h3 className="text-base sm:text-lg font-bold">Study Abroad UZ</h3>
             </div>
-
-            {/* Contact */}
-            <div>
-              <h4 className="text-sm sm:text-base font-bold mb-2 sm:mb-3 text-white">Контакты</h4>
-              <ul className="space-y-1.5 sm:space-y-2">
-                <li className="flex items-center gap-2 text-gray-400 text-xs sm:text-sm">
-                  <Mail className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-400 flex-shrink-0" />
-                  <span>info@studyabroad.uz</span>
-                </li>
-                <li className="flex items-center gap-2 text-gray-400 text-xs sm:text-sm">
-                  <MessageCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-400 flex-shrink-0" />
-                  <span>+998 90 123 45 67</span>
-                </li>
-              </ul>
-            </div>
+            <p className="text-gray-400 text-xs sm:text-sm leading-relaxed">
+              Помогаем студентам из Узбекистана<br />
+              поступить в зарубежные университеты
+            </p>
           </div>
 
           {/* Telegram CTA */}
