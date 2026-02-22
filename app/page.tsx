@@ -88,7 +88,7 @@ export default function Home() {
           {/* Bottom Bar */}
           <div className="pt-4 sm:pt-6 border-t border-gray-700 text-center">
             <p className="text-gray-500 text-xs">
-              © 2026 Study Abroad UZ. Все права защищены
+              © 2026 Apply Smart. Все права защищены
             </p>
           </div>
         </div>

@@ -25,7 +25,7 @@
 
 **Confirm signup:**
 ```
-Subject: Подтвердите email для Study Abroad UZ
+Subject: Подтвердите email для Apply Smart
 
 Здравствуйте!
 
@@ -34,7 +34,7 @@ Subject: Подтвердите email для Study Abroad UZ
 Нажмите на ссылку: {{ .ConfirmationURL }}
 
 С уважением,
-Команда Study Abroad UZ
+Команда Apply Smart
 ```
 
 ### 3. Настроить Google OAuth (рекомендуется)

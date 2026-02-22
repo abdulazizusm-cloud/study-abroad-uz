@@ -622,7 +622,7 @@ export default function WizardResultsPage() {
                 <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
                   <GraduationCap className="w-5 h-5 text-white" />
                 </div>
-                <h3 className="text-lg font-bold">Study Abroad UZ</h3>
+                <h3 className="text-lg font-bold">Apply Smart</h3>
               </div>
               <p className="text-gray-400 text-sm leading-relaxed">
                 Помогаем студентам из Узбекистана<br />
@@ -636,7 +636,7 @@ export default function WizardResultsPage() {
               <ul className="space-y-2">
                 <li className="flex items-center gap-2 text-gray-400 text-sm">
                   <Mail className="w-4 h-4 text-blue-400" />
-                  <span>info@studyabroad.uz</span>
+                  <span>info@applysmart.uz</span>
                 </li>
                 <li className="flex items-center gap-2 text-gray-400 text-sm">
                   <MessageCircle className="w-4 h-4 text-blue-400" />
@@ -649,7 +649,7 @@ export default function WizardResultsPage() {
           {/* Bottom Bar */}
           <div className="pt-6 border-t border-gray-700 text-center">
             <p className="text-gray-500 text-xs">
-              © 2026 Study Abroad UZ. Все права защищены
+              © 2026 Apply Smart. Все права защищены
             </p>
           </div>
         </div>

@@ -36,7 +36,7 @@ export function Navbar() {
               <GraduationCap className="w-6 h-6 text-white" />
             </div>
             <h1 className="hidden sm:block text-xl sm:text-2xl font-bold text-blue-600">
-              Study Abroad UZ
+              Apply Smart
             </h1>
           </Link>
 
