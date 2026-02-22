@@ -325,6 +325,7 @@ export function WizardResultCard({
           formData={formData}
           simplePercentage={simplePercentage}
           onUpgradeClick={onUpgradeClick}
+          chanceLevel={chanceLevel}
         />
       )}
     </Card>

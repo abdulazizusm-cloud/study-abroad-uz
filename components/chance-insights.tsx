@@ -23,6 +23,7 @@ interface ChanceInsightsProps {
   formData: WizardFormData;
   simplePercentage?: number;
   onUpgradeClick?: () => void;
+  chanceLevel?: "High" | "Medium" | "Low" | "NotEligible";
 }
 
 interface ImprovementTip {
@@ -32,7 +33,7 @@ interface ImprovementTip {
   priority: "high" | "medium" | "low";
 }
 
-export function ChanceInsights({ result, formData, simplePercentage, onUpgradeClick }: ChanceInsightsProps) {
+export function ChanceInsights({ result, formData, simplePercentage, onUpgradeClick, chanceLevel }: ChanceInsightsProps) {
   const [isOpen, setIsOpen] = useState(false);
   const { percentage: proPercentage, matchDetails } = result;
   const difference = simplePercentage ? simplePercentage - (proPercentage ?? 0) : 0;
@@ -121,6 +122,66 @@ export function ChanceInsights({ result, formData, simplePercentage, onUpgradeCl
     alert("Функция улучшения плана будет добавлена позже");
   };
 
+  // High chance — mentor CTA
+  if (chanceLevel === "High") {
+    return (
+      <div className="mt-3 border-t border-gray-200 pt-3">
+        <div className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-lg p-3 sm:p-4">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+            <div className="flex items-start gap-3 flex-1">
+              <div className="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                <GraduationCap className="w-6 h-6 text-white" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm sm:text-base font-semibold text-[#374151]">
+                  Следующий шаг — грамотно выстроить стратегию подачи документов.
+                </p>
+              </div>
+            </div>
+            <Button
+              onClick={handleUpgrade}
+              className="bg-green-600 hover:bg-green-700 text-white font-medium w-full sm:w-auto flex-shrink-0"
+            >
+              Начать поступление с ментором
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Low chance — consultation CTA
+  if (chanceLevel === "Low") {
+    return (
+      <div className="mt-3 border-t border-gray-200 pt-3">
+        <div className="bg-gradient-to-br from-orange-50 to-red-50 border border-orange-200 rounded-lg p-3 sm:p-4">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+            <div className="flex items-start gap-3 flex-1">
+              <div className="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                <MessageCircle className="w-6 h-6 text-white" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm sm:text-base font-semibold text-[#374151]">
+                  Хотите, чтобы мы лично просмотрели ваш кейс?
+                </p>
+                <p className="text-xs sm:text-sm text-[#6B7280] mt-0.5">
+                  Эксперт разберёт ваш профиль и предложит реальный путь к поступлению
+                </p>
+              </div>
+            </div>
+            <Button
+              onClick={handleUpgrade}
+              className="bg-orange-500 hover:bg-orange-600 text-white font-medium w-full sm:w-auto flex-shrink-0"
+            >
+              Записаться на консультацию
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Medium (or default) — existing expandable toggle
   return (
     <div className="mt-3 border-t border-gray-200 pt-3">
       {/* Toggle Button */}
