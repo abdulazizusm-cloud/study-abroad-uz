@@ -675,6 +675,7 @@ export default function ProfilePage() {
           open={upgradeModalOpen}
           onOpenChange={setUpgradeModalOpen}
           planType={upgradePlanType}
+          source="Профиль — Мой план"
           onSelectPlan={async (plan) => {
             if (!user) return;
             trackEvent("upgrade_plan_selected", { plan, mode: "dev_stub" });

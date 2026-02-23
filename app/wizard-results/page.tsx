@@ -676,6 +676,7 @@ export default function WizardResultsPage() {
         open={upgradeModalOpen}
         onOpenChange={setUpgradeModalOpen}
         planType={upgradePlanType}
+        source="Результаты расчёта"
         onSelectPlan={async (plan) => {
           if (!user) return;
           trackEvent("upgrade_plan_selected", { plan, mode: "dev_stub" });
