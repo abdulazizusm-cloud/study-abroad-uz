@@ -86,10 +86,13 @@ export default function Home() {
           </div>
 
           {/* Bottom Bar */}
-          <div className="pt-4 sm:pt-6 border-t border-gray-700 text-center">
-            <p className="text-gray-500 text-xs">
-              © 2026 Apply Smart. Все права защищены
+          <div className="pt-4 sm:pt-6 border-t border-gray-700 text-center space-y-1">
+            <p className="text-gray-400 text-xs">
+              <a href="tel:+998905747400" className="hover:text-white transition-colors">+998 90 574 74 00</a>
+              <span className="mx-2 text-gray-600">·</span>
+              <a href="mailto:applysmartuz@gmail.com" className="hover:text-white transition-colors">applysmartuz@gmail.com</a>
             </p>
+            <p className="text-gray-600 text-xs">© 2026 Apply Smart. Все права защищены</p>
           </div>
         </div>
       </footer>
