@@ -124,6 +124,7 @@ export function UpgradePlanModal({
 
   const handleSendLead = async () => {
     const trimmed = contact.trim();
+    if (!name.trim()) return;
     if (!trimmed) {
       setContactError("Укажите Telegram username или номер телефона");
       return;
@@ -229,7 +230,7 @@ export function UpgradePlanModal({
 
               <div className="space-y-1.5">
                 <Label htmlFor="lead-name" className="text-sm font-medium text-gray-700">
-                  Ваше имя <span className="text-gray-400 font-normal">(необязательно)</span>
+                  Ваше имя <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   id="lead-name"
@@ -257,9 +258,9 @@ export function UpgradePlanModal({
               </div>
 
               <Button
-                className={`${plan.buttonColor} text-white h-11 w-full flex items-center gap-2`}
+                className={`${plan.buttonColor} text-white h-11 w-full flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed`}
                 onClick={handleSendLead}
-                disabled={loading}
+                disabled={loading || !name.trim() || !contact.trim()}
               >
                 <Send className="w-4 h-4" />
                 {loading ? "Отправляем..." : "Отправить заявку"}
