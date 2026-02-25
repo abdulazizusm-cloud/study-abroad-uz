@@ -8,19 +8,51 @@ const PLAN_LABELS: Record<string, string> = {
 
 function formatWizardData(w: Record<string, unknown>): string {
   const lines: string[] = [];
-  if (w.countryOfStudy) lines.push(`🌍 Страна: ${w.countryOfStudy}`);
+
+  if (w.nationality) lines.push(`🏳️ Гражданство: ${w.nationality}`);
+  if (w.countryOfStudy) lines.push(`🌍 Страна обучения: ${w.countryOfStudy}`);
   if (w.level) lines.push(`🎓 Уровень: ${w.level}`);
   if (w.gradingAverage && w.gradingScheme) lines.push(`📊 GPA: ${w.gradingAverage} (${w.gradingScheme})`);
-  if (w.englishExamType && w.englishExamType !== "None") {
-    const score = w.englishScore ?? w.ieltsOverall ?? w.toeflTotal ?? w.duolingoOverall ?? "";
-    lines.push(`🗣 Английский: ${w.englishExamType}${score ? ` ${score}` : ""}`);
-  } else if (w.englishExamType === "None") {
-    lines.push(`🗣 Английский: нет сертификата`);
+
+  // English test
+  const examType = w.englishExamType as string | undefined;
+  if (examType && examType !== "None") {
+    if (examType === "IELTS" && w.ieltsOverall) {
+      lines.push(`🗣 IELTS Overall: ${w.ieltsOverall}`);
+      const sub = [w.ieltsListening && `L:${w.ieltsListening}`, w.ieltsReading && `R:${w.ieltsReading}`, w.ieltsWriting && `W:${w.ieltsWriting}`, w.ieltsSpeaking && `S:${w.ieltsSpeaking}`].filter(Boolean).join(" ");
+      if (sub) lines.push(`   (${sub})`);
+    } else if (examType === "TOEFL" && w.toeflTotal) {
+      lines.push(`🗣 TOEFL Total: ${w.toeflTotal}`);
+      const sub = [w.toeflReading && `R:${w.toeflReading}`, w.toeflListening && `L:${w.toeflListening}`, w.toeflSpeaking && `S:${w.toeflSpeaking}`, w.toeflWriting && `W:${w.toeflWriting}`].filter(Boolean).join(" ");
+      if (sub) lines.push(`   (${sub})`);
+    } else if (examType === "Duolingo" && w.duolingoOverall) {
+      lines.push(`🗣 Duolingo: ${w.duolingoOverall}`);
+    } else {
+      const score = w.englishScore ?? "";
+      lines.push(`🗣 ${examType}${score ? `: ${score}` : ""}`);
+    }
+  } else {
+    lines.push(`🗣 Английский тест: нет сертификата`);
   }
+
+  // Standardized tests (GRE / GMAT)
+  const stdExam = w.standardizedExamType as string | undefined;
+  if (stdExam && stdExam !== "None") {
+    if (stdExam === "GRE") {
+      const parts = [w.greVerbal && `Verbal: ${w.greVerbal}${w.greVerbalPercentile ? ` (${w.greVerbalPercentile}%)` : ""}`, w.greQuant && `Quant: ${w.greQuant}${w.greQuantPercentile ? ` (${w.greQuantPercentile}%)` : ""}`, w.greWriting && `Writing: ${w.greWriting}${w.greWritingPercentile ? ` (${w.greWritingPercentile}%)` : ""}`].filter(Boolean).join(", ");
+      if (parts) lines.push(`📝 GRE: ${parts}`);
+    } else if (stdExam === "GMAT") {
+      const parts = [w.gmatTotal && `Total: ${w.gmatTotal}${w.gmatTotalPercentile ? ` (${w.gmatTotalPercentile}%)` : ""}`, w.gmatQuant && `Quant: ${w.gmatQuant}`, w.gmatVerbal && `Verbal: ${w.gmatVerbal}`, w.gmatDataInsights && `DI: ${w.gmatDataInsights}`].filter(Boolean).join(", ");
+      if (parts) lines.push(`📝 GMAT: ${parts}`);
+    }
+  }
+
   if (w.budget) lines.push(`💰 Бюджет: ${w.budget}`);
-  if (w.nationality) lines.push(`🏳️ Гражданство: ${w.nationality}`);
-  if (w.programGoal) lines.push(`🎯 Цель: ${w.programGoal}`);
+  if (w.financeSource) lines.push(`💳 Финансирование: ${w.financeSource}`);
   if (Array.isArray(w.faculty) && w.faculty.length > 0) lines.push(`📚 Направление: ${(w.faculty as string[]).join(", ")}`);
+  if (w.programGoal) lines.push(`🎯 Цель программы: ${w.programGoal}`);
+  if (w.scholarship) lines.push(`🏅 Стипендия: ${w.scholarship === "Yes" ? "Да, интересует" : "Нет"}`);
+
   return lines.join("\n");
 }
 
@@ -54,11 +86,10 @@ export async function POST(req: NextRequest) {
   // Profile data
   if (userProfile) {
     const profileLines: string[] = [];
-    if (userProfile.firstName || userProfile.lastName) {
-      profileLines.push(`${userProfile.firstName ?? ""} ${userProfile.lastName ?? ""}`.trim());
-    }
-    if (userProfile.email) profileLines.push(userProfile.email);
-    if (userProfile.phone) profileLines.push(userProfile.phone);
+    const fullName = `${userProfile.firstName ?? ""} ${userProfile.lastName ?? ""}`.trim();
+    if (fullName) profileLines.push(`ФИО: ${fullName}`);
+    if (userProfile.email) profileLines.push(`Email: ${userProfile.email}`);
+    if (userProfile.phone) profileLines.push(`Телефон: ${userProfile.phone}`);
     if (profileLines.length > 0) {
       parts.push("", "👤 <b>Профиль пользователя:</b>", ...profileLines.map(l => `  ${l}`));
     }
