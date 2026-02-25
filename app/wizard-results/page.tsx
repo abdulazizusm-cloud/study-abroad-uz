@@ -677,6 +677,12 @@ export default function WizardResultsPage() {
         onOpenChange={setUpgradeModalOpen}
         planType={upgradePlanType}
         source="Результаты расчёта"
+        userProfile={{
+          firstName: profileInitial.firstName,
+          lastName: profileInitial.lastName,
+          phone: profileInitial.phone,
+          email: user?.email ?? undefined,
+        }}
         onSelectPlan={async (plan) => {
           if (!user) return;
           trackEvent("upgrade_plan_selected", { plan, mode: "dev_stub" });

@@ -80,18 +80,27 @@ const PLANS: Record<
 
 type Step = "plan" | "contact" | "success";
 
+export type UserProfile = {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phone?: string;
+};
+
 export function UpgradePlanModal({
   open,
   onOpenChange,
   onSelectPlan,
   planType = "pro",
   source,
+  userProfile,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSelectPlan: (plan: UpgradePlanType) => Promise<void> | void;
   planType?: UpgradePlanType;
   source?: string;
+  userProfile?: UserProfile;
 }) {
   const plan = PLANS[planType];
 
@@ -122,6 +131,15 @@ export function UpgradePlanModal({
     setContactError("");
     setLoading(true);
     try {
+      // Read wizard form data from localStorage
+      let wizardData: unknown = undefined;
+      try {
+        const raw = localStorage.getItem("wizardFormData");
+        if (raw) wizardData = JSON.parse(raw);
+      } catch {
+        // ignore
+      }
+
       await fetch("/api/send-lead", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -130,6 +148,8 @@ export function UpgradePlanModal({
           name: name.trim() || undefined,
           contact: trimmed,
           source: source ?? "Не указан",
+          wizardData,
+          userProfile: userProfile ?? undefined,
         }),
       });
     } catch {
