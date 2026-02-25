@@ -75,7 +75,7 @@ export default function Home() {
               Напишите нам и опытный менеджер поможет вам
             </p>
             <a
-              href="https://t.me/PLACEHOLDER"
+              href="https://t.me/applysmartuz"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold px-6 py-3 rounded-xl transition-colors text-sm sm:text-base"
