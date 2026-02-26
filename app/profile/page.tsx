@@ -217,11 +217,69 @@ export default function ProfilePage() {
       <div className="max-w-6xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 pt-20 sm:pt-24 md:pt-28 pb-6 sm:pb-8">
 
         <Tabs defaultValue="profile" className="w-full">
+            {/* Mobile header — visible only below lg */}
+            <div className="lg:hidden mb-4">
+              <div className="rounded-2xl bg-white/80 backdrop-blur-md shadow-sm overflow-hidden">
+                {/* User info row */}
+                <div className="flex items-center justify-between px-3 py-3 border-b border-gray-100">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <UserAvatar
+                      firstName={profile?.first_name}
+                      lastName={profile?.last_name}
+                      email={user.email}
+                      size="sm"
+                      className="shrink-0"
+                    />
+                    <div className="min-w-0">
+                      <div className="font-semibold text-sm text-gray-900 truncate">
+                        {[profile?.first_name, profile?.last_name].filter(Boolean).join(" ") || "Пользователь"}
+                      </div>
+                      <div className="text-xs text-gray-500 truncate">{user.email}</div>
+                    </div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={async () => { await signOut(); router.push("/"); }}
+                    className="shrink-0 text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg px-2 py-1.5 h-auto"
+                  >
+                    <LogOut className="w-4 h-4" />
+                  </Button>
+                </div>
+                {/* Tab bar */}
+                <div className="overflow-x-auto">
+                  <TabsList className="flex h-auto w-max min-w-full p-1.5 bg-transparent gap-1">
+                    <TabsTrigger value="profile" className="flex-col items-center px-3 py-2 rounded-xl gap-1 text-gray-600 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 data-[state=active]:shadow-none whitespace-nowrap">
+                      <User className="w-4 h-4" />
+                      <span className="text-xs font-medium">Профиль</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="plan" className="flex-col items-center px-3 py-2 rounded-xl gap-1 text-gray-600 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 data-[state=active]:shadow-none whitespace-nowrap">
+                      <Crown className="w-4 h-4" />
+                      <span className="text-xs font-medium">Мой план</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="questionnaire" className="flex-col items-center px-3 py-2 rounded-xl gap-1 text-gray-600 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 data-[state=active]:shadow-none whitespace-nowrap">
+                      <FileText className="w-4 h-4" />
+                      <span className="text-xs font-medium">Анкета</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="favorites" className="flex-col items-center px-3 py-2 rounded-xl gap-1 text-gray-600 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 data-[state=active]:shadow-none whitespace-nowrap">
+                      <Heart className="w-4 h-4" />
+                      <span className="text-xs font-medium">Избранные</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="planned" className="flex-col items-center px-3 py-2 rounded-xl gap-1 text-gray-600 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 data-[state=active]:shadow-none whitespace-nowrap">
+                      <ClipboardList className="w-4 h-4" />
+                      <span className="text-xs font-medium">В плане</span>
+                    </TabsTrigger>
+                  </TabsList>
+                </div>
+              </div>
+            </div>
+
             <div className="grid gap-4 sm:gap-6 lg:grid-cols-[280px_1fr] items-start">
-              <div className="lg:sticky lg:top-6">
-                <div className="rounded-xl sm:rounded-2xl bg-white/70 backdrop-blur-md shadow-sm overflow-hidden divide-y divide-gray-200/60">
-                  <div className="p-3 sm:p-4">
-                    <div className="flex items-start gap-2 sm:gap-3">
+              {/* Desktop sidebar — hidden on mobile */}
+              <div className="hidden lg:block lg:sticky lg:top-6">
+                <div className="rounded-2xl bg-white/70 backdrop-blur-md shadow-sm overflow-hidden divide-y divide-gray-200/60">
+                  <div className="p-4">
+                    <div className="flex items-start gap-3">
                       <UserAvatar
                         firstName={profile?.first_name}
                         lastName={profile?.last_name}
@@ -230,7 +288,7 @@ export default function ProfilePage() {
                         className="shrink-0"
                       />
                       <div className="min-w-0">
-                        <div className="font-semibold text-sm sm:text-base text-gray-900 truncate">
+                        <div className="font-semibold text-base text-gray-900 truncate">
                           {[profile?.first_name, profile?.last_name].filter(Boolean).join(" ") || "Пользователь"}
                         </div>
                         <div className="text-xs text-gray-600 truncate">{user.email}</div>
@@ -238,56 +296,38 @@ export default function ProfilePage() {
                     </div>
                   </div>
 
-                  <div className="p-1.5 sm:p-2">
-                    <TabsList className="flex lg:flex-col h-auto w-full p-1 bg-transparent gap-1 overflow-x-auto lg:overflow-visible justify-start">
-                      <TabsTrigger
-                        value="profile"
-                        className="justify-start px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl w-full gap-1.5 sm:gap-2 text-xs sm:text-sm text-gray-700 hover:bg-white/70 data-[state=active]:bg-blue-50/80 data-[state=active]:shadow-none data-[state=active]:text-blue-700 whitespace-nowrap"
-                      >
-                        <User className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <div className="p-2">
+                    <TabsList className="flex flex-col h-auto w-full p-1 bg-transparent gap-1">
+                      <TabsTrigger value="profile" className="justify-start px-3 py-2 rounded-xl w-full gap-2 text-sm text-gray-700 hover:bg-white/70 data-[state=active]:bg-blue-50/80 data-[state=active]:shadow-none data-[state=active]:text-blue-700">
+                        <User className="w-4 h-4" />
                         Личные данные
                       </TabsTrigger>
-                      <TabsTrigger
-                        value="plan"
-                        className="justify-start px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl w-full gap-1.5 sm:gap-2 text-xs sm:text-sm text-gray-700 hover:bg-white/70 data-[state=active]:bg-blue-50/80 data-[state=active]:shadow-none data-[state=active]:text-blue-700 whitespace-nowrap"
-                      >
-                        <Crown className="w-3 h-3 sm:w-4 sm:h-4" />
+                      <TabsTrigger value="plan" className="justify-start px-3 py-2 rounded-xl w-full gap-2 text-sm text-gray-700 hover:bg-white/70 data-[state=active]:bg-blue-50/80 data-[state=active]:shadow-none data-[state=active]:text-blue-700">
+                        <Crown className="w-4 h-4" />
                         Мой план
                       </TabsTrigger>
-                      <TabsTrigger
-                        value="questionnaire"
-                        className="justify-start px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl w-full gap-1.5 sm:gap-2 text-xs sm:text-sm text-gray-700 hover:bg-white/70 data-[state=active]:bg-blue-50/80 data-[state=active]:shadow-none data-[state=active]:text-blue-700 whitespace-nowrap"
-                      >
-                        <FileText className="w-3 h-3 sm:w-4 sm:h-4" />
+                      <TabsTrigger value="questionnaire" className="justify-start px-3 py-2 rounded-xl w-full gap-2 text-sm text-gray-700 hover:bg-white/70 data-[state=active]:bg-blue-50/80 data-[state=active]:shadow-none data-[state=active]:text-blue-700">
+                        <FileText className="w-4 h-4" />
                         Анкета
                       </TabsTrigger>
-                      <TabsTrigger
-                        value="favorites"
-                        className="justify-start px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl w-full gap-1.5 sm:gap-2 text-xs sm:text-sm text-gray-700 hover:bg-white/70 data-[state=active]:bg-blue-50/80 data-[state=active]:shadow-none data-[state=active]:text-blue-700 whitespace-nowrap"
-                      >
-                        <Heart className="w-3 h-3 sm:w-4 sm:h-4" />
+                      <TabsTrigger value="favorites" className="justify-start px-3 py-2 rounded-xl w-full gap-2 text-sm text-gray-700 hover:bg-white/70 data-[state=active]:bg-blue-50/80 data-[state=active]:shadow-none data-[state=active]:text-blue-700">
+                        <Heart className="w-4 h-4" />
                         Избранные
                       </TabsTrigger>
-                      <TabsTrigger
-                        value="planned"
-                        className="justify-start px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl w-full gap-1.5 sm:gap-2 text-xs sm:text-sm text-gray-700 hover:bg-white/70 data-[state=active]:bg-blue-50/80 data-[state=active]:shadow-none data-[state=active]:text-blue-700 whitespace-nowrap"
-                      >
-                        <ClipboardList className="w-3 h-3 sm:w-4 sm:h-4" />
+                      <TabsTrigger value="planned" className="justify-start px-3 py-2 rounded-xl w-full gap-2 text-sm text-gray-700 hover:bg-white/70 data-[state=active]:bg-blue-50/80 data-[state=active]:shadow-none data-[state=active]:text-blue-700">
+                        <ClipboardList className="w-4 h-4" />
                         В плане
                       </TabsTrigger>
                     </TabsList>
                   </div>
 
-                  <div className="p-1.5 sm:p-2 border-t border-gray-200/60">
+                  <div className="p-2 border-t border-gray-200/60">
                     <Button
                       variant="ghost"
-                      onClick={async () => {
-                        await signOut();
-                        router.push("/");
-                      }}
-                      className="w-full justify-start gap-1.5 sm:gap-2 text-red-600 hover:text-red-700 hover:bg-red-50 text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl"
+                      onClick={async () => { await signOut(); router.push("/"); }}
+                      className="w-full justify-start gap-2 text-red-600 hover:text-red-700 hover:bg-red-50 text-sm px-3 py-2 rounded-xl"
                     >
-                      <LogOut className="w-3 h-3 sm:w-4 sm:h-4" />
+                      <LogOut className="w-4 h-4" />
                       Выйти из аккаунта
                     </Button>
                   </div>
@@ -302,7 +342,7 @@ export default function ProfilePage() {
                   </div>
                 )}
                 <TabsContent value="plan" className="m-0">
-                  <div className="space-y-6 bg-gray-50/50 rounded-2xl p-6 sm:p-8">
+                  <div className="space-y-6 bg-gray-50/50 rounded-2xl p-4 sm:p-6 lg:p-8">
                     <div>
                       <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">Мой план</h2>
                       <p className="text-sm text-gray-500 mt-1.5">
@@ -362,7 +402,7 @@ export default function ProfilePage() {
                       ].map((p) => {
                         const planType = p.key === "pro" ? "pro" : p.key === "profile_review" ? "profile_review" : p.key === "mentorship" ? "mentorship" : null;
                         return (
-                          <div key={p.key} className={`rounded-2xl border ${p.cardColor} p-5 flex flex-col gap-4`}>
+                          <div key={p.key} className={`rounded-2xl border ${p.cardColor} p-4 sm:p-5 flex flex-col gap-4`}>
                             <div>
                               {p.recommended && (
                                 <span className="inline-flex text-xs font-medium text-white bg-blue-600 px-2.5 py-0.5 rounded-full mb-2">
@@ -381,7 +421,7 @@ export default function ProfilePage() {
                               ))}
                             </ul>
                             <div className="flex items-baseline gap-1.5">
-                              <span className="text-2xl font-bold text-gray-900">{p.price}</span>
+                              <span className="text-xl sm:text-2xl font-bold text-gray-900">{p.price}</span>
                               {p.priceNote && <span className="text-sm text-gray-500">{p.priceNote}</span>}
                             </div>
                             {planType && p.buttonLabel && (
@@ -408,7 +448,7 @@ export default function ProfilePage() {
                       </p>
                     </div>
 
-                    <div className={`rounded-2xl bg-white shadow-sm p-6 transition-colors ${isEditing ? "bg-gray-50" : ""}`}>
+                    <div className={`rounded-2xl bg-white shadow-sm p-4 sm:p-6 transition-colors ${isEditing ? "bg-gray-50" : ""}`}>
                       <div className="grid gap-4">
                           <div>
                           <p className="text-xs font-medium text-gray-500 mb-2">Имя</p>
