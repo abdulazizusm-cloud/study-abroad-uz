@@ -44,6 +44,9 @@ function formatWizardData(w: Record<string, unknown>): string {
     } else if (stdExam === "GMAT") {
       const parts = [w.gmatTotal && `Total: ${w.gmatTotal}${w.gmatTotalPercentile ? ` (${w.gmatTotalPercentile}%)` : ""}`, w.gmatQuant && `Quant: ${w.gmatQuant}`, w.gmatVerbal && `Verbal: ${w.gmatVerbal}`, w.gmatDataInsights && `DI: ${w.gmatDataInsights}`].filter(Boolean).join(", ");
       if (parts) lines.push(`📝 GMAT: ${parts}`);
+    } else if (stdExam === "SAT") {
+      const parts = [w.satTotal && `Total: ${w.satTotal}`, w.satMath && `Math: ${w.satMath}`, w.satEbrw && `EBRW: ${w.satEbrw}`].filter(Boolean).join(", ");
+      if (parts) lines.push(`📝 SAT: ${parts}`);
     }
   }
 

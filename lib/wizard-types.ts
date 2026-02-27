@@ -55,7 +55,12 @@ export interface WizardFormData {
   gmatVerbalPercentile?: string;
   gmatDataInsights?: string;
   gmatDataInsightsPercentile?: string;
-  
+
+  // SAT (Bachelor level)
+  satTotal?: string;   // 400–1600
+  satMath?: string;    // 200–800
+  satEbrw?: string;    // 200–800 (Evidence-Based Reading & Writing)
+
   // Step 3 - Field of Study
   programGoal: string;
   faculty: string[];
@@ -86,7 +91,10 @@ export interface ExtendedUniversityRequirements {
   
   gmatRequired?: boolean;
   minGMAT?: number;
-  
+
+  satRequired?: boolean;
+  minSAT?: number;
+
   // Financial
   tuitionUSD: number;
   scholarshipAvailable: boolean;

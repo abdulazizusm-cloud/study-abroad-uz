@@ -64,7 +64,11 @@ interface FormDataType {
   gmatVerbalPercentile?: string;
   gmatDataInsights?: string;
   gmatDataInsightsPercentile?: string;
-  // Step 3 - Направление обучения
+  // SAT (Bachelor level)
+  satTotal?: string;
+  satMath?: string;
+  satEbrw?: string;
+  // Step 2 (new) - Направление обучения
   programGoal: string; // Куда хотите поступить?
   faculty: string[];   // Факультет / направление, max 2
   scholarship: string; // Стипендия: Да / Нет
@@ -160,29 +164,27 @@ export function WizardForm() {
       return (filled / fields.length) * 100;
     }
     
+    // Step 2 = direction
     if (step === 2) {
+      let filled = 0;
+      const total = 3; // programGoal + faculty + scholarship
+      if (formData.programGoal) filled++;
+      if (formData.faculty && formData.faculty.length > 0) filled++;
+      if (formData.scholarship) filled++;
+      return (filled / total) * 100;
+    }
+
+    // Step 3 = tests
+    if (step === 3) {
       let totalFields = 0;
       let filledFields = 0;
 
-      // English exam fields
       if (formData.englishExamType === "IELTS") {
-        const ieltsFields = [
-          formData.ieltsOverall,
-          formData.ieltsListening,
-          formData.ieltsReading,
-          formData.ieltsWriting,
-          formData.ieltsSpeaking,
-        ];
+        const ieltsFields = [formData.ieltsOverall, formData.ieltsListening, formData.ieltsReading, formData.ieltsWriting, formData.ieltsSpeaking];
         totalFields += ieltsFields.length;
         filledFields += ieltsFields.filter(f => f && f !== "").length;
       } else if (formData.englishExamType === "TOEFL") {
-        const toeflFields = [
-          formData.toeflTotal,
-          formData.toeflReading,
-          formData.toeflListening,
-          formData.toeflSpeaking,
-          formData.toeflWriting,
-        ];
+        const toeflFields = [formData.toeflTotal, formData.toeflReading, formData.toeflListening, formData.toeflSpeaking, formData.toeflWriting];
         totalFields += toeflFields.length;
         filledFields += toeflFields.filter(f => f && f !== "").length;
       } else if (formData.englishExamType === "Duolingo") {
@@ -190,45 +192,21 @@ export function WizardForm() {
         if (formData.duolingoOverall) filledFields += 1;
       }
 
-      // Standardized exam fields
       if (formData.standardizedExamType === "GRE") {
-        const greFields = [
-          formData.greVerbal,
-          formData.greVerbalPercentile,
-          formData.greQuant,
-          formData.greQuantPercentile,
-          formData.greWriting,
-          formData.greWritingPercentile,
-        ];
+        const greFields = [formData.greVerbal, formData.greVerbalPercentile, formData.greQuant, formData.greQuantPercentile, formData.greWriting, formData.greWritingPercentile];
         totalFields += greFields.length;
         filledFields += greFields.filter(f => f && f !== "").length;
       } else if (formData.standardizedExamType === "GMAT") {
-        const gmatFields = [
-          formData.gmatTotal,
-          formData.gmatTotalPercentile,
-          formData.gmatQuant,
-          formData.gmatQuantPercentile,
-          formData.gmatVerbal,
-          formData.gmatVerbalPercentile,
-          formData.gmatDataInsights,
-          formData.gmatDataInsightsPercentile,
-        ];
+        const gmatFields = [formData.gmatTotal, formData.gmatTotalPercentile, formData.gmatQuant, formData.gmatQuantPercentile, formData.gmatVerbal, formData.gmatVerbalPercentile, formData.gmatDataInsights, formData.gmatDataInsightsPercentile];
         totalFields += gmatFields.length;
         filledFields += gmatFields.filter(f => f && f !== "").length;
+      } else if (formData.standardizedExamType === "SAT") {
+        const satFields = [formData.satTotal, formData.satMath, formData.satEbrw];
+        totalFields += satFields.length;
+        filledFields += satFields.filter(f => f && f !== "").length;
       }
 
       return totalFields > 0 ? (filledFields / totalFields) * 100 : 0;
-    }
-    
-    if (step === 3) {
-      let filled = 0;
-      let total = 3; // programGoal + faculty + scholarship
-      
-      if (formData.programGoal) filled++;
-      if (formData.faculty && formData.faculty.length > 0) filled++;
-      if (formData.scholarship) filled++;
-      
-      return (filled / total) * 100;
     }
     
     return 0;
@@ -266,7 +244,17 @@ export function WizardForm() {
     return errors;
   };
 
+  // Step 2 = direction
   const getStep2Errors = () => {
+    const errors: string[] = [];
+    if (!formData.programGoal) errors.push("Куда хотите поступить: выберите значение");
+    if ((formData.faculty?.length ?? 0) < 1) errors.push("Факультет / направление: выберите минимум один вариант");
+    if (!formData.scholarship) errors.push("Стипендия: выберите Да или Нет");
+    return errors;
+  };
+
+  // Step 3 = tests
+  const getStep3Errors = () => {
     const errors: string[] = [];
     if (formData.englishExamType === "IELTS") {
       if (!formData.ieltsOverall) errors.push("IELTS Overall: укажите значение");
@@ -331,14 +319,17 @@ export function WizardForm() {
       if (formData.gmatDataInsights && (di < 60 || di > 90)) errors.push("GMAT Data Insights: диапазон 60–90");
       if (formData.gmatDataInsightsPercentile && (diP < 0 || diP > 99)) errors.push("GMAT Data Insights Percentile: диапазон 0–99");
     }
-    return errors;
-  };
-
-  const getStep3Errors = () => {
-    const errors: string[] = [];
-    if (!formData.programGoal) errors.push("Куда хотите поступить: выберите значение");
-    if ((formData.faculty?.length ?? 0) < 1) errors.push("Факультет / направление: выберите минимум один вариант");
-    if (!formData.scholarship) errors.push("Стипендия: выберите Да или Нет");
+    if (formData.standardizedExamType === "SAT") {
+      const t = Number(formData.satTotal);
+      const m = Number(formData.satMath);
+      const e = Number(formData.satEbrw);
+      if (!formData.satTotal) errors.push("SAT Total Score: укажите значение");
+      if (!formData.satMath) errors.push("SAT Math: укажите значение");
+      if (!formData.satEbrw) errors.push("SAT EBRW: укажите значение");
+      if (formData.satTotal && (t < 400 || t > 1600)) errors.push("SAT Total Score: диапазон 400–1600");
+      if (formData.satMath && (m < 200 || m > 800)) errors.push("SAT Math: диапазон 200–800");
+      if (formData.satEbrw && (e < 200 || e > 800)) errors.push("SAT EBRW: диапазон 200–800");
+    }
     return errors;
   };
 
@@ -357,81 +348,47 @@ export function WizardForm() {
     return required.every((field) => field !== "");
   };
 
-  // Step 2 validation
+  // Step 2 = direction validation
   const isStep2Valid = () => {
-    // IELTS validation
+    return formData.programGoal !== "" && (formData.faculty?.length ?? 0) >= 1 && !!formData.scholarship;
+  };
+
+  // Step 3 = tests validation
+  const isStep3Valid = () => {
     if (formData.englishExamType === "IELTS") {
-      const required = [
-        formData.ieltsOverall,
-        formData.ieltsListening,
-        formData.ieltsReading,
-        formData.ieltsWriting,
-        formData.ieltsSpeaking,
-      ];
+      const required = [formData.ieltsOverall, formData.ieltsListening, formData.ieltsReading, formData.ieltsWriting, formData.ieltsSpeaking];
       if (required.some((field) => !field)) return false;
     }
-    
-    // Duolingo validation
     if (formData.englishExamType === "Duolingo") {
       if (!formData.duolingoOverall) return false;
     }
-    
-    // TOEFL validation
     if (formData.englishExamType === "TOEFL") {
-      const required = [
-        formData.toeflTotal,
-        formData.toeflReading,
-        formData.toeflListening,
-        formData.toeflSpeaking,
-        formData.toeflWriting,
-      ];
+      const required = [formData.toeflTotal, formData.toeflReading, formData.toeflListening, formData.toeflSpeaking, formData.toeflWriting];
       if (required.some((field) => !field)) return false;
     }
-    
-    // GRE validation
     if (formData.standardizedExamType === "GRE") {
-      const v = Number(formData.greVerbal);
-      const q = Number(formData.greQuant);
-      const w = Number(formData.greWriting);
-      const vp = Number(formData.greVerbalPercentile);
-      const qp = Number(formData.greQuantPercentile);
-      const wp = Number(formData.greWritingPercentile);
-      if (
-        !formData.greVerbal || !formData.greQuant || !formData.greWriting ||
-        !formData.greVerbalPercentile || !formData.greQuantPercentile || !formData.greWritingPercentile
-      ) return false;
+      const v = Number(formData.greVerbal); const q = Number(formData.greQuant); const w = Number(formData.greWriting);
+      const vp = Number(formData.greVerbalPercentile); const qp = Number(formData.greQuantPercentile); const wp = Number(formData.greWritingPercentile);
+      if (!formData.greVerbal || !formData.greQuant || !formData.greWriting || !formData.greVerbalPercentile || !formData.greQuantPercentile || !formData.greWritingPercentile) return false;
       if (v < 130 || v > 170 || q < 130 || q > 170 || w < 0 || w > 6) return false;
       if (vp < 0 || vp > 99 || qp < 0 || qp > 99 || wp < 0 || wp > 99) return false;
     }
-    
-    // GMAT Focus Edition validation
     if (formData.standardizedExamType === "GMAT") {
-      const total = Number(formData.gmatTotal);
-      const totalP = Number(formData.gmatTotalPercentile);
-      const quant = Number(formData.gmatQuant);
-      const quantP = Number(formData.gmatQuantPercentile);
-      const verbal = Number(formData.gmatVerbal);
-      const verbalP = Number(formData.gmatVerbalPercentile);
-      const di = Number(formData.gmatDataInsights);
-      const diP = Number(formData.gmatDataInsightsPercentile);
-      if (
-        !formData.gmatTotal || !formData.gmatTotalPercentile ||
-        !formData.gmatQuant || !formData.gmatQuantPercentile ||
-        !formData.gmatVerbal || !formData.gmatVerbalPercentile ||
-        !formData.gmatDataInsights || !formData.gmatDataInsightsPercentile
-      ) return false;
-      if (total < 205 || total > 805) return false;
-      if (totalP < 0 || totalP > 99) return false;
+      const total = Number(formData.gmatTotal); const totalP = Number(formData.gmatTotalPercentile);
+      const quant = Number(formData.gmatQuant); const quantP = Number(formData.gmatQuantPercentile);
+      const verbal = Number(formData.gmatVerbal); const verbalP = Number(formData.gmatVerbalPercentile);
+      const di = Number(formData.gmatDataInsights); const diP = Number(formData.gmatDataInsightsPercentile);
+      if (!formData.gmatTotal || !formData.gmatTotalPercentile || !formData.gmatQuant || !formData.gmatQuantPercentile || !formData.gmatVerbal || !formData.gmatVerbalPercentile || !formData.gmatDataInsights || !formData.gmatDataInsightsPercentile) return false;
+      if (total < 205 || total > 805 || totalP < 0 || totalP > 99) return false;
       if (quant < 60 || quant > 90 || verbal < 60 || verbal > 90 || di < 60 || di > 90) return false;
       if (quantP < 0 || quantP > 99 || verbalP < 0 || verbalP > 99 || diP < 0 || diP > 99) return false;
     }
-    
+    if (formData.standardizedExamType === "SAT") {
+      const t = Number(formData.satTotal); const m = Number(formData.satMath); const e = Number(formData.satEbrw);
+      if (!formData.satTotal || !formData.satMath || !formData.satEbrw) return false;
+      if (t < 400 || t > 1600 || m < 200 || m > 800 || e < 200 || e > 800) return false;
+    }
     return true;
-  };
-
-  // Step 3 validation
-  const isStep3Valid = () => {
-    return formData.programGoal !== "" && (formData.faculty?.length ?? 0) >= 1 && !!formData.scholarship;
   };
 
   const handleNext = () => {
@@ -557,7 +514,12 @@ export function WizardForm() {
       gmatDataInsights: formData.gmatDataInsights,
       gmatDataInsightsPercentile: formData.gmatDataInsightsPercentile,
 
-      // Step 3
+      // SAT
+      satTotal: formData.satTotal,
+      satMath: formData.satMath,
+      satEbrw: formData.satEbrw,
+
+      // Step 2 (direction)
       programGoal: formData.programGoal,
       faculty: formData.faculty ?? [],
       scholarship: formData.scholarship ?? "",
@@ -838,7 +800,7 @@ export function WizardForm() {
             )
           )}
 
-          {/* STEP 2 - EXAMS */}
+          {/* STEP 2 - DIRECTION */}
           {currentStep === 2 && (
             <div className="space-y-4 sm:space-y-6">
               <div className="flex items-center gap-2 sm:gap-3 pb-3 sm:pb-4 border-b-2 border-blue-100">
@@ -846,8 +808,8 @@ export function WizardForm() {
                   <span className="text-white font-bold text-sm sm:text-base">2</span>
                 </div>
                 <div>
-                  <h3 className="text-base sm:text-xl font-bold text-gray-900">Тесты и экзамены</h3>
-                  <p className="text-xs sm:text-sm text-gray-600">Информация о языковых и академических тестах</p>
+                  <h3 className="text-base sm:text-xl font-bold text-gray-900">Направление обучения</h3>
+                  <p className="text-xs sm:text-sm text-gray-600">Куда и на какое направление планируете поступить</p>
                 </div>
               </div>
               {showErrors[2] && getStep2Errors().length > 0 && (
@@ -861,692 +823,6 @@ export function WizardForm() {
                 </div>
               )}
 
-          {/* English Exam Type */}
-          <div>
-            <Label htmlFor="englishExamType" className="text-base font-semibold text-gray-700">
-              Тест по английскому языку
-            </Label>
-            <Select
-              value={formData.englishExamType}
-              onValueChange={(value) => {
-                updateField("englishExamType", value);
-              }}
-            >
-              <SelectTrigger id="englishExamType" className="h-12 text-base border-2 mt-2">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="None">Нет</SelectItem>
-                <SelectItem value="IELTS">IELTS</SelectItem>
-                <SelectItem value="TOEFL">TOEFL iBT</SelectItem>
-                <SelectItem value="Duolingo">Duolingo English Test</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* IELTS Scores */}
-          {formData.englishExamType === "IELTS" && (
-            <div className="animate-fade-in space-y-6 p-6 bg-white rounded-xl border-2 border-gray-200">
-              <h4 className="font-bold text-lg text-gray-900">IELTS баллы</h4>
-              
-              <div>
-                <Label htmlFor="ieltsOverall" className="text-base font-semibold text-gray-700">
-                  Overall Band Score <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  id="ieltsOverall"
-                  type="number"
-                  step="0.5"
-                  min="0"
-                  max="9"
-                  value={formData.ieltsOverall || ""}
-                  onChange={(e) => updateField("ieltsOverall", e.target.value)}
-                  placeholder="0.0 - 9.0"
-                  className="h-12 text-base border-2 mt-2"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="ieltsListening" className="text-base font-semibold text-gray-700">
-                    Listening <span className="text-red-500">*</span>
-                  </Label>
-                  <Input
-                    id="ieltsListening"
-                    type="number"
-                    step="0.5"
-                    min="0"
-                    max="9"
-                    value={formData.ieltsListening || ""}
-                    onChange={(e) => updateField("ieltsListening", e.target.value)}
-                    placeholder="0.0 - 9.0"
-                    className="h-12 text-base border-2 mt-2"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="ieltsReading" className="text-base font-semibold text-gray-700">
-                    Reading <span className="text-red-500">*</span>
-                  </Label>
-                  <Input
-                    id="ieltsReading"
-                    type="number"
-                    step="0.5"
-                    min="0"
-                    max="9"
-                    value={formData.ieltsReading || ""}
-                    onChange={(e) => updateField("ieltsReading", e.target.value)}
-                    placeholder="0.0 - 9.0"
-                    className="h-12 text-base border-2 mt-2"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="ieltsWriting" className="text-base font-semibold text-gray-700">
-                    Writing <span className="text-red-500">*</span>
-                  </Label>
-                  <Input
-                    id="ieltsWriting"
-                    type="number"
-                    step="0.5"
-                    min="0"
-                    max="9"
-                    value={formData.ieltsWriting || ""}
-                    onChange={(e) => updateField("ieltsWriting", e.target.value)}
-                    placeholder="0.0 - 9.0"
-                    className="h-12 text-base border-2 mt-2"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="ieltsSpeaking" className="text-base font-semibold text-gray-700">
-                    Speaking <span className="text-red-500">*</span>
-                  </Label>
-                  <Input
-                    id="ieltsSpeaking"
-                    type="number"
-                    step="0.5"
-                    min="0"
-                    max="9"
-                    value={formData.ieltsSpeaking || ""}
-                    onChange={(e) => updateField("ieltsSpeaking", e.target.value)}
-                    placeholder="0.0 - 9.0"
-                    className="h-12 text-base border-2 mt-2"
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Duolingo Scores */}
-          {formData.englishExamType === "Duolingo" && (
-            <div className="animate-fade-in space-y-6 p-6 bg-white rounded-xl border-2 border-gray-200">
-              <h4 className="font-bold text-lg text-gray-900">Duolingo English Test баллы</h4>
-              
-              <div>
-                <Label htmlFor="duolingoOverall" className="text-base font-semibold text-gray-700">
-                  Overall Score <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  id="duolingoOverall"
-                  type="number"
-                  min="10"
-                  max="160"
-                  value={formData.duolingoOverall || ""}
-                  onChange={(e) => updateField("duolingoOverall", e.target.value)}
-                  placeholder="10 - 160"
-                  className="h-12 text-base border-2 mt-2"
-                />
-              </div>
-
-              <p className="text-sm text-gray-600 font-semibold">Опционально (но рекомендуется):</p>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="duolingoLiteracy" className="text-base font-semibold text-gray-700">
-                    Literacy
-                  </Label>
-                  <Input
-                    id="duolingoLiteracy"
-                    type="number"
-                    min="10"
-                    max="160"
-                    value={formData.duolingoLiteracy || ""}
-                    onChange={(e) => updateField("duolingoLiteracy", e.target.value)}
-                    placeholder="10 - 160"
-                    className="h-12 text-base border-2 mt-2"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="duolingoComprehension" className="text-base font-semibold text-gray-700">
-                    Comprehension
-                  </Label>
-                  <Input
-                    id="duolingoComprehension"
-                    type="number"
-                    min="10"
-                    max="160"
-                    value={formData.duolingoComprehension || ""}
-                    onChange={(e) => updateField("duolingoComprehension", e.target.value)}
-                    placeholder="10 - 160"
-                    className="h-12 text-base border-2 mt-2"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="duolingoConversation" className="text-base font-semibold text-gray-700">
-                    Conversation
-                  </Label>
-                  <Input
-                    id="duolingoConversation"
-                    type="number"
-                    min="10"
-                    max="160"
-                    value={formData.duolingoConversation || ""}
-                    onChange={(e) => updateField("duolingoConversation", e.target.value)}
-                    placeholder="10 - 160"
-                    className="h-12 text-base border-2 mt-2"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="duolingoProduction" className="text-base font-semibold text-gray-700">
-                    Production
-                  </Label>
-                  <Input
-                    id="duolingoProduction"
-                    type="number"
-                    min="10"
-                    max="160"
-                    value={formData.duolingoProduction || ""}
-                    onChange={(e) => updateField("duolingoProduction", e.target.value)}
-                    placeholder="10 - 160"
-                    className="h-12 text-base border-2 mt-2"
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* TOEFL Scores */}
-          {formData.englishExamType === "TOEFL" && (
-            <div className="animate-fade-in space-y-6 p-6 bg-white rounded-xl border-2 border-gray-200">
-              <h4 className="font-bold text-lg text-gray-900">TOEFL iBT баллы</h4>
-              
-              <div>
-                <Label htmlFor="toeflTotal" className="text-base font-semibold text-gray-700">
-                  Total Score <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  id="toeflTotal"
-                  type="number"
-                  min="0"
-                  max="120"
-                  value={formData.toeflTotal || ""}
-                  onChange={(e) => updateField("toeflTotal", e.target.value)}
-                  placeholder="0 - 120"
-                  className="h-12 text-base border-2 mt-2"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="toeflReading" className="text-base font-semibold text-gray-700">
-                    Reading <span className="text-red-500">*</span>
-                  </Label>
-                  <Input
-                    id="toeflReading"
-                    type="number"
-                    min="0"
-                    max="30"
-                    value={formData.toeflReading || ""}
-                    onChange={(e) => updateField("toeflReading", e.target.value)}
-                    placeholder="0 - 30"
-                    className="h-12 text-base border-2 mt-2"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="toeflListening" className="text-base font-semibold text-gray-700">
-                    Listening <span className="text-red-500">*</span>
-                  </Label>
-                  <Input
-                    id="toeflListening"
-                    type="number"
-                    min="0"
-                    max="30"
-                    value={formData.toeflListening || ""}
-                    onChange={(e) => updateField("toeflListening", e.target.value)}
-                    placeholder="0 - 30"
-                    className="h-12 text-base border-2 mt-2"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="toeflSpeaking" className="text-base font-semibold text-gray-700">
-                    Speaking <span className="text-red-500">*</span>
-                  </Label>
-                  <Input
-                    id="toeflSpeaking"
-                    type="number"
-                    min="0"
-                    max="30"
-                    value={formData.toeflSpeaking || ""}
-                    onChange={(e) => updateField("toeflSpeaking", e.target.value)}
-                    placeholder="0 - 30"
-                    className="h-12 text-base border-2 mt-2"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="toeflWriting" className="text-base font-semibold text-gray-700">
-                    Writing <span className="text-red-500">*</span>
-                  </Label>
-                  <Input
-                    id="toeflWriting"
-                    type="number"
-                    min="0"
-                    max="30"
-                    value={formData.toeflWriting || ""}
-                    onChange={(e) => updateField("toeflWriting", e.target.value)}
-                    placeholder="0 - 30"
-                    className="h-12 text-base border-2 mt-2"
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Standardized Exam */}
-          <div className="mt-8">
-            <Label htmlFor="standardizedExamType" className="text-base font-semibold text-gray-700">
-              Академический тест (GRE/GMAT)
-            </Label>
-            <Select
-              value={formData.standardizedExamType}
-              onValueChange={(value) => {
-                updateField("standardizedExamType", value);
-              }}
-            >
-              <SelectTrigger id="standardizedExamType" className="h-12 text-base border-2 mt-2">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="None">Нет</SelectItem>
-                <SelectItem value="GRE">GRE</SelectItem>
-                <SelectItem value="GMAT">GMAT</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* GRE Scores — 3x2 grid */}
-          {formData.standardizedExamType === "GRE" && (
-            <div className="animate-fade-in p-6 bg-white rounded-xl border-2 border-gray-200">
-              <h4 className="font-bold text-lg text-gray-900 mb-4">GRE баллы</h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Row 1: Verbal Score, Verbal Percentile */}
-                <div className="space-y-2">
-                  <Label htmlFor="greVerbal" className="text-base font-semibold text-gray-700">
-                    Verbal Score (130–170) <span className="text-red-500">*</span>
-                  </Label>
-                  <Input
-                    id="greVerbal"
-                    type="number"
-                    min={130}
-                    max={170}
-                    value={formData.greVerbal ?? ""}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      updateField("greVerbal", value);
-                      // Auto-fill percentile
-                      const percentile = lookupPercentile(GRE_VERBAL_TABLE, value);
-                      if (percentile !== null) {
-                        updateField("greVerbalPercentile", percentile.toString());
-                      } else if (value === "") {
-                        updateField("greVerbalPercentile", "");
-                      }
-                    }}
-                    placeholder="130 - 170"
-                    className="h-12 text-base border-2"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="greVerbalPercentile" className="text-base font-semibold text-gray-700">
-                    Verbal Percentile (0–99%) <span className="text-red-500">*</span>
-                  </Label>
-                  <div className="relative flex items-center h-12 rounded-md border-2 border-input bg-background">
-                    <Input
-                      id="greVerbalPercentile"
-                      type="number"
-                      min={0}
-                      max={99}
-                      value={formData.greVerbalPercentile ?? ""}
-                      onChange={(e) => updateField("greVerbalPercentile", e.target.value)}
-                      placeholder="0 - 99%"
-                      className="h-full border-0 bg-transparent pr-8 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
-                    />
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500 font-medium">%</span>
-                  </div>
-                </div>
-                {/* Row 2: Quant Score, Quant Percentile */}
-                <div className="space-y-2">
-                  <Label htmlFor="greQuant" className="text-base font-semibold text-gray-700">
-                    Quant Score (130–170) <span className="text-red-500">*</span>
-                  </Label>
-                  <Input
-                    id="greQuant"
-                    type="number"
-                    min={130}
-                    max={170}
-                    value={formData.greQuant ?? ""}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      updateField("greQuant", value);
-                      // Auto-fill percentile
-                      const percentile = lookupPercentile(GRE_QUANT_TABLE, value);
-                      if (percentile !== null) {
-                        updateField("greQuantPercentile", percentile.toString());
-                      } else if (value === "") {
-                        updateField("greQuantPercentile", "");
-                      }
-                    }}
-                    placeholder="130 - 170"
-                    className="h-12 text-base border-2"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="greQuantPercentile" className="text-base font-semibold text-gray-700">
-                    Quant Percentile (0–99%) <span className="text-red-500">*</span>
-                  </Label>
-                  <div className="relative flex items-center h-12 rounded-md border-2 border-input bg-background">
-                    <Input
-                      id="greQuantPercentile"
-                      type="number"
-                      min={0}
-                      max={99}
-                      value={formData.greQuantPercentile ?? ""}
-                      onChange={(e) => updateField("greQuantPercentile", e.target.value)}
-                      placeholder="0 - 99%"
-                      className="h-full border-0 bg-transparent pr-8 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
-                    />
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500 font-medium">%</span>
-                  </div>
-                </div>
-                {/* Row 3: AW Score, AW Percentile */}
-                <div className="space-y-2">
-                  <Label htmlFor="greWriting" className="text-base font-semibold text-gray-700">
-                    Analytical Writing (0.0–6.0) <span className="text-red-500">*</span>
-                  </Label>
-                  <Input
-                    id="greWriting"
-                    type="number"
-                    step={0.5}
-                    min={0}
-                    max={6}
-                    value={formData.greWriting ?? ""}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      updateField("greWriting", value);
-                      // Auto-fill percentile
-                      const percentile = lookupPercentile(GRE_AW_TABLE, value);
-                      if (percentile !== null) {
-                        updateField("greWritingPercentile", percentile.toString());
-                      } else if (value === "") {
-                        updateField("greWritingPercentile", "");
-                      }
-                    }}
-                    placeholder="0 - 6.0"
-                    className="h-12 text-base border-2"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="greWritingPercentile" className="text-base font-semibold text-gray-700">
-                    AW Percentile (0–99%) <span className="text-red-500">*</span>
-                  </Label>
-                  <div className="relative flex items-center h-12 rounded-md border-2 border-input bg-background">
-                    <Input
-                      id="greWritingPercentile"
-                      type="number"
-                      min={0}
-                      max={99}
-                      value={formData.greWritingPercentile ?? ""}
-                      onChange={(e) => updateField("greWritingPercentile", e.target.value)}
-                      placeholder="0 - 99%"
-                      className="h-full border-0 bg-transparent pr-8 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
-                    />
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500 font-medium">%</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* GMAT Focus Edition Scores */}
-          {formData.standardizedExamType === "GMAT" && (
-            <div className="animate-fade-in space-y-6 p-6 bg-white rounded-xl border-2 border-gray-200">
-              <h4 className="font-bold text-lg text-gray-900">GMAT Focus Edition</h4>
-
-              {/* Total */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="gmatTotal" className="text-base font-semibold text-gray-700">
-                    Total Score (205–805) <span className="text-red-500">*</span>
-                  </Label>
-                  <Input
-                    id="gmatTotal"
-                    type="number"
-                    min={205}
-                    max={805}
-                    value={formData.gmatTotal ?? ""}
-                    onChange={(e) => updateField("gmatTotal", e.target.value)}
-                    placeholder="205 - 805"
-                    className="h-12 text-base border-2"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="gmatTotalPercentile" className="text-base font-semibold text-gray-700">
-                    Total Percentile (0–99%) <span className="text-red-500">*</span>
-                  </Label>
-                  <div className="relative flex items-center h-12 rounded-md border-2 border-input bg-background">
-                    <Input
-                      id="gmatTotalPercentile"
-                      type="number"
-                      min={0}
-                      max={99}
-                      value={formData.gmatTotalPercentile ?? ""}
-                      onChange={(e) => updateField("gmatTotalPercentile", e.target.value)}
-                      placeholder="0 - 99%"
-                      className="h-full border-0 bg-transparent pr-8 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
-                    />
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500 font-medium">%</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Quantitative Reasoning */}
-              <div>
-                <h5 className="text-sm font-semibold text-gray-600 mb-3">Quantitative Reasoning</h5>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="gmatQuant" className="text-base font-semibold text-gray-700">
-                      Score (60–90) <span className="text-red-500">*</span>
-                    </Label>
-                    <Input
-                      id="gmatQuant"
-                      type="number"
-                      min={60}
-                      max={90}
-                      value={formData.gmatQuant ?? ""}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        updateField("gmatQuant", value);
-                        // Auto-fill percentile
-                        const percentile = lookupPercentile(GMAT_QUANT_TABLE, value);
-                        if (percentile !== null) {
-                          updateField("gmatQuantPercentile", percentile.toString());
-                        } else if (value === "") {
-                          updateField("gmatQuantPercentile", "");
-                        }
-                      }}
-                      placeholder="0 - 90"
-                      className="h-12 text-base border-2"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="gmatQuantPercentile" className="text-base font-semibold text-gray-700">
-                      Percentile (0–99%) <span className="text-red-500">*</span>
-                    </Label>
-                    <div className="relative flex items-center h-12 rounded-md border-2 border-input bg-background">
-                      <Input
-                        id="gmatQuantPercentile"
-                        type="number"
-                        min={0}
-                        max={99}
-                        value={formData.gmatQuantPercentile ?? ""}
-                        onChange={(e) => updateField("gmatQuantPercentile", e.target.value)}
-                        placeholder="0 - 99%"
-                        className="h-full border-0 bg-transparent pr-8 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
-                      />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500 font-medium">%</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Verbal Reasoning */}
-              <div>
-                <h5 className="text-sm font-semibold text-gray-600 mb-3">Verbal Reasoning</h5>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="gmatVerbal" className="text-base font-semibold text-gray-700">
-                      Score (60–90) <span className="text-red-500">*</span>
-                    </Label>
-                    <Input
-                      id="gmatVerbal"
-                      type="number"
-                      min={60}
-                      max={90}
-                      value={formData.gmatVerbal ?? ""}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        updateField("gmatVerbal", value);
-                        // Auto-fill percentile
-                        const percentile = lookupPercentile(GMAT_VERBAL_TABLE, value);
-                        if (percentile !== null) {
-                          updateField("gmatVerbalPercentile", percentile.toString());
-                        } else if (value === "") {
-                          updateField("gmatVerbalPercentile", "");
-                        }
-                      }}
-                      placeholder="0 - 90"
-                      className="h-12 text-base border-2"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="gmatVerbalPercentile" className="text-base font-semibold text-gray-700">
-                      Percentile (0–99%) <span className="text-red-500">*</span>
-                    </Label>
-                    <div className="relative flex items-center h-12 rounded-md border-2 border-input bg-background">
-                      <Input
-                        id="gmatVerbalPercentile"
-                        type="number"
-                        min={0}
-                        max={99}
-                        value={formData.gmatVerbalPercentile ?? ""}
-                        onChange={(e) => updateField("gmatVerbalPercentile", e.target.value)}
-                        placeholder="0 - 99%"
-                        className="h-full border-0 bg-transparent pr-8 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
-                      />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500 font-medium">%</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Data Insights */}
-              <div>
-                <h5 className="text-sm font-semibold text-gray-600 mb-3">Data Insights</h5>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="gmatDataInsights" className="text-base font-semibold text-gray-700">
-                      Score (60–90) <span className="text-red-500">*</span>
-                    </Label>
-                    <Input
-                      id="gmatDataInsights"
-                      type="number"
-                      min={60}
-                      max={90}
-                      value={formData.gmatDataInsights ?? ""}
-                      onChange={(e) => updateField("gmatDataInsights", e.target.value)}
-                      placeholder="0 - 90"
-                      className="h-12 text-base border-2"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="gmatDataInsightsPercentile" className="text-base font-semibold text-gray-700">
-                      Percentile (0–99%) <span className="text-red-500">*</span>
-                    </Label>
-                    <div className="relative flex items-center h-12 rounded-md border-2 border-input bg-background">
-                      <Input
-                        id="gmatDataInsightsPercentile"
-                        type="number"
-                        min={0}
-                        max={99}
-                        value={formData.gmatDataInsightsPercentile ?? ""}
-                        onChange={(e) => updateField("gmatDataInsightsPercentile", e.target.value)}
-                        placeholder="0 - 99%"
-                        className="h-full border-0 bg-transparent pr-8 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
-                      />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500 font-medium">%</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-              <div className="pt-6 border-t border-gray-200 flex flex-col sm:flex-row gap-3 sm:gap-4">
-                <Button 
-                  onClick={handleBack} 
-                  variant="outline"
-                  className="flex-1 py-5 sm:py-6 rounded-xl font-semibold text-sm sm:text-base order-2 sm:order-1"
-                >
-                  ← Назад
-                </Button>
-                <Button 
-                  onClick={handleNext} 
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-5 sm:py-6 rounded-xl font-semibold text-sm sm:text-base order-1 sm:order-2"
-                >
-                  Продолжить →
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {/* STEP 3 - FIELD OF STUDY */}
-          {currentStep === 3 && (
-            <div className="space-y-4 sm:space-y-6">
-              <div className="flex items-center gap-2 sm:gap-3 pb-3 sm:pb-4 border-b-2 border-blue-100">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <span className="text-white font-bold text-sm sm:text-base">3</span>
-                </div>
-                <div>
-                  <h3 className="text-base sm:text-xl font-bold text-gray-900">Направление обучения</h3>
-                  <p className="text-xs sm:text-sm text-gray-600">Куда и на какое направление планируете поступить</p>
-                </div>
-              </div>
-              {showErrors[3] && getStep3Errors().length > 0 && (
-                <div className="p-4 rounded-xl border-2 border-red-200 bg-red-50 text-sm text-red-700">
-                  <p className="font-semibold mb-2">Исправьте ошибки:</p>
-                  <ul className="list-disc pl-5 space-y-1">
-                    {getStep3Errors().map((error) => (
-                      <li key={error}>{error}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
               {/* Куда хотите поступить? */}
               <div className="space-y-2">
                 <Label htmlFor="programGoal" className="text-base font-semibold text-gray-700">
@@ -1554,7 +830,10 @@ export function WizardForm() {
                 </Label>
                 <Select
                   value={formData.programGoal}
-                  onValueChange={(value) => updateField("programGoal", value)}
+                  onValueChange={(value) => {
+                    updateField("programGoal", value);
+                    updateField("standardizedExamType", "None");
+                  }}
                 >
                   <SelectTrigger id="programGoal" className="flex h-12 min-h-12 w-full items-center rounded-md border-2 border-gray-200 bg-white px-4 py-0 text-left text-base hover:border-blue-300 transition-colors">
                     <SelectValue placeholder="Выберите уровень" />
@@ -1566,7 +845,7 @@ export function WizardForm() {
                 </Select>
               </div>
 
-              {/* Факультет / Направление — всплывающий список, до 2 вариантов */}
+              {/* Факультет / Направление */}
               <div className="space-y-3" ref={facultyDropdownRef}>
                 <Label className="text-base font-semibold text-gray-700 block">
                   Факультет / Направление <span className="text-red-500">*</span>
@@ -1632,6 +911,316 @@ export function WizardForm() {
                   </SelectContent>
                 </Select>
               </div>
+
+
+
+              <div className="pt-6 border-t border-gray-200 flex flex-col sm:flex-row gap-3 sm:gap-4">
+                <Button 
+                  onClick={handleBack} 
+                  variant="outline"
+                  className="flex-1 py-5 sm:py-6 rounded-xl font-semibold text-sm sm:text-base order-2 sm:order-1"
+                >
+                  ← Назад
+                </Button>
+                <Button 
+                  onClick={handleNext} 
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-5 sm:py-6 rounded-xl font-semibold text-sm sm:text-base order-1 sm:order-2"
+                >
+                  Продолжить →
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* STEP 3 - TESTS */}
+          {currentStep === 3 && (
+            <div className="space-y-4 sm:space-y-6">
+              <div className="flex items-center gap-2 sm:gap-3 pb-3 sm:pb-4 border-b-2 border-blue-100">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <span className="text-white font-bold text-sm sm:text-base">3</span>
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-xl font-bold text-gray-900">Тесты и экзамены</h3>
+                  <p className="text-xs sm:text-sm text-gray-600">Информация о языковых и академических тестах</p>
+                </div>
+              </div>
+              {showErrors[3] && getStep3Errors().length > 0 && (
+                <div className="p-4 rounded-xl border-2 border-red-200 bg-red-50 text-sm text-red-700">
+                  <p className="font-semibold mb-2">Исправьте ошибки:</p>
+                  <ul className="list-disc pl-5 space-y-1">
+                    {getStep3Errors().map((error) => (
+                      <li key={error}>{error}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* English Exam Type */}
+              <div>
+                <Label htmlFor="englishExamType3" className="text-base font-semibold text-gray-700">
+                  Тест по английскому языку
+                </Label>
+                <Select
+                  value={formData.englishExamType}
+                  onValueChange={(value) => updateField("englishExamType", value)}
+                >
+                  <SelectTrigger id="englishExamType3" className="h-12 text-base border-2 mt-2">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="None">Нет</SelectItem>
+                    <SelectItem value="IELTS">IELTS</SelectItem>
+                    <SelectItem value="TOEFL">TOEFL iBT</SelectItem>
+                    <SelectItem value="Duolingo">Duolingo English Test</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* IELTS Scores */}
+              {formData.englishExamType === "IELTS" && (
+                <div className="animate-fade-in space-y-6 p-6 bg-white rounded-xl border-2 border-gray-200">
+                  <h4 className="font-bold text-lg text-gray-900">IELTS баллы</h4>
+                  <div>
+                    <Label htmlFor="ieltsOverall3" className="text-base font-semibold text-gray-700">Overall Band Score <span className="text-red-500">*</span></Label>
+                    <Input id="ieltsOverall3" type="number" step="0.5" min="0" max="9" value={formData.ieltsOverall || ""} onChange={(e) => updateField("ieltsOverall", e.target.value)} placeholder="0.0 - 9.0" className="h-12 text-base border-2 mt-2" />
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="ieltsListening3" className="text-base font-semibold text-gray-700">Listening <span className="text-red-500">*</span></Label>
+                      <Input id="ieltsListening3" type="number" step="0.5" min="0" max="9" value={formData.ieltsListening || ""} onChange={(e) => updateField("ieltsListening", e.target.value)} placeholder="0.0 - 9.0" className="h-12 text-base border-2 mt-2" />
+                    </div>
+                    <div>
+                      <Label htmlFor="ieltsReading3" className="text-base font-semibold text-gray-700">Reading <span className="text-red-500">*</span></Label>
+                      <Input id="ieltsReading3" type="number" step="0.5" min="0" max="9" value={formData.ieltsReading || ""} onChange={(e) => updateField("ieltsReading", e.target.value)} placeholder="0.0 - 9.0" className="h-12 text-base border-2 mt-2" />
+                    </div>
+                    <div>
+                      <Label htmlFor="ieltsWriting3" className="text-base font-semibold text-gray-700">Writing <span className="text-red-500">*</span></Label>
+                      <Input id="ieltsWriting3" type="number" step="0.5" min="0" max="9" value={formData.ieltsWriting || ""} onChange={(e) => updateField("ieltsWriting", e.target.value)} placeholder="0.0 - 9.0" className="h-12 text-base border-2 mt-2" />
+                    </div>
+                    <div>
+                      <Label htmlFor="ieltsSpeaking3" className="text-base font-semibold text-gray-700">Speaking <span className="text-red-500">*</span></Label>
+                      <Input id="ieltsSpeaking3" type="number" step="0.5" min="0" max="9" value={formData.ieltsSpeaking || ""} onChange={(e) => updateField("ieltsSpeaking", e.target.value)} placeholder="0.0 - 9.0" className="h-12 text-base border-2 mt-2" />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* TOEFL Scores */}
+              {formData.englishExamType === "TOEFL" && (
+                <div className="animate-fade-in space-y-6 p-6 bg-white rounded-xl border-2 border-gray-200">
+                  <h4 className="font-bold text-lg text-gray-900">TOEFL iBT баллы</h4>
+                  <div>
+                    <Label htmlFor="toeflTotal3" className="text-base font-semibold text-gray-700">Total Score <span className="text-red-500">*</span></Label>
+                    <Input id="toeflTotal3" type="number" min="0" max="120" value={formData.toeflTotal || ""} onChange={(e) => updateField("toeflTotal", e.target.value)} placeholder="0 - 120" className="h-12 text-base border-2 mt-2" />
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="toeflReading3" className="text-base font-semibold text-gray-700">Reading <span className="text-red-500">*</span></Label>
+                      <Input id="toeflReading3" type="number" min="0" max="30" value={formData.toeflReading || ""} onChange={(e) => updateField("toeflReading", e.target.value)} placeholder="0 - 30" className="h-12 text-base border-2 mt-2" />
+                    </div>
+                    <div>
+                      <Label htmlFor="toeflListening3" className="text-base font-semibold text-gray-700">Listening <span className="text-red-500">*</span></Label>
+                      <Input id="toeflListening3" type="number" min="0" max="30" value={formData.toeflListening || ""} onChange={(e) => updateField("toeflListening", e.target.value)} placeholder="0 - 30" className="h-12 text-base border-2 mt-2" />
+                    </div>
+                    <div>
+                      <Label htmlFor="toeflSpeaking3" className="text-base font-semibold text-gray-700">Speaking <span className="text-red-500">*</span></Label>
+                      <Input id="toeflSpeaking3" type="number" min="0" max="30" value={formData.toeflSpeaking || ""} onChange={(e) => updateField("toeflSpeaking", e.target.value)} placeholder="0 - 30" className="h-12 text-base border-2 mt-2" />
+                    </div>
+                    <div>
+                      <Label htmlFor="toeflWriting3" className="text-base font-semibold text-gray-700">Writing <span className="text-red-500">*</span></Label>
+                      <Input id="toeflWriting3" type="number" min="0" max="30" value={formData.toeflWriting || ""} onChange={(e) => updateField("toeflWriting", e.target.value)} placeholder="0 - 30" className="h-12 text-base border-2 mt-2" />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Duolingo Scores */}
+              {formData.englishExamType === "Duolingo" && (
+                <div className="animate-fade-in space-y-6 p-6 bg-white rounded-xl border-2 border-gray-200">
+                  <h4 className="font-bold text-lg text-gray-900">Duolingo English Test баллы</h4>
+                  <div>
+                    <Label htmlFor="duolingoOverall3" className="text-base font-semibold text-gray-700">Overall Score <span className="text-red-500">*</span></Label>
+                    <Input id="duolingoOverall3" type="number" min="10" max="160" value={formData.duolingoOverall || ""} onChange={(e) => updateField("duolingoOverall", e.target.value)} placeholder="10 - 160" className="h-12 text-base border-2 mt-2" />
+                  </div>
+                  <p className="text-sm text-gray-600 font-semibold">Опционально (но рекомендуется):</p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="duolingoLiteracy3" className="text-base font-semibold text-gray-700">Literacy</Label>
+                      <Input id="duolingoLiteracy3" type="number" min="10" max="160" value={formData.duolingoLiteracy || ""} onChange={(e) => updateField("duolingoLiteracy", e.target.value)} placeholder="10 - 160" className="h-12 text-base border-2 mt-2" />
+                    </div>
+                    <div>
+                      <Label htmlFor="duolingoComprehension3" className="text-base font-semibold text-gray-700">Comprehension</Label>
+                      <Input id="duolingoComprehension3" type="number" min="10" max="160" value={formData.duolingoComprehension || ""} onChange={(e) => updateField("duolingoComprehension", e.target.value)} placeholder="10 - 160" className="h-12 text-base border-2 mt-2" />
+                    </div>
+                    <div>
+                      <Label htmlFor="duolingoConversation3" className="text-base font-semibold text-gray-700">Conversation</Label>
+                      <Input id="duolingoConversation3" type="number" min="10" max="160" value={formData.duolingoConversation || ""} onChange={(e) => updateField("duolingoConversation", e.target.value)} placeholder="10 - 160" className="h-12 text-base border-2 mt-2" />
+                    </div>
+                    <div>
+                      <Label htmlFor="duolingoProduction3" className="text-base font-semibold text-gray-700">Production</Label>
+                      <Input id="duolingoProduction3" type="number" min="10" max="160" value={formData.duolingoProduction || ""} onChange={(e) => updateField("duolingoProduction", e.target.value)} placeholder="10 - 160" className="h-12 text-base border-2 mt-2" />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Standardized Exam — conditional by programGoal */}
+              <div className="mt-8">
+                <Label htmlFor="standardizedExamType3" className="text-base font-semibold text-gray-700">
+                  Академический тест ({formData.programGoal === "Bachelor" ? "SAT" : "GRE/GMAT"})
+                </Label>
+                <Select
+                  value={formData.standardizedExamType}
+                  onValueChange={(value) => updateField("standardizedExamType", value)}
+                >
+                  <SelectTrigger id="standardizedExamType3" className="h-12 text-base border-2 mt-2">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="None">Нет</SelectItem>
+                    {formData.programGoal === "Bachelor" && (
+                      <SelectItem value="SAT">SAT</SelectItem>
+                    )}
+                    {formData.programGoal !== "Bachelor" && (
+                      <>
+                        <SelectItem value="GRE">GRE</SelectItem>
+                        <SelectItem value="GMAT">GMAT</SelectItem>
+                      </>
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* SAT Scores */}
+              {formData.standardizedExamType === "SAT" && (
+                <div className="animate-fade-in space-y-6 p-6 bg-white rounded-xl border-2 border-gray-200">
+                  <h4 className="font-bold text-lg text-gray-900">SAT баллы</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="sm:col-span-2">
+                      <Label htmlFor="satTotal" className="text-base font-semibold text-gray-700">Total Score (400–1600) <span className="text-red-500">*</span></Label>
+                      <Input id="satTotal" type="number" min={400} max={1600} value={formData.satTotal ?? ""} onChange={(e) => updateField("satTotal", e.target.value)} placeholder="400 - 1600" className="h-12 text-base border-2 mt-2" />
+                    </div>
+                    <div>
+                      <Label htmlFor="satMath" className="text-base font-semibold text-gray-700">Math Section (200–800) <span className="text-red-500">*</span></Label>
+                      <Input id="satMath" type="number" min={200} max={800} value={formData.satMath ?? ""} onChange={(e) => updateField("satMath", e.target.value)} placeholder="200 - 800" className="h-12 text-base border-2 mt-2" />
+                    </div>
+                    <div>
+                      <Label htmlFor="satEbrw" className="text-base font-semibold text-gray-700">EBRW (200–800) <span className="text-red-500">*</span></Label>
+                      <Input id="satEbrw" type="number" min={200} max={800} value={formData.satEbrw ?? ""} onChange={(e) => updateField("satEbrw", e.target.value)} placeholder="200 - 800" className="h-12 text-base border-2 mt-2" />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* GRE Scores */}
+              {formData.standardizedExamType === "GRE" && (
+                <div className="animate-fade-in p-6 bg-white rounded-xl border-2 border-gray-200">
+                  <h4 className="font-bold text-lg text-gray-900 mb-4">GRE баллы</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="greVerbal3" className="text-base font-semibold text-gray-700">Verbal Score (130–170) <span className="text-red-500">*</span></Label>
+                      <Input id="greVerbal3" type="number" min={130} max={170} value={formData.greVerbal ?? ""} onChange={(e) => { const v = e.target.value; updateField("greVerbal", v); const p = lookupPercentile(GRE_VERBAL_TABLE, v); if (p !== null) updateField("greVerbalPercentile", p.toString()); else if (v === "") updateField("greVerbalPercentile", ""); }} placeholder="130 - 170" className="h-12 text-base border-2" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="greVerbalPercentile3" className="text-base font-semibold text-gray-700">Verbal Percentile (0–99%) <span className="text-red-500">*</span></Label>
+                      <div className="relative flex items-center h-12 rounded-md border-2 border-input bg-background">
+                        <Input id="greVerbalPercentile3" type="number" min={0} max={99} value={formData.greVerbalPercentile ?? ""} onChange={(e) => updateField("greVerbalPercentile", e.target.value)} placeholder="0 - 99%" className="h-full border-0 bg-transparent pr-8 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0" />
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500 font-medium">%</span>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="greQuant3" className="text-base font-semibold text-gray-700">Quant Score (130–170) <span className="text-red-500">*</span></Label>
+                      <Input id="greQuant3" type="number" min={130} max={170} value={formData.greQuant ?? ""} onChange={(e) => { const v = e.target.value; updateField("greQuant", v); const p = lookupPercentile(GRE_QUANT_TABLE, v); if (p !== null) updateField("greQuantPercentile", p.toString()); else if (v === "") updateField("greQuantPercentile", ""); }} placeholder="130 - 170" className="h-12 text-base border-2" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="greQuantPercentile3" className="text-base font-semibold text-gray-700">Quant Percentile (0–99%) <span className="text-red-500">*</span></Label>
+                      <div className="relative flex items-center h-12 rounded-md border-2 border-input bg-background">
+                        <Input id="greQuantPercentile3" type="number" min={0} max={99} value={formData.greQuantPercentile ?? ""} onChange={(e) => updateField("greQuantPercentile", e.target.value)} placeholder="0 - 99%" className="h-full border-0 bg-transparent pr-8 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0" />
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500 font-medium">%</span>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="greWriting3" className="text-base font-semibold text-gray-700">Analytical Writing (0.0–6.0) <span className="text-red-500">*</span></Label>
+                      <Input id="greWriting3" type="number" step={0.5} min={0} max={6} value={formData.greWriting ?? ""} onChange={(e) => { const v = e.target.value; updateField("greWriting", v); const p = lookupPercentile(GRE_AW_TABLE, v); if (p !== null) updateField("greWritingPercentile", p.toString()); else if (v === "") updateField("greWritingPercentile", ""); }} placeholder="0 - 6.0" className="h-12 text-base border-2" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="greWritingPercentile3" className="text-base font-semibold text-gray-700">AW Percentile (0–99%) <span className="text-red-500">*</span></Label>
+                      <div className="relative flex items-center h-12 rounded-md border-2 border-input bg-background">
+                        <Input id="greWritingPercentile3" type="number" min={0} max={99} value={formData.greWritingPercentile ?? ""} onChange={(e) => updateField("greWritingPercentile", e.target.value)} placeholder="0 - 99%" className="h-full border-0 bg-transparent pr-8 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0" />
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500 font-medium">%</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* GMAT Scores */}
+              {formData.standardizedExamType === "GMAT" && (
+                <div className="animate-fade-in space-y-6 p-6 bg-white rounded-xl border-2 border-gray-200">
+                  <h4 className="font-bold text-lg text-gray-900">GMAT Focus Edition</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="gmatTotal3" className="text-base font-semibold text-gray-700">Total Score (205–805) <span className="text-red-500">*</span></Label>
+                      <Input id="gmatTotal3" type="number" min={205} max={805} value={formData.gmatTotal ?? ""} onChange={(e) => updateField("gmatTotal", e.target.value)} placeholder="205 - 805" className="h-12 text-base border-2" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="gmatTotalPercentile3" className="text-base font-semibold text-gray-700">Total Percentile (0–99%) <span className="text-red-500">*</span></Label>
+                      <div className="relative flex items-center h-12 rounded-md border-2 border-input bg-background">
+                        <Input id="gmatTotalPercentile3" type="number" min={0} max={99} value={formData.gmatTotalPercentile ?? ""} onChange={(e) => updateField("gmatTotalPercentile", e.target.value)} placeholder="0 - 99%" className="h-full border-0 bg-transparent pr-8 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0" />
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500 font-medium">%</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <h5 className="text-sm font-semibold text-gray-600 mb-3">Quantitative Reasoning</h5>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="gmatQuant3" className="text-base font-semibold text-gray-700">Score (60–90) <span className="text-red-500">*</span></Label>
+                        <Input id="gmatQuant3" type="number" min={60} max={90} value={formData.gmatQuant ?? ""} onChange={(e) => { const v = e.target.value; updateField("gmatQuant", v); const p = lookupPercentile(GMAT_QUANT_TABLE, v); if (p !== null) updateField("gmatQuantPercentile", p.toString()); else if (v === "") updateField("gmatQuantPercentile", ""); }} placeholder="0 - 90" className="h-12 text-base border-2" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="gmatQuantPercentile3" className="text-base font-semibold text-gray-700">Percentile (0–99%) <span className="text-red-500">*</span></Label>
+                        <div className="relative flex items-center h-12 rounded-md border-2 border-input bg-background">
+                          <Input id="gmatQuantPercentile3" type="number" min={0} max={99} value={formData.gmatQuantPercentile ?? ""} onChange={(e) => updateField("gmatQuantPercentile", e.target.value)} placeholder="0 - 99%" className="h-full border-0 bg-transparent pr-8 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0" />
+                          <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500 font-medium">%</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <h5 className="text-sm font-semibold text-gray-600 mb-3">Verbal Reasoning</h5>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="gmatVerbal3" className="text-base font-semibold text-gray-700">Score (60–90) <span className="text-red-500">*</span></Label>
+                        <Input id="gmatVerbal3" type="number" min={60} max={90} value={formData.gmatVerbal ?? ""} onChange={(e) => { const v = e.target.value; updateField("gmatVerbal", v); const p = lookupPercentile(GMAT_VERBAL_TABLE, v); if (p !== null) updateField("gmatVerbalPercentile", p.toString()); else if (v === "") updateField("gmatVerbalPercentile", ""); }} placeholder="0 - 90" className="h-12 text-base border-2" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="gmatVerbalPercentile3" className="text-base font-semibold text-gray-700">Percentile (0–99%) <span className="text-red-500">*</span></Label>
+                        <div className="relative flex items-center h-12 rounded-md border-2 border-input bg-background">
+                          <Input id="gmatVerbalPercentile3" type="number" min={0} max={99} value={formData.gmatVerbalPercentile ?? ""} onChange={(e) => updateField("gmatVerbalPercentile", e.target.value)} placeholder="0 - 99%" className="h-full border-0 bg-transparent pr-8 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0" />
+                          <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500 font-medium">%</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <h5 className="text-sm font-semibold text-gray-600 mb-3">Data Insights</h5>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="gmatDataInsights3" className="text-base font-semibold text-gray-700">Score (60–90) <span className="text-red-500">*</span></Label>
+                        <Input id="gmatDataInsights3" type="number" min={60} max={90} value={formData.gmatDataInsights ?? ""} onChange={(e) => updateField("gmatDataInsights", e.target.value)} placeholder="0 - 90" className="h-12 text-base border-2" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="gmatDataInsightsPercentile3" className="text-base font-semibold text-gray-700">Percentile (0–99%) <span className="text-red-500">*</span></Label>
+                        <div className="relative flex items-center h-12 rounded-md border-2 border-input bg-background">
+                          <Input id="gmatDataInsightsPercentile3" type="number" min={0} max={99} value={formData.gmatDataInsightsPercentile ?? ""} onChange={(e) => updateField("gmatDataInsightsPercentile", e.target.value)} placeholder="0 - 99%" className="h-full border-0 bg-transparent pr-8 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0" />
+                          <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500 font-medium">%</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {captchaRequired && (
                 <div className="flex flex-col items-center gap-2 pt-4">

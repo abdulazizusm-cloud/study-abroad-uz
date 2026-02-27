@@ -178,6 +178,8 @@ export default function WizardResultsPage() {
             minGREWriting: uni.min_gre_writing ? parseFloat(uni.min_gre_writing) : undefined,
             gmatRequired: uni.gmat_required || false,
             minGMAT: uni.min_gmat || undefined,
+            satRequired: uni.sat_required || false,
+            minSAT: uni.min_sat || undefined,
             tuitionUSD: uni.tuition_usd,
             scholarshipAvailable: uni.scholarship_available || false,
           },

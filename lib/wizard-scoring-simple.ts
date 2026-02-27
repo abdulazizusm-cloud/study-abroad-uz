@@ -85,30 +85,29 @@ export function checkEnglishRequirement(
 export function checkStandardizedTest(
   formData: WizardFormData,
   university: ExtendedUniversity
-): { meets: boolean; required: boolean; greResult?: boolean; gmatResult?: boolean } {
-  const { greRequired, gmatRequired } = university.requirements;
+): { meets: boolean; required: boolean; greResult?: boolean; gmatResult?: boolean; satResult?: boolean } {
+  const { greRequired, gmatRequired, satRequired } = university.requirements;
 
   // If no standardized test is required
-  if (!greRequired && !gmatRequired) {
+  if (!greRequired && !gmatRequired && !satRequired) {
     return { meets: true, required: false };
   }
 
   const userExamType = formData.standardizedExamType;
   let greResult: boolean | undefined;
   let gmatResult: boolean | undefined;
+  let satResult: boolean | undefined;
 
   // Check GRE if required
   if (greRequired) {
     if (userExamType === "GRE") {
       const verbal = parseFloat(formData.greVerbal || "0");
       const quant = parseFloat(formData.greQuant || "0");
-
       const meetsVerbal = verbal >= (university.requirements.minGREVerbal || 0);
       const meetsQuant = quant >= (university.requirements.minGREQuant || 0);
-
-      greResult = meetsVerbal && meetsQuant; // Only Verbal and Quant
+      greResult = meetsVerbal && meetsQuant;
     } else {
-      greResult = false; // GRE required but not provided
+      greResult = false;
     }
   }
 
@@ -118,28 +117,32 @@ export function checkStandardizedTest(
       const total = parseFloat(formData.gmatTotal || "0");
       gmatResult = total >= (university.requirements.minGMAT || 0);
     } else {
-      gmatResult = false; // GMAT required but not provided
+      gmatResult = false;
     }
   }
 
-  // Determine final result
-  // If both are required, both must meet
-  // If only one is required, that one must meet
-  let finalMeets = true;
-  if (greRequired && gmatRequired) {
-    // Both required: both must pass
-    finalMeets = (greResult === true) && (gmatResult === true);
-  } else if (greRequired) {
-    finalMeets = greResult === true;
-  } else if (gmatRequired) {
-    finalMeets = gmatResult === true;
+  // Check SAT if required
+  if (satRequired) {
+    if (userExamType === "SAT") {
+      const total = parseFloat(formData.satTotal || "0");
+      satResult = total >= (university.requirements.minSAT || 0);
+    } else {
+      satResult = false;
+    }
   }
 
-  return { 
-    meets: finalMeets, 
+  // Determine final result — all required tests must be met
+  let finalMeets = true;
+  if (greRequired) finalMeets = finalMeets && (greResult === true);
+  if (gmatRequired) finalMeets = finalMeets && (gmatResult === true);
+  if (satRequired) finalMeets = finalMeets && (satResult === true);
+
+  return {
+    meets: finalMeets,
     required: true,
     greResult,
-    gmatResult
+    gmatResult,
+    satResult,
   };
 }
 
@@ -346,9 +349,9 @@ function generateDetailedExplanation(
   // Standardized tests
   if (standardizedCheck.required) {
     if (standardizedCheck.meets) {
-      parts.push("результаты GRE/GMAT соответствуют требованиям");
+      parts.push("результаты академического теста соответствуют требованиям");
     } else {
-      parts.push("требуются более высокие баллы GRE/GMAT");
+      parts.push("требуются более высокие баллы академического теста");
     }
   }
 
