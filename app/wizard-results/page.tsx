@@ -22,9 +22,11 @@ import { Navbar } from "@/components/navbar";
 type SortOption = "chance" | "budget";
 
 // Helper function to calculate tier limit
-function calculateTierLimit(tierInfo: { effectiveTier: string; bonusUniversities: number }): number | null {
-  const baseLimit = tierInfo.effectiveTier === "free" ? 9 : null; // pro = unlimited
-  return baseLimit === null ? null : baseLimit + (tierInfo.bonusUniversities || 0);
+// anonymous (isLoggedIn=false): 3 unis
+// registered free or pro (isLoggedIn=true): 9 unis (pro differs only in algorithm)
+function calculateTierLimit(tierInfo: { effectiveTier: string; bonusUniversities: number }, isLoggedIn: boolean): number | null {
+  const base = isLoggedIn ? 9 : 3;
+  return base + (tierInfo.bonusUniversities || 0);
 }
 
 // Helper function to select algorithm based on tier
@@ -197,10 +199,10 @@ export default function WizardResultsPage() {
         const sortedResults = sortResultsByChance(scoredResults);
 
         // Apply gating limits
-        const limit = calculateTierLimit(tierInfo);
+        const limit = calculateTierLimit(tierInfo, !!user);
         setTotalAvailable(sortedResults.length);
         setCurrentLimit(limit);
-        setResults(limit ? sortedResults.slice(0, limit) : sortedResults);
+        setResults(sortedResults.slice(0, limit));
         setIsLoading(false);
 
         if (user && !hasTrackedViewRef.current) {
@@ -300,10 +302,10 @@ export default function WizardResultsPage() {
             ? sortResultsByChance(scoredResults)
             : sortResultsByBudget(scoredResults);
 
-          const limit = calculateTierLimit(tierInfo);
+          const limit = calculateTierLimit(tierInfo, !!user);
           setTotalAvailable(sortedResults.length);
           setCurrentLimit(limit);
-          setResults(limit ? sortedResults.slice(0, limit) : sortedResults);
+          setResults(sortedResults.slice(0, limit));
         } catch (error) {
           // Prevent unhandled promise rejections / runtime overlay.
           console.error("Error recalculating results:", getErrorMessage(error), error);
@@ -419,7 +421,7 @@ export default function WizardResultsPage() {
                         setUpgradeModalOpen(true);
                       }
                     }}
-                    showCTA={effectiveTier === "free"}
+                    showCTA={!user}
                     isPro={algorithm === "pro"}
                     proLabel="Pro"
                     showInsights={effectiveTier === "pro"}
@@ -480,7 +482,7 @@ export default function WizardResultsPage() {
                 );
               })}
 
-              {effectiveTier === "free" &&
+              {!user &&
                 currentLimit !== null &&
                 totalAvailable > currentLimit && (
                   <div className="rounded-2xl bg-white shadow-sm p-4 sm:p-5 relative overflow-hidden">
@@ -520,21 +522,16 @@ export default function WizardResultsPage() {
                           );
                         })()}
                         <div className="text-sm text-gray-600 mt-3">
-                          {user ? "Перейдите на Pro, чтобы открыть полный список." : "Зарегистрируйтесь, чтобы увидеть 9 университетов."}
+                          Зарегистрируйтесь, чтобы увидеть 9 университетов бесплатно.
                         </div>
                         <div className="mt-4">
                           <Button
                             className="bg-blue-600 hover:bg-blue-700 h-11 w-full sm:w-auto"
                             onClick={() => {
-                              if (!user) {
-                                setAuthModalOpen(true);
-                                return;
-                              }
-                              trackEvent("upgrade_modal_opened", { from: "simple_locked_preview_card" });
-                              setUpgradeModalOpen(true);
+                              setAuthModalOpen(true);
                             }}
                           >
-                            {user ? "Перейти на Pro" : "Зарегистрироваться бесплатно"}
+                            Зарегистрироваться бесплатно
                           </Button>
                         </div>
                       </div>
