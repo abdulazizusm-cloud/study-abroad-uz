@@ -51,6 +51,7 @@ export default function WizardResultsPage() {
   const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
   const [upgradePlanType, setUpgradePlanType] = useState<UpgradePlanType>("pro");
   const [universities, setUniversities] = useState<ExtendedUniversity[]>([]);
+  const [recalcKey, setRecalcKey] = useState(0);
   const lastSavedRef = useRef<string>("");
   const hasTrackedViewRef = useRef(false);
   const [totalAvailable, setTotalAvailable] = useState(0);
@@ -320,8 +321,10 @@ export default function WizardResultsPage() {
       });
     }
   // sortBy is intentionally excluded: sorting is handled locally in handleSortChange
+  // getTierInfo and effectiveTier excluded: effectiveTier is set inside, getTierInfo is not memoized
+  // recalcKey is incremented explicitly to force recalculation (e.g. after tier upgrade)
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, authLoading, formData, universities, getTierInfo, effectiveTier]);
+  }, [user, authLoading, formData, universities, recalcKey]);
 
   const handleSortChange = (option: SortOption) => {
     setSortBy(option);
@@ -654,7 +657,7 @@ export default function WizardResultsPage() {
           const { data } = await supabase.auth.getSession();
           const token = data.session?.access_token;
           if (!token) return;
-          await fetch("/api/dev/upgrade-tier", {
+          const res = await fetch("/api/dev/upgrade-tier", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -662,12 +665,14 @@ export default function WizardResultsPage() {
             },
             body: JSON.stringify({}),
           });
+          if (!res.ok) {
+            console.error("Tier upgrade failed:", await res.text());
+            return;
+          }
           trackEvent("dev_tier_override_applied", { plan });
           setUpgradeModalOpen(false);
-          // trigger recalc by toggling auth state effect (user unchanged) via manual tier refresh
-          const tierInfo = await getTierInfo();
-          setEffectiveTier(tierInfo.effectiveTier);
-          setBonusUniversities(tierInfo.bonusUniversities);
+          // Force the recalc useEffect to re-run with fresh getTierInfo
+          setRecalcKey((k) => k + 1);
         }}
       />
     </div>
