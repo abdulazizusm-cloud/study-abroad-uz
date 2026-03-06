@@ -13,7 +13,7 @@ import { AuthModal } from "@/components/auth-modal";
 import { ProfileCompletionModal } from "@/components/profile-completion-modal";
 import { UpgradePlanModal, UpgradePlanType } from "@/components/upgrade-plan-modal";
 import { Button } from "@/components/ui/button";
-import { SortAsc, GraduationCap, Mail, MessageCircle } from "lucide-react";
+import { SortAsc, MessageCircle } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import { calculateSimpleChance } from "@/lib/wizard-scoring-simple";
 import { supabase } from "@/lib/supabase-client";
@@ -429,14 +429,14 @@ export default function WizardResultsPage() {
                     result={result}
                     onUpgradeClick={(plan) => {
                       trackEvent("upgrade_clicked", { from: "wizard-results", effectiveTier, plan });
-                      if (effectiveTier === "free") {
+                      if (!user) {
                         setAuthModalOpen(true);
                       } else {
                         setUpgradePlanType(plan);
                         setUpgradeModalOpen(true);
                       }
                     }}
-                    showCTA={!user}
+                    showCTA={effectiveTier !== "pro"}
                     isPro={algorithm === "pro"}
                     proLabel="Pro"
                     showInsights={effectiveTier === "pro"}
@@ -568,45 +568,54 @@ export default function WizardResultsPage() {
         )}
       </div>
 
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white py-8 px-4 border-t border-gray-800">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
-            {/* Brand */}
-            <div>
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                  <GraduationCap className="w-5 h-5 text-white" />
-                </div>
-                <h3 className="text-lg font-bold">Apply Smart</h3>
-              </div>
-              <p className="text-gray-400 text-sm leading-relaxed">
-                Помогаем студентам из Узбекистана<br />
-                поступить в зарубежные университеты
-              </p>
-            </div>
-
-            {/* Contact */}
-            <div>
-              <h4 className="text-base font-bold mb-3 text-white">Контакты</h4>
-              <ul className="space-y-2">
-                <li className="flex items-center gap-2 text-gray-400 text-sm">
-                  <Mail className="w-4 h-4 text-blue-400" />
-                  <span>info@applysmart.uz</span>
-                </li>
-                <li className="flex items-center gap-2 text-gray-400 text-sm">
-                  <MessageCircle className="w-4 h-4 text-blue-400" />
-                  <span>+998 90 123 45 67</span>
-                </li>
-              </ul>
-            </div>
+      {/* Footer — same as main page */}
+      <footer className="bg-gray-900 text-white pt-4 pb-6 sm:pt-5 sm:pb-8 px-3 sm:px-4 border-t border-gray-800">
+        <div className="max-w-7xl mx-auto">
+          {/* Telegram CTA */}
+          <div className="pt-0 pb-4 sm:pb-6 text-center">
+            <p className="text-white text-base sm:text-lg font-semibold mb-1">
+              Если есть сомнения или что-то непонятно, свяжитесь с нами
+            </p>
+            <p className="text-gray-400 text-sm mb-4">
+              Напишите нам и опытный менеджер поможет вам
+            </p>
+            <a
+              href="https://t.me/applysmartuz"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold px-6 py-3 rounded-xl transition-colors text-sm sm:text-base"
+            >
+              <MessageCircle className="w-5 h-5" />
+              Написать в Telegram
+            </a>
           </div>
 
           {/* Bottom Bar */}
-          <div className="pt-6 border-t border-gray-700 text-center">
-            <p className="text-gray-500 text-xs">
-              © 2026 Apply Smart. Все права защищены
-            </p>
+          <div className="pt-4 sm:pt-6 border-t border-gray-700">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-3">
+              <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 order-1 sm:order-2 w-full sm:w-auto">
+                <span className="hidden sm:block text-gray-500 text-xs font-medium uppercase tracking-wide">Контакты</span>
+                <a
+                  href="tel:+998905747400"
+                  className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors text-sm sm:text-xs py-2 sm:py-0 w-full sm:w-auto justify-center sm:justify-start"
+                >
+                  <svg className="w-4 h-4 sm:w-3.5 sm:h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                  </svg>
+                  +998 90 574 74 00
+                </a>
+                <a
+                  href="mailto:applysmartuz@gmail.com"
+                  className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors text-sm sm:text-xs py-2 sm:py-0 w-full sm:w-auto justify-center sm:justify-start"
+                >
+                  <svg className="w-4 h-4 sm:w-3.5 sm:h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                  applysmartuz@gmail.com
+                </a>
+              </div>
+              <p className="text-gray-600 text-xs order-2 sm:order-1">© 2026 Apply Smart. Все права защищены</p>
+            </div>
           </div>
         </div>
       </footer>
