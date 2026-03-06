@@ -149,7 +149,7 @@ export function ChanceInsights({ result, formData, simplePercentage, onUpgradeCl
       <div className="mt-3 border-t border-gray-200 pt-3">
         <div className="bg-gradient-to-br from-orange-50 to-red-50 border border-orange-200 rounded-lg p-3 sm:p-4">
           <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-            <div className="flex items-start gap-3 flex-1">
+            <div className="flex items-center gap-3 flex-1">
               <div className="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center flex-shrink-0">
                 <MessageCircle className="w-6 h-6 text-white" />
               </div>
@@ -259,7 +259,7 @@ export function ChanceInsights({ result, formData, simplePercentage, onUpgradeCl
           {/* Consultation CTA */}
           <div className="bg-gradient-to-br from-orange-50 to-red-50 border border-orange-200 rounded-lg p-3 sm:p-4">
             <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-              <div className="flex items-start gap-3 flex-1">
+              <div className="flex items-center gap-3 flex-1">
                 <div className="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center flex-shrink-0">
                   <MessageCircle className="w-6 h-6 text-white" />
                 </div>
