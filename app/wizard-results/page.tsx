@@ -41,6 +41,7 @@ export default function WizardResultsPage() {
   const { user, loading: authLoading, loadWizardProfile, saveWizardProfile, getProfile, upsertProfile, getTierInfo, trackEvent } = useAuth();
   const [formData, setFormData] = useState<WizardFormData | null>(null);
   const [results, setResults] = useState<WizardScoringResult[]>([]);
+  const [limitedPool, setLimitedPool] = useState<WizardScoringResult[]>([]);
   const [sortBy, setSortBy] = useState<SortOption>("chance");
   const [isLoading, setIsLoading] = useState(true);
   const [algorithm, setAlgorithm] = useState<ScoringAlgorithm>("simple");
@@ -195,14 +196,15 @@ export default function WizardResultsPage() {
         // Calculate scores for all universities
         const scoredResults = scoreAllUniversities(parsedData, universitiesData, selectedAlgorithm);
 
-        // Sort by chance initially
-        const sortedResults = sortResultsByChance(scoredResults);
-
-        // Apply gating limits
+        // Always cut the pool by chance first, then apply current sort within pool
+        const byChance = sortResultsByChance(scoredResults);
         const limit = calculateTierLimit(tierInfo, !!user);
-        setTotalAvailable(sortedResults.length);
+        setTotalAvailable(byChance.length);
         setCurrentLimit(limit);
-        setResults(sortedResults.slice(0, limit ?? sortedResults.length));
+        const pool = byChance.slice(0, limit);
+        setLimitedPool(pool);
+        const displayed = sortBy === "budget" ? sortResultsByBudget([...pool]) : [...pool];
+        setResults(displayed);
         setIsLoading(false);
 
         if (user && !hasTrackedViewRef.current) {
@@ -298,14 +300,16 @@ export default function WizardResultsPage() {
           setAlgorithm(selectedAlgorithm);
 
           const scoredResults = scoreAllUniversities(formData, universities, selectedAlgorithm);
-          const sortedResults = sortBy === "chance"
-            ? sortResultsByChance(scoredResults)
-            : sortResultsByBudget(scoredResults);
 
+          // Cut pool by chance first, then apply current sort within pool
+          const byChance = sortResultsByChance(scoredResults);
           const limit = calculateTierLimit(tierInfo, !!user);
-          setTotalAvailable(sortedResults.length);
+          setTotalAvailable(byChance.length);
           setCurrentLimit(limit);
-          setResults(sortedResults.slice(0, limit ?? sortedResults.length));
+          const pool = byChance.slice(0, limit);
+          setLimitedPool(pool);
+          const displayed = sortBy === "budget" ? sortResultsByBudget([...pool]) : [...pool];
+          setResults(displayed);
         } catch (error) {
           // Prevent unhandled promise rejections / runtime overlay.
           console.error("Error recalculating results:", getErrorMessage(error), error);
@@ -315,11 +319,19 @@ export default function WizardResultsPage() {
         console.error("Error recalculating results (unhandled):", getErrorMessage(error), error);
       });
     }
-  }, [user, authLoading, formData, universities, sortBy, getTierInfo, effectiveTier]);
+  // sortBy is intentionally excluded: sorting is handled locally in handleSortChange
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, authLoading, formData, universities, getTierInfo, effectiveTier]);
 
   const handleSortChange = (option: SortOption) => {
     setSortBy(option);
-    // useEffect автоматически пересчитает результаты при изменении sortBy
+    // Sort within the already-limited pool, not all universities
+    if (limitedPool.length > 0) {
+      const sorted = option === "chance"
+        ? sortResultsByChance([...limitedPool])
+        : sortResultsByBudget([...limitedPool]);
+      setResults(sorted);
+    }
   };
 
   const handleBack = () => {
