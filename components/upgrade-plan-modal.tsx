@@ -195,7 +195,14 @@ export function UpgradePlanModal({
 
               <Button
                 className={`${plan.buttonColor} text-white h-11 w-full`}
-                onClick={() => setStep("contact")}
+                onClick={() => {
+                  if (planType === "pro") {
+                    window.open("https://t.me/applysmartuz", "_blank");
+                    resetAndClose(false);
+                  } else {
+                    setStep("contact");
+                  }
+                }}
               >
                 {plan.buttonLabel}
               </Button>
