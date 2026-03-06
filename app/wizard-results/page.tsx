@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { WizardFormData, ExtendedUniversity, WizardScoringResult, ScoringAlgorithm } from "@/lib/wizard-types";
 import {
@@ -52,6 +52,7 @@ export default function WizardResultsPage() {
   const [upgradePlanType, setUpgradePlanType] = useState<UpgradePlanType>("pro");
   const [universities, setUniversities] = useState<ExtendedUniversity[]>([]);
   const [recalcKey, setRecalcKey] = useState(0);
+  const [upgradeSuccess, setUpgradeSuccess] = useState(false);
   const lastSavedRef = useRef<string>("");
   const hasTrackedViewRef = useRef(false);
   const [totalAvailable, setTotalAvailable] = useState(0);
@@ -288,43 +289,39 @@ export default function WizardResultsPage() {
     loadUserLists();
   }, [user, authLoading]);
 
-  // Recalculate when user auth state changes
-  useEffect(() => {
-    if (formData && universities.length > 0 && !authLoading) {
-      const recalc = async () => {
-        try {
-          const tierInfo = await getTierInfo();
-          setEffectiveTier(tierInfo.effectiveTier);
-          setBonusUniversities(tierInfo.bonusUniversities);
+  // Core recalc function — can be called directly or triggered via useEffect
+  const runRecalc = useCallback(async () => {
+    if (!formData || universities.length === 0 || authLoading) return;
+    try {
+      const tierInfo = await getTierInfo();
+      setEffectiveTier(tierInfo.effectiveTier);
+      setBonusUniversities(tierInfo.bonusUniversities);
 
-          const selectedAlgorithm = selectAlgorithm(tierInfo);
-          setAlgorithm(selectedAlgorithm);
+      const selectedAlgorithm = selectAlgorithm(tierInfo);
+      setAlgorithm(selectedAlgorithm);
 
-          const scoredResults = scoreAllUniversities(formData, universities, selectedAlgorithm);
+      const scoredResults = scoreAllUniversities(formData, universities, selectedAlgorithm);
 
-          // Cut pool by chance first, then apply current sort within pool
-          const byChance = sortResultsByChance(scoredResults);
-          const limit = calculateTierLimit(tierInfo, !!user);
-          setTotalAvailable(byChance.length);
-          setCurrentLimit(limit);
-          const pool = byChance.slice(0, limit);
-          setLimitedPool(pool);
-          const displayed = sortBy === "budget" ? sortResultsByBudget([...pool]) : [...pool];
-          setResults(displayed);
-        } catch (error) {
-          // Prevent unhandled promise rejections / runtime overlay.
-          console.error("Error recalculating results:", getErrorMessage(error), error);
-        }
-      };
-      recalc().catch((error) => {
-        console.error("Error recalculating results (unhandled):", getErrorMessage(error), error);
-      });
+      // Cut pool by chance first, then apply current sort within pool
+      const byChance = sortResultsByChance(scoredResults);
+      const limit = calculateTierLimit(tierInfo, !!user);
+      setTotalAvailable(byChance.length);
+      setCurrentLimit(limit);
+      const pool = byChance.slice(0, limit);
+      setLimitedPool(pool);
+      const displayed = sortBy === "budget" ? sortResultsByBudget([...pool]) : [...pool];
+      setResults(displayed);
+    } catch (error) {
+      console.error("Error recalculating results:", getErrorMessage(error), error);
     }
-  // sortBy is intentionally excluded: sorting is handled locally in handleSortChange
-  // getTierInfo and effectiveTier excluded: effectiveTier is set inside, getTierInfo is not memoized
-  // recalcKey is incremented explicitly to force recalculation (e.g. after tier upgrade)
+  // sortBy intentionally excluded: handled locally; getTierInfo not memoized so excluded too
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, authLoading, formData, universities, recalcKey]);
+  }, [formData, universities, authLoading, user]);
+
+  // Recalculate when user auth state or recalcKey changes
+  useEffect(() => {
+    runRecalc();
+  }, [runRecalc, recalcKey]);
 
   const handleSortChange = (option: SortOption) => {
     setSortBy(option);
@@ -371,6 +368,14 @@ export default function WizardResultsPage() {
             )}
           </p>
         </div>
+
+        {/* Pro upgrade success banner */}
+        {upgradeSuccess && (
+          <div className="mb-4 flex items-center gap-3 bg-blue-50 border border-blue-200 text-blue-800 rounded-xl px-4 py-3 text-sm font-medium">
+            <span className="text-lg">🎉</span>
+            <span>Pro активирован! Результаты пересчитаны с учётом конкуренции.</span>
+          </div>
+        )}
 
         {/* Sorting Controls */}
         <div className="mb-6 flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:gap-3 sm:items-center">
@@ -671,8 +676,10 @@ export default function WizardResultsPage() {
           }
           trackEvent("dev_tier_override_applied", { plan });
           setUpgradeModalOpen(false);
-          // Force the recalc useEffect to re-run with fresh getTierInfo
-          setRecalcKey((k) => k + 1);
+          // Directly recalculate with fresh tier info from DB
+          await runRecalc();
+          setUpgradeSuccess(true);
+          setTimeout(() => setUpgradeSuccess(false), 4000);
         }}
       />
     </div>
