@@ -24,7 +24,7 @@ type SortOption = "chance" | "budget";
 // Helper function to calculate tier limit
 // anonymous (isLoggedIn=false): 3 unis
 // registered free or pro (isLoggedIn=true): 9 unis (pro differs only in algorithm)
-function calculateTierLimit(tierInfo: { effectiveTier: string; bonusUniversities: number }, isLoggedIn: boolean): number | null {
+function calculateTierLimit(tierInfo: { effectiveTier: string; bonusUniversities: number }, isLoggedIn: boolean): number {
   const base = isLoggedIn ? 9 : 3;
   return base + (tierInfo.bonusUniversities || 0);
 }
@@ -202,7 +202,7 @@ export default function WizardResultsPage() {
         const limit = calculateTierLimit(tierInfo, !!user);
         setTotalAvailable(sortedResults.length);
         setCurrentLimit(limit);
-        setResults(sortedResults.slice(0, limit));
+        setResults(sortedResults.slice(0, limit ?? sortedResults.length));
         setIsLoading(false);
 
         if (user && !hasTrackedViewRef.current) {
@@ -305,7 +305,7 @@ export default function WizardResultsPage() {
           const limit = calculateTierLimit(tierInfo, !!user);
           setTotalAvailable(sortedResults.length);
           setCurrentLimit(limit);
-          setResults(sortedResults.slice(0, limit));
+          setResults(sortedResults.slice(0, limit ?? sortedResults.length));
         } catch (error) {
           // Prevent unhandled promise rejections / runtime overlay.
           console.error("Error recalculating results:", getErrorMessage(error), error);
