@@ -388,7 +388,7 @@ export default function ProfilePage() {
                           cardColor: "bg-blue-50 border-blue-200",
                           buttonColor: "bg-blue-600 hover:bg-blue-700 text-white",
                           buttonLabel: "Перейти на PRO",
-                          features: ["Без лимита вузов", "Расчёт с учётом конкуренции", "Разбор сильных и слабых сторон", "Рекомендации по улучшению"],
+                          features: ["До 9 вузов", "Расчёт с учётом конкуренции", "Разбор сильных и слабых сторон", "Рекомендации по улучшению"],
                         },
                         {
                           key: "profile_review",
