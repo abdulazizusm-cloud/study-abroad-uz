@@ -256,27 +256,27 @@ export function ChanceInsights({ result, formData, simplePercentage, onUpgradeCl
             </div>
           </div>
 
-          {/* PRO Upgrade CTA */}
-          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-lg p-3 sm:p-4">
+          {/* Consultation CTA */}
+          <div className="bg-gradient-to-br from-orange-50 to-red-50 border border-orange-200 rounded-lg p-3 sm:p-4">
             <div className="flex flex-col sm:flex-row sm:items-center gap-3">
               <div className="flex items-start gap-3 flex-1">
-                <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <TrendingUp className="w-6 h-6 text-white" />
+                <div className="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <MessageCircle className="w-6 h-6 text-white" />
                 </div>
                 <div className="flex-1">
-                  <h6 className="text-sm font-bold text-[#374151] mb-1">
-                    Получить точный расчет с учетом конкуренции
-                  </h6>
-                  <p className="text-xs text-[#6B7280]">
-                    PRO-алгоритм учитывает реальную статистику и вашу конкурентоспособность
+                  <p className="text-sm sm:text-base font-semibold text-[#374151]">
+                    Хотите, чтобы мы лично просмотрели ваш кейс?
+                  </p>
+                  <p className="text-xs sm:text-sm text-[#6B7280] mt-0.5">
+                    Эксперт разберёт ваш профиль и предложит реальный путь к поступлению
                   </p>
                 </div>
               </div>
               <Button
-                onClick={() => handleUpgrade("pro")}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-medium w-full sm:w-auto flex-shrink-0"
+                onClick={() => handleUpgrade("profile_review")}
+                className="bg-orange-500 hover:bg-orange-600 text-white font-medium w-full sm:w-auto flex-shrink-0"
               >
-                Улучшить расчет
+                Записаться на консультацию
               </Button>
             </div>
           </div>
