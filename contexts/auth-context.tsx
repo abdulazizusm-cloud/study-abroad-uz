@@ -350,9 +350,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return { tier: "free", effectiveTier: "free", bonusUniversities: 0 };
     }
 
-    // Baseline tier for any logged-in user is Pro Lite unless subscription/override says otherwise.
-    let tier: Tier = "pro_lite";
-    let effectiveTier: Tier = "pro_lite";
+    // Baseline tier for any logged-in user without a subscription is free.
+    let tier: Tier = "free";
+    let effectiveTier: Tier = "free";
     let bonusUniversities = 0;
 
     try {

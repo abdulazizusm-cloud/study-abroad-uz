@@ -24,8 +24,8 @@ type SortOption = "chance" | "budget";
 // Helper function to calculate tier limit
 function calculateTierLimit(tierInfo: { effectiveTier: string; bonusUniversities: number }): number | null {
   const baseLimit =
-    tierInfo.effectiveTier === "free" ? 3 :
-    tierInfo.effectiveTier === "pro_lite" ? 6 :
+    tierInfo.effectiveTier === "free" ? 9 :
+    tierInfo.effectiveTier === "pro_lite" ? 15 :
     null; // pro/pro_plus unlimited
   return baseLimit === null ? null : baseLimit + (tierInfo.bonusUniversities || 0);
 }
