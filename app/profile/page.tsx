@@ -28,7 +28,7 @@ type UniversityMini = {
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { user, loading: authLoading, getProfile, upsertProfile, loadWizardProfile, trackEvent, signOut } = useAuth();
+  const { user, loading: authLoading, getProfile, upsertProfile, loadWizardProfile, trackEvent, signOut, getTierInfo } = useAuth();
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [wizardData, setWizardData] = useState<WizardFormData | null>(null);
   const [loadError, setLoadError] = useState<string>("");
@@ -44,6 +44,7 @@ export default function ProfilePage() {
   const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
   const [upgradePlanType, setUpgradePlanType] = useState<UpgradePlanType>("pro");
   const [expandedPlanKey, setExpandedPlanKey] = useState<string | null>(null);
+  const [effectiveTier, setEffectiveTier] = useState<"free" | "pro">("free");
 
   const formatPhone = (value: string) => {
     if (!value) return "не указано";
@@ -141,6 +142,9 @@ export default function ProfilePage() {
         });
         const savedWizard = await loadWizardProfile();
         setWizardData(savedWizard);
+
+        const tierInfo = await getTierInfo();
+        setEffectiveTier(tierInfo.effectiveTier as "free" | "pro");
 
         const [{ data: fav }, { data: plan }] = await Promise.all([
           supabase
@@ -344,7 +348,18 @@ export default function ProfilePage() {
                 <TabsContent value="plan" className="m-0">
                   <div className="space-y-6 bg-gray-50/50 rounded-2xl p-4 sm:p-6 lg:p-8">
                     <div>
-                      <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">Мой план</h2>
+                      <div className="flex items-center gap-3 flex-wrap">
+                        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">Мой план</h2>
+                        {effectiveTier === "pro" ? (
+                          <span className="inline-flex items-center px-3 py-1 rounded-full bg-blue-600 text-white text-xs font-semibold">
+                            Pro активен
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center px-3 py-1 rounded-full bg-gray-100 text-gray-500 text-xs font-semibold">
+                            Бесплатный тариф
+                          </span>
+                        )}
+                      </div>
                       <p className="text-sm text-gray-500 mt-1.5">
                         Текущий доступ, лимиты и управление подпиской.
                       </p>

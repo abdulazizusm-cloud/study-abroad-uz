@@ -363,6 +363,9 @@ export default function WizardResultsPage() {
           </h1>
           <p className="text-xs sm:text-sm md:text-base text-gray-600">
             Найдено {results.length} подходящих университетов
+            {effectiveTier === "pro" && (
+              <span className="ml-2 text-blue-600 font-medium">· Pro-расчёт активен</span>
+            )}
           </p>
         </div>
 
