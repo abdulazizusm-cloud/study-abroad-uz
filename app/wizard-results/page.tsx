@@ -358,25 +358,11 @@ export default function WizardResultsPage() {
       <div className="max-w-6xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 pt-20 sm:pt-24 pb-6 sm:pb-8">
         {/* Header */}
         <div className="mb-4 sm:mb-6">
-          <div className="flex items-center gap-3 flex-wrap mb-2">
-            <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900">
-              Ваши шансы поступления
-            </h1>
-            {effectiveTier === "pro" ? (
-              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-blue-600 text-white text-xs font-semibold">
-                ✦ Pro
-              </span>
-            ) : user ? (
-              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-gray-100 text-gray-500 text-xs font-semibold">
-                Бесплатно
-              </span>
-            ) : null}
-          </div>
+          <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
+            Ваши шансы поступления
+          </h1>
           <p className="text-xs sm:text-sm md:text-base text-gray-600">
             Найдено {results.length} подходящих университетов
-            {effectiveTier === "pro" && (
-              <span className="ml-2 text-blue-600 font-medium">· Pro-расчёт активен</span>
-            )}
           </p>
         </div>
 
