@@ -53,6 +53,7 @@ export default function WizardResultsPage() {
   const [universities, setUniversities] = useState<ExtendedUniversity[]>([]);
   const [recalcKey, setRecalcKey] = useState(0);
   const [upgradeSuccess, setUpgradeSuccess] = useState(false);
+  const [upgradeError, setUpgradeError] = useState<string | null>(null);
   const lastSavedRef = useRef<string>("");
   const hasTrackedViewRef = useRef(false);
   const [totalAvailable, setTotalAvailable] = useState(0);
@@ -377,6 +378,14 @@ export default function WizardResultsPage() {
           </div>
         )}
 
+        {/* Pro upgrade error banner */}
+        {upgradeError && (
+          <div className="mb-4 flex items-center gap-3 bg-red-50 border border-red-200 text-red-800 rounded-xl px-4 py-3 text-sm font-medium">
+            <span className="text-lg">⚠️</span>
+            <span>{upgradeError}</span>
+          </div>
+        )}
+
         {/* Sorting Controls */}
         <div className="mb-6 flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:gap-3 sm:items-center">
           <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-700">
@@ -680,7 +689,10 @@ export default function WizardResultsPage() {
             body: JSON.stringify({}),
           });
           if (!res.ok) {
-            console.error("Tier upgrade failed:", await res.text());
+            const errText = await res.text();
+            console.error("Tier upgrade failed:", errText);
+            setUpgradeError(`Ошибка активации Pro: ${errText}`);
+            setTimeout(() => setUpgradeError(null), 6000);
             return;
           }
           trackEvent("dev_tier_override_applied", { plan });

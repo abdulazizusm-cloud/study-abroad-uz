@@ -28,7 +28,6 @@ export async function POST(req: Request) {
       tier: "pro",
       tier_override: "pro",
       override_ends_at: null,
-      updated_at: new Date().toISOString(),
     },
     { onConflict: "user_id" }
   );
