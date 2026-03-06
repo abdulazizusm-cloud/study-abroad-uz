@@ -99,8 +99,10 @@ export function WizardForm() {
   const WIZARD_SUBMIT_KEY = "wizard_form_submit_count";
   const CAPTCHA_THRESHOLD = 3;
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "";
   const [captchaRequired, setCaptchaRequired] = useState(() => {
     if (typeof window === "undefined") return false;
+    if (!process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY) return false;
     const count = parseInt(localStorage.getItem("wizard_form_submit_count") || "0");
     return count >= 3;
   });
@@ -433,7 +435,7 @@ export function WizardForm() {
     const newCount = currentCount + 1;
     localStorage.setItem(WIZARD_SUBMIT_KEY, String(newCount));
 
-    if (newCount >= CAPTCHA_THRESHOLD) {
+    if (TURNSTILE_SITE_KEY && newCount >= CAPTCHA_THRESHOLD) {
       setCaptchaRequired(true);
       if (!captchaToken) {
         return;
@@ -1229,7 +1231,7 @@ export function WizardForm() {
                   </p>
                   <Turnstile
                     ref={turnstileRef}
-                    siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+                    siteKey={TURNSTILE_SITE_KEY}
                     onSuccess={(token) => { setCaptchaToken(token); setCaptchaError(""); }}
                     onExpire={() => setCaptchaToken(null)}
                     options={{ theme: "light", language: "ru" }}
