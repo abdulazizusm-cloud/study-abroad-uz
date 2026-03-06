@@ -8,8 +8,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Missing bearer token" }, { status: 401 });
   }
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!supabaseUrl || !serviceKey) {
+    return NextResponse.json({ error: "Server misconfiguration: missing Supabase env vars" }, { status: 500 });
+  }
 
   const admin = createClient(supabaseUrl, serviceKey, {
     auth: { persistSession: false },
