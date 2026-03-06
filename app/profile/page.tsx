@@ -440,13 +440,23 @@ export default function ProfilePage() {
                               {p.priceNote && <span className="text-sm text-gray-500">{p.priceNote}</span>}
                             </div>
                             {planType && p.buttonLabel && (
-                              <Button
-                                type="button"
-                                className={`w-full h-11 rounded-xl text-sm font-semibold transition-colors ${p.buttonColor}`}
-                                onClick={() => { setUpgradePlanType(planType); setUpgradeModalOpen(true); }}
-                              >
-                                {p.buttonLabel}
-                              </Button>
+                              p.key === "pro" && effectiveTier === "pro" ? (
+                                <Button
+                                  type="button"
+                                  disabled
+                                  className="w-full h-11 rounded-xl text-sm font-semibold bg-green-100 text-green-700 cursor-default"
+                                >
+                                  ✓ Активен
+                                </Button>
+                              ) : (
+                                <Button
+                                  type="button"
+                                  className={`w-full h-11 rounded-xl text-sm font-semibold transition-colors ${p.buttonColor}`}
+                                  onClick={() => { setUpgradePlanType(planType); setUpgradeModalOpen(true); }}
+                                >
+                                  {p.buttonLabel}
+                                </Button>
+                              )
                             )}
                           </div>
                         );
