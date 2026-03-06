@@ -651,7 +651,7 @@ export default function WizardResultsPage() {
               "Content-Type": "application/json",
               Authorization: `Bearer ${token}`,
             },
-            body: JSON.stringify({ tier_override: plan }),
+            body: JSON.stringify({}),
           });
           trackEvent("dev_tier_override_applied", { plan });
           setUpgradeModalOpen(false);
