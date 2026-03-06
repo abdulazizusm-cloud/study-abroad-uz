@@ -448,21 +448,12 @@ export default function WizardResultsPage() {
                       trackEvent("upgrade_clicked", { from: "wizard-results", effectiveTier, plan });
                       if (!user) {
                         setAuthModalOpen(true);
-                      } else if (effectiveTier === "pro") {
-                        setUpgradePlanType("mentorship");
-                        setUpgradeModalOpen(true);
                       } else {
                         setUpgradePlanType(plan);
                         setUpgradeModalOpen(true);
                       }
                     }}
-                    showCTA={true}
-                    ctaText={effectiveTier === "pro"
-                      ? "Следующий шаг — начни поступление с личным ментором"
-                      : undefined}
-                    ctaButtonText={effectiveTier === "pro"
-                      ? "Начать поступление с ментором"
-                      : undefined}
+                    showCTA={effectiveTier !== "pro"}
                     isPro={algorithm === "pro"}
                     proLabel="Pro"
                     showInsights={effectiveTier === "pro"}
