@@ -5,7 +5,7 @@ import { User, AuthError } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase-client";
 import { WizardFormData } from "@/lib/wizard-types";
 
-export type Tier = "free" | "pro_lite" | "pro" | "pro_plus";
+export type Tier = "free" | "pro";
 
 export type TierInfo = {
   tier: Tier;
@@ -64,7 +64,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (!data) {
         const { error: insertError } = await supabase.from("entitlements").insert({
           user_id: userId,
-          tier: "pro_lite",
+          tier: "free",
         });
         if (insertError) throw insertError;
       }
@@ -367,7 +367,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (entError) throw entError;
 
       if (ent?.tier === "pro" || ent?.tier === "pro_plus" || ent?.tier === "pro_lite") {
-        tier = ent.tier as Tier;
+        tier = "pro";
       }
       bonusUniversities = ent?.bonus_universities ?? 0;
 
@@ -380,7 +380,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         ent?.pro_trial_ends_at && new Date(ent.pro_trial_ends_at).getTime() > now;
 
       if (overrideActive) {
-        effectiveTier = (ent!.tier_override as Tier) ?? tier;
+        const raw = ent!.tier_override;
+        effectiveTier = (raw === "pro" || raw === "pro_plus" || raw === "pro_lite") ? "pro" : tier;
       } else if (trialActive) {
         effectiveTier = "pro";
       } else {

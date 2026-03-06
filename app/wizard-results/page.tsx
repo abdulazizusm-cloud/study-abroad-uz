@@ -23,18 +23,13 @@ type SortOption = "chance" | "budget";
 
 // Helper function to calculate tier limit
 function calculateTierLimit(tierInfo: { effectiveTier: string; bonusUniversities: number }): number | null {
-  const baseLimit =
-    tierInfo.effectiveTier === "free" ? 9 :
-    tierInfo.effectiveTier === "pro_lite" ? 15 :
-    null; // pro/pro_plus unlimited
+  const baseLimit = tierInfo.effectiveTier === "free" ? 9 : null; // pro = unlimited
   return baseLimit === null ? null : baseLimit + (tierInfo.bonusUniversities || 0);
 }
 
 // Helper function to select algorithm based on tier
 function selectAlgorithm(tierInfo: { effectiveTier: string }): ScoringAlgorithm {
-  return tierInfo.effectiveTier === "pro" || 
-         tierInfo.effectiveTier === "pro_plus" || 
-         tierInfo.effectiveTier === "pro_lite"
+  return tierInfo.effectiveTier === "pro"
     ? "pro"
     : "simple";
 }
@@ -47,7 +42,7 @@ export default function WizardResultsPage() {
   const [sortBy, setSortBy] = useState<SortOption>("chance");
   const [isLoading, setIsLoading] = useState(true);
   const [algorithm, setAlgorithm] = useState<ScoringAlgorithm>("simple");
-  const [effectiveTier, setEffectiveTier] = useState<"free" | "pro_lite" | "pro" | "pro_plus">("free");
+  const [effectiveTier, setEffectiveTier] = useState<"free" | "pro">("free");
   const [bonusUniversities, setBonusUniversities] = useState(0);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
@@ -426,8 +421,8 @@ export default function WizardResultsPage() {
                     }}
                     showCTA={effectiveTier === "free"}
                     isPro={algorithm === "pro"}
-                    proLabel={effectiveTier === "pro_lite" ? "Pro Lite" : "Pro"}
-                    showInsights={effectiveTier === "pro_lite" || effectiveTier === "pro" || effectiveTier === "pro_plus"}
+                    proLabel="Pro"
+                    showInsights={effectiveTier === "pro"}
                     showLiteAdvice={false}
                     formData={formData || undefined}
                     simplePercentage={simplePercentage ?? undefined}
@@ -517,7 +512,7 @@ export default function WizardResultsPage() {
                     <div className="absolute inset-0 flex items-center justify-center p-5 sm:p-6 bg-white/55 backdrop-blur-sm">
                       <div className="max-w-md text-center">
                         {(() => {
-                          const hidden = 6;
+                          const hidden = currentLimit !== null ? Math.max(0, totalAvailable - currentLimit) : 0;
                           return (
                             <div className="text-xl sm:text-2xl font-bold text-gray-900">
                               Ещё {hidden} {formatUniversityCountRu(hidden)} скрыты
@@ -525,7 +520,7 @@ export default function WizardResultsPage() {
                           );
                         })()}
                         <div className="text-sm text-gray-600 mt-3">
-                          Откройте ещё 6 университетов и Pro-оценку.
+                          {user ? "Перейдите на Pro, чтобы открыть полный список." : "Зарегистрируйтесь, чтобы увидеть 9 университетов."}
                         </div>
                         <div className="mt-4">
                           <Button
@@ -539,7 +534,7 @@ export default function WizardResultsPage() {
                               setUpgradeModalOpen(true);
                             }}
                           >
-                            Зарегистрироваться бесплатно
+                            {user ? "Перейти на Pro" : "Зарегистрироваться бесплатно"}
                           </Button>
                         </div>
                       </div>
@@ -547,59 +542,6 @@ export default function WizardResultsPage() {
                   </div>
                 )}
 
-              {effectiveTier === "pro_lite" &&
-                currentLimit !== null &&
-                totalAvailable >= currentLimit &&
-                results.length >= currentLimit && (
-                  <div className="rounded-2xl bg-white shadow-sm p-4 sm:p-5 relative overflow-hidden">
-                    <div className="space-y-3 opacity-60 blur-[2px] pointer-events-none select-none">
-                      {Array.from({ length: 2 }).map((_, idx) => (
-                        <div key={idx} className="rounded-2xl bg-gray-50 p-4">
-                          <div className="flex items-start justify-between gap-3">
-                            <div>
-                              <div className="text-sm font-semibold text-gray-900">
-                                {idx === 0 ? "University of Example" : "Example Business School"}
-                              </div>
-                              <div className="text-xs text-gray-600 mt-1">
-                                {idx === 0 ? "London, United Kingdom" : "Berlin, Germany"}
-                              </div>
-                            </div>
-                            <div className="shrink-0 px-2.5 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold">
-                              Средние шансы
-                            </div>
-                          </div>
-                          <div className="mt-3 grid grid-cols-3 gap-2">
-                            <div className="h-2 rounded bg-gray-200" />
-                            <div className="h-2 rounded bg-gray-200" />
-                            <div className="h-2 rounded bg-gray-200" />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="absolute inset-0 flex items-center justify-center p-5 sm:p-6 bg-white/55 backdrop-blur-sm">
-                      <div className="max-w-md text-center">
-                        <div className="text-xl sm:text-2xl font-bold text-gray-900">
-                          Откройте полный список
-                        </div>
-                        <div className="text-sm text-gray-600 mt-3">
-                          Откройте полный список и Pro-оценку.
-                        </div>
-                        <div className="mt-4">
-                          <Button
-                            className="bg-blue-600 hover:bg-blue-700 h-11 w-full sm:w-auto"
-                            onClick={() => {
-                              trackEvent("upgrade_modal_opened", { from: "pro_lite_locked_preview_card" });
-                              setUpgradeModalOpen(true);
-                            }}
-                          >
-                            Получить персональное сопровождение
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
             </div>
           </>
         )}
