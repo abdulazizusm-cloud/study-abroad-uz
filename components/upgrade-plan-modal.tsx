@@ -194,17 +194,23 @@ export function UpgradePlanModal({
               </div>
 
               <Button
-                className={`${plan.buttonColor} text-white h-11 w-full`}
-                onClick={() => {
+                className={`${plan.buttonColor} text-white h-11 w-full disabled:opacity-60`}
+                disabled={loading}
+                onClick={async () => {
                   if (planType === "pro") {
-                    window.open("https://t.me/applysmartuz", "_blank");
-                    resetAndClose(false);
+                    setLoading(true);
+                    try {
+                      await onSelectPlan("pro");
+                    } finally {
+                      setLoading(false);
+                      resetAndClose(false);
+                    }
                   } else {
                     setStep("contact");
                   }
                 }}
               >
-                {plan.buttonLabel}
+                {loading && planType === "pro" ? "Активируем..." : plan.buttonLabel}
               </Button>
             </div>
           </>
